@@ -1,0 +1,851 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="نورث للمسار المالي: منصة تعليمية سعودية لأساسيات الأسواق المالية، وقراءة السوق، وإدارة المخاطر.">
+<meta name="theme-color" content="#0A1C30">
+<meta property="og:type" content="website">
+<meta property="og:title" content="نورث للمسار المالي">
+<meta property="og:description" content="ابدأ رحلتك في الأسواق المالية بخطوات أوضح ووعي أكبر.">
+<meta property="og:image" content="assets/north-logo.png">
+<link rel="icon" href="assets/north-mark.png">
+<title>نورث للمسار المالي</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Cormorant+Garamond:wght@600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,300,0,0&display=swap">
+<style>
+/* Layout: RTL. One locked theme per mode (no section inversions). Asymmetric split hero,
+   full-bleed figure band, bento features, numbered track rows, step rail, plan comparison.
+   Shape rule: panels/cards 14px, buttons/inputs 10px, chips pill. One accent (steel blue
+   from the mark); green/red appear only as chart semantics. */
+:root{
+  --bg:#F3F6FA; --surface:#FFFFFF; --surface-2:#E9EFF6; --band:#FFFFFF;
+  --fg:#0A1C30; --fg-2:#51657D; --fg-3:#7D8FA5;
+  --line:#DCE4EE; --line-2:#C9D5E3;
+  --accent:#2A6AA8; --accent-2:#1E5287; --on-accent:#FFFFFF;
+  --accent-wash:#E4EDF7;
+  --up:#2C8A68; --dn:#BE5F3F;
+  --shadow:14px 30px 60px -36px rgba(10,28,48,.45);
+  --display:'Readex Pro','Segoe UI',system-ui,sans-serif;
+  --body:'IBM Plex Sans Arabic','Segoe UI',system-ui,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,monospace;
+  --serif:'Cormorant Garamond',Georgia,serif;
+  --rp:14px; --rb:10px;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
+  --bg:#060F1C; --surface:#0A1829; --surface-2:#0E2238; --band:#08131F;
+  --fg:#E9F0F8; --fg-2:#93A9C1; --fg-3:#6D839B;
+  --line:rgba(147,169,193,.16); --line-2:rgba(147,169,193,.26);
+  --accent:#6CA6E0; --accent-2:#8FBFEE; --on-accent:#06182B;
+  --accent-wash:rgba(108,166,224,.12);
+  --up:#49B38A; --dn:#D97C57;
+  --shadow:14px 30px 60px -30px rgba(0,0,0,.7);
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#060F1C; --surface:#0A1829; --surface-2:#0E2238; --band:#08131F;
+  --fg:#E9F0F8; --fg-2:#93A9C1; --fg-3:#6D839B;
+  --line:rgba(147,169,193,.16); --line-2:rgba(147,169,193,.26);
+  --accent:#6CA6E0; --accent-2:#8FBFEE; --on-accent:#06182B;
+  --accent-wash:rgba(108,166,224,.12);
+  --up:#49B38A; --dn:#D97C57;
+  --shadow:14px 30px 60px -30px rgba(0,0,0,.7);
+  color-scheme:dark;
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;background:var(--bg);color:var(--fg);
+  font-family:var(--body);font-size:16px;line-height:1.75;
+  direction:rtl;text-align:right;-webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:60;background:var(--surface)}
+body::after{
+  content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:url(assets/grain.png);background-size:140px;opacity:.5;
+}
+h1,h2,h3,h4{font-family:var(--display);font-weight:600;line-height:1.28;text-wrap:balance;margin:0}
+p{margin:0}
+a{color:inherit;text-decoration:none}
+img{max-width:100%;display:block}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px}
+
+.ms{
+  font-family:'Material Symbols Rounded';font-weight:300;font-style:normal;
+  font-size:22px;line-height:1;letter-spacing:normal;direction:ltr;display:inline-block;
+  white-space:nowrap;font-feature-settings:'liga';-webkit-font-smoothing:antialiased;user-select:none;
+}
+.ms.sm{font-size:17px}
+
+.rail{
+  position:relative;z-index:1;max-width:1240px;margin-inline:auto;
+  padding-left:max(20px,env(safe-area-inset-left,0px));
+  padding-right:max(20px,env(safe-area-inset-right,0px));
+}
+.band{padding-block:clamp(60px,7.5vw,112px)}
+.h2{font-size:clamp(27px,3.6vw,44px);letter-spacing:-.015em}
+.lede{color:var(--fg-2);font-size:clamp(15px,1.4vw,17.5px);max-width:58ch;margin-top:16px}
+.sec-head{margin-bottom:clamp(34px,4.5vw,56px);max-width:70ch}
+.pill{
+  display:inline-flex;align-items:center;gap:8px;font-size:12.5px;font-weight:600;
+  color:var(--accent);background:var(--accent-wash);border-radius:999px;padding:6px 15px;margin-bottom:18px;
+  letter-spacing:.01em;
+}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums;font-feature-settings:'tnum'}
+
+/* buttons */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  font-family:var(--body);font-size:14.5px;font-weight:600;white-space:nowrap;
+  padding:12px 24px;border-radius:var(--rb);border:1px solid transparent;cursor:pointer;
+  transition:background .18s,color .18s,border-color .18s,transform .12s,box-shadow .18s;
+}
+.btn:active{transform:translateY(1px) scale(.99)}
+.btn-primary{background:var(--accent);color:var(--on-accent);box-shadow:0 10px 24px -14px color-mix(in srgb,var(--accent) 80%,transparent)}
+.btn-primary:hover{background:var(--accent-2)}
+.btn-ghost{border-color:var(--line-2);color:var(--fg)}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-wash)}
+.btn-sm{padding:9px 18px;font-size:13.5px}
+.btn-wide{width:100%}
+
+/* nav */
+.nav{
+  position:sticky;top:env(safe-area-inset-top,0px);z-index:50;
+  background:color-mix(in srgb,var(--surface) 86%,transparent);
+  backdrop-filter:blur(16px) saturate(140%);border-bottom:1px solid var(--line);
+}
+.nav-in{display:flex;align-items:center;gap:24px;height:72px}
+.brand{display:flex;align-items:center;gap:11px;flex-shrink:0}
+.brand img{height:34px;width:auto}
+.brand span{display:flex;flex-direction:column;line-height:1}
+.brand b{font-family:var(--serif);font-size:19px;letter-spacing:.24em;font-weight:600}
+.brand i{font-style:normal;font-size:10.5px;color:var(--fg-2);margin-top:3px}
+.logo-dark{display:none}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .logo-dark{display:block}:root:not([data-theme="light"]) .logo-light{display:none}}
+:root[data-theme="dark"] .logo-dark{display:block}
+:root[data-theme="dark"] .logo-light{display:none}
+.nav-links{display:flex;gap:4px;margin-inline-start:auto;font-size:14.5px}
+.nav-links a{color:var(--fg-2);padding:8px 13px;border-radius:var(--rb);transition:color .18s,background .18s}
+.nav-links a:hover{color:var(--fg);background:var(--surface-2)}
+.nav-act{display:flex;align-items:center;gap:9px}
+.icon-btn{
+  width:38px;height:38px;border-radius:var(--rb);border:1px solid var(--line);
+  background:transparent;color:var(--fg-2);cursor:pointer;display:grid;place-items:center;flex-shrink:0;
+  transition:color .18s,border-color .18s;
+}
+.icon-btn:hover{color:var(--fg);border-color:var(--line-2)}
+.menu-btn{display:none}
+
+/* hero: asymmetric split, chart carries the visual weight */
+.hero{position:relative;overflow:hidden;background:var(--band);border-bottom:1px solid var(--line)}
+.hero::before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(760px 420px at 86% -4%, color-mix(in srgb,var(--accent) 16%,transparent), transparent 66%),
+    radial-gradient(620px 380px at 6% 108%, color-mix(in srgb,var(--accent) 9%,transparent), transparent 64%);
+}
+.hero-in{
+  position:relative;z-index:1;display:grid;grid-template-columns:1.16fr .94fr;
+  gap:clamp(34px,4.6vw,70px);align-items:center;
+  padding-top:clamp(44px,5vw,88px);padding-bottom:clamp(52px,6vw,96px);
+}
+.hero h1{font-size:clamp(32px,4.9vw,60px);font-weight:600;letter-spacing:-.025em;line-height:1.2}
+.hero h1 b{font-weight:600;color:var(--accent);display:inline}
+.hero .sub{color:var(--fg-2);font-size:clamp(15.5px,1.5vw,18.5px);line-height:1.8;margin-top:20px;max-width:46ch}
+.hero-cta{display:flex;flex-wrap:wrap;gap:11px;margin-top:32px}
+
+/* chart panel */
+.panel{
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--rp);
+  box-shadow:var(--shadow);overflow:hidden;
+}
+.panel-top{display:flex;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid var(--line)}
+.panel-top b{font-size:13px;font-weight:600}
+.panel-top .tf{margin-inline-start:auto;display:flex;gap:4px}
+.tf span{font-family:var(--mono);font-size:11px;color:var(--fg-3);padding:3px 8px;border-radius:999px}
+.tf span.on{background:var(--accent-wash);color:var(--accent)}
+.panel-body{padding:10px 8px 0}
+.chart{width:100%;height:auto;display:block}
+.chart .grid{stroke:var(--line);stroke-width:1}
+.chart .ax{fill:var(--fg-3);font-family:var(--mono);font-size:10px}
+.chart .body.up,.chart .wick.up{fill:var(--up);stroke:var(--up)}
+.chart .body.dn,.chart .wick.dn{fill:var(--dn);stroke:var(--dn)}
+.chart .wick{stroke-width:1.2}
+.chart .lvl{stroke-width:1.2;stroke-dasharray:5 5}
+.chart .lvl.res{stroke:var(--dn);opacity:.75}
+.chart .lvl.sup{stroke:var(--up);opacity:.75}
+.chart .lvlT{font-family:var(--body);font-size:11px;font-weight:500}
+.chart .lvlT.res{fill:var(--dn)}
+.chart .lvlT.sup{fill:var(--up)}
+.chart .ema{fill:none;stroke:var(--accent);stroke-width:2.2;stroke-linejoin:round;stroke-linecap:round}
+.chart .dot{fill:var(--accent)}
+.panel-cap{
+  display:flex;align-items:center;gap:8px;padding:12px 18px 14px;
+  font-size:12.5px;color:var(--fg-2);border-top:1px solid var(--line);margin-top:8px;
+}
+.panel-cap .ms{color:var(--accent)}
+.panel-figs{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--line)}
+.panel-figs div{padding:14px 18px;display:flex;flex-direction:column;gap:2px}
+.panel-figs div+div{border-inline-end:1px solid var(--line)}
+.panel-figs b{font-family:var(--mono);font-size:17px;font-weight:600}
+.panel-figs span{font-size:11.5px;color:var(--fg-2)}
+
+/* topic marquee */
+.ticker{background:var(--surface-2);border-bottom:1px solid var(--line);overflow:hidden;position:relative;z-index:1}
+.ticker-track{display:flex;gap:0;width:max-content;animation:slide 44s linear infinite}
+.ticker:hover .ticker-track{animation-play-state:paused}
+@media (prefers-reduced-motion:reduce){.ticker-track{animation:none}}
+@keyframes slide{from{transform:translateX(0)}to{transform:translateX(50%)}}
+.ticker-track span{
+  display:flex;align-items:center;gap:9px;padding:13px 26px;font-size:13.5px;color:var(--fg-2);white-space:nowrap;
+}
+.ticker-track span .ms{color:var(--accent);font-size:16px}
+
+/* stats: hairline-divided figures, no cards */
+.figs{display:grid;grid-template-columns:repeat(4,1fr)}
+.fig{padding:4px 26px;border-inline-end:1px solid var(--line)}
+.fig:last-child{border-inline-end:none}
+.fig:first-child{padding-inline-start:0}
+.fig b{display:block;font-family:var(--display);font-size:clamp(34px,4.4vw,52px);font-weight:600;letter-spacing:-.03em;line-height:1.05;font-variant-numeric:tabular-nums}
+.fig span{display:block;font-size:13.5px;color:var(--fg-2);margin-top:6px}
+.figs-note{margin-top:26px;font-size:12.5px;color:var(--fg-3);display:flex;align-items:center;gap:8px}
+
+/* bento features */
+.bento{display:grid;grid-template-columns:repeat(6,1fr);gap:16px}
+.cell{
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--rp);
+  padding:26px;grid-column:span 2;display:flex;flex-direction:column;gap:10px;min-width:0;
+  transition:border-color .2s,transform .2s;
+}
+.cell:hover{border-color:var(--line-2);transform:translateY(-2px)}
+.cell .ms{color:var(--accent)}
+.cell h3{font-size:17.5px}
+.cell p{font-size:14.5px;color:var(--fg-2);line-height:1.8}
+.cell-wide{grid-column:span 3}
+.cell-wash{background:linear-gradient(140deg,var(--accent-wash),var(--surface) 72%)}
+.cell-dark{
+  background:linear-gradient(145deg,#0C2743,#071726);border-color:rgba(147,169,193,.2);color:#E9F0F8;
+}
+.cell-dark h3{color:#fff}
+.cell-dark p{color:#9FB6CE}
+.cell-dark .ms{color:#8FBFEE}
+/* mini lesson list inside a bento cell */
+.mini{display:flex;flex-direction:column;gap:7px;margin-top:6px}
+.mini i{
+  display:flex;align-items:center;gap:9px;font-style:normal;font-size:13px;color:#B8CBDF;
+  border:1px solid rgba(147,169,193,.2);border-radius:var(--rb);padding:8px 12px;
+}
+.mini i .ms{font-size:16px;color:#49B38A}
+.mini i.pend{color:#8198AF}
+.mini i.pend .ms{color:#5C7891}
+/* risk figure inside a bento cell */
+.risk{display:flex;align-items:flex-end;gap:14px;margin-top:8px}
+.risk div{display:flex;flex-direction:column}
+.risk b{font-family:var(--mono);font-size:24px;font-weight:600;color:var(--accent);line-height:1.2}
+.risk span{font-size:11.5px;color:var(--fg-2)}
+.risk hr{width:1px;height:34px;border:none;background:var(--line);margin:0 2px}
+
+/* track rows: numbered editorial list */
+.rows{border-top:1px solid var(--line)}
+.row{
+  display:grid;grid-template-columns:92px 1.1fr 1fr;gap:clamp(18px,3vw,44px);
+  padding-block:clamp(26px,3vw,38px);border-bottom:1px solid var(--line);
+  align-items:start;transition:background .2s;
+}
+.row:hover{background:var(--surface)}
+.row-n{
+  font-family:var(--mono);font-size:clamp(28px,3.4vw,42px);font-weight:500;
+  color:var(--accent);opacity:.55;line-height:1;letter-spacing:-.04em;
+}
+.row-main h3{font-size:clamp(19px,2.1vw,25px);letter-spacing:-.01em}
+.row-main .chip{
+  display:inline-flex;align-items:center;font-size:11.5px;font-weight:600;color:var(--fg-2);
+  background:var(--surface-2);border-radius:999px;padding:4px 12px;margin-top:12px;
+}
+.row-side p{font-size:14.5px;color:var(--fg-2);line-height:1.85}
+.row-meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.tag{
+  display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--fg-2);
+  border:1px solid var(--line);border-radius:var(--rb);padding:5px 10px;
+}
+.tag .ms{font-size:15px;color:var(--accent)}
+.tag b{font-family:var(--mono);font-weight:500}
+
+/* step rail */
+.rail-steps{display:grid;grid-template-columns:repeat(5,1fr);position:relative}
+.rail-steps::before{
+  content:"";position:absolute;top:19px;inset-inline:9%;height:1px;background:var(--line-2);
+}
+.st{display:flex;flex-direction:column;gap:12px;padding-inline-end:18px;position:relative}
+.st-n{
+  width:38px;height:38px;border-radius:999px;display:grid;place-items:center;flex-shrink:0;
+  background:var(--bg);border:1px solid var(--line-2);color:var(--accent);
+  font-family:var(--mono);font-size:14px;font-weight:600;position:relative;z-index:1;
+  transition:background .2s,color .2s,border-color .2s;
+}
+.st:hover .st-n{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.st h4{font-size:15.5px}
+.st p{font-size:13px;color:var(--fg-2);line-height:1.7}
+
+/* plans */
+.plans{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;align-items:stretch}
+.plan{
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--rp);
+  padding:28px 26px;display:flex;flex-direction:column;gap:16px;min-width:0;position:relative;
+}
+.plan.feat{border-color:var(--accent);box-shadow:var(--shadow)}
+.plan-badge{
+  position:absolute;top:-11px;inset-inline-start:26px;background:var(--accent);color:var(--on-accent);
+  font-size:11.5px;font-weight:600;border-radius:999px;padding:4px 14px;
+}
+.plan-h{display:flex;align-items:center;gap:9px}
+.tier{width:10px;height:10px;border-radius:2px;transform:rotate(45deg);flex-shrink:0}
+.t1{background:#B8793F}.t2{background:#9FAEBE}.t3{background:linear-gradient(135deg,#E2B96C,#B98B32)}
+.plan-h h3{font-size:18.5px}
+.price{display:flex;align-items:baseline;gap:7px;padding-bottom:16px;border-bottom:1px solid var(--line)}
+.price b{font-family:var(--display);font-size:40px;font-weight:600;letter-spacing:-.03em;line-height:1;font-variant-numeric:tabular-nums}
+.price span{font-size:13px;color:var(--fg-2)}
+.plan>p{font-size:13.5px;color:var(--fg-2);line-height:1.75}
+.plan ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:11px;flex:1}
+.plan li{display:flex;align-items:flex-start;gap:9px;font-size:14px;line-height:1.6}
+.plan li .ms{font-size:18px;color:var(--accent);flex-shrink:0;margin-top:1px}
+.plan li.off{color:var(--fg-3)}
+.plan li.off .ms{color:var(--fg-3);opacity:.6}
+.note{
+  margin-top:22px;font-size:12.5px;color:var(--fg-2);display:flex;gap:9px;align-items:flex-start;
+  background:var(--surface-2);border-radius:var(--rp);padding:14px 16px;line-height:1.7;max-width:76ch;
+}
+.note .ms{font-size:18px;color:var(--accent);flex-shrink:0}
+
+/* closing */
+.close-in{
+  display:grid;grid-template-columns:1.25fr .75fr;gap:clamp(22px,4vw,56px);align-items:center;
+  background:linear-gradient(145deg,#0D2C4B,#06131F);border:1px solid rgba(147,169,193,.18);border-radius:var(--rp);
+  padding:clamp(34px,4.6vw,58px) clamp(26px,4vw,52px);color:#E9F0F8;position:relative;overflow:hidden;
+}
+.close-in::before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(540px 300px at 88% 0%, rgba(108,166,224,.2), transparent 64%);
+}
+.close-in>*{position:relative;z-index:1}
+.close-in h2{font-size:clamp(25px,3.3vw,40px);color:#fff;letter-spacing:-.02em}
+.close-in p{color:#9FB6CE;font-size:15.5px;margin-top:14px;max-width:44ch}
+.close-act{display:flex;flex-direction:column;gap:10px}
+.close-act .btn-primary{background:#fff;color:#0A1C30;box-shadow:none}
+.close-act .btn-primary:hover{background:#C9DEF4}
+.close-act .btn-ghost{border-color:rgba(255,255,255,.3);color:#fff}
+.close-act .btn-ghost:hover{background:rgba(255,255,255,.08);border-color:#fff;color:#fff}
+
+/* footer */
+.footer{border-top:1px solid var(--line);background:var(--surface);margin-top:clamp(60px,7vw,104px)}
+.foot-grid{display:grid;grid-template-columns:1.6fr 1fr 1fr 1.1fr;gap:34px;padding-block:clamp(44px,5vw,66px)}
+.foot-brand img{height:56px;width:auto;margin-bottom:16px}
+.foot-brand p{font-size:13.5px;color:var(--fg-2);line-height:1.85;max-width:34ch}
+.fcol h4{font-size:13.5px;margin-bottom:14px;font-weight:600}
+.fcol ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px;font-size:13.5px}
+.fcol a{color:var(--fg-2);transition:color .18s}
+.fcol a:hover{color:var(--accent)}
+.fcol p{font-size:13.5px;color:var(--fg-2);line-height:1.8}
+.fcol .lab{display:block;font-size:12px;color:var(--fg-3);margin-top:12px}
+.sel{user-select:all;color:var(--accent);direction:ltr;display:inline-block;font-family:var(--mono);font-size:13px}
+.fbar{
+  border-top:1px solid var(--line);padding-block:18px;display:flex;flex-wrap:wrap;gap:14px;
+  justify-content:space-between;font-size:12.5px;color:var(--fg-3);
+  padding-bottom:calc(18px + env(safe-area-inset-bottom,0px));
+}
+.fbar nav{display:flex;flex-wrap:wrap;gap:18px}
+.fbar a:hover{color:var(--accent)}
+
+/* load choreography: ends at the visible resting state */
+@media (prefers-reduced-motion:no-preference){
+  .rise{animation:rise .7s cubic-bezier(.16,1,.3,1) backwards}
+  .rise:nth-child(1){animation-delay:.02s}
+  @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  .d1{animation-delay:.06s}.d2{animation-delay:.13s}.d3{animation-delay:.2s}.d4{animation-delay:.28s}
+  .chart .ema{stroke-dasharray:1400;stroke-dashoffset:1400;animation:draw 1.5s .35s cubic-bezier(.4,0,.2,1) forwards}
+  @keyframes draw{to{stroke-dashoffset:0}}
+  .chart .dot{opacity:0;animation:pop .4s 1.7s forwards}
+  @keyframes pop{to{opacity:1}}
+}
+
+/* responsive */
+@media (max-width:1040px){
+  .hero-in{grid-template-columns:1fr;gap:38px}
+  .bento{grid-template-columns:repeat(4,1fr)}
+  .cell,.cell-wide{grid-column:span 2}
+  .row{grid-template-columns:62px 1fr;gap:16px 20px}
+  .row-side{grid-column:2}
+  .rail-steps{grid-template-columns:repeat(3,1fr);gap:28px 14px}
+  .rail-steps::before{display:none}
+  .plans{grid-template-columns:1fr 1fr}
+  .plans .plan:last-child{grid-column:1/-1}
+  .foot-grid{grid-template-columns:1fr 1fr}
+  .close-in{grid-template-columns:1fr}
+  .nav-links{display:none}
+  .menu-btn{display:grid}
+}
+@media (max-width:640px){
+  .figs{grid-template-columns:1fr 1fr;gap:22px 0}
+  .fig{padding-inline:18px}
+  .fig:nth-child(odd){padding-inline-start:0}
+  .fig:nth-child(even){border-inline-end:none}
+  .bento{grid-template-columns:1fr}
+  .cell,.cell-wide{grid-column:auto}
+  .plans{grid-template-columns:1fr}
+  .plans .plan:last-child{grid-column:auto}
+  .rail-steps{grid-template-columns:1fr 1fr}
+  .foot-grid{grid-template-columns:1fr;gap:28px}
+  .panel-figs{grid-template-columns:1fr 1fr}
+  .panel-figs div:nth-child(3){border-inline-end:none;grid-column:1/-1;border-top:1px solid var(--line)}
+  .nav-in{height:64px;gap:10px}
+  .hero-cta .btn{flex:1 1 100%}
+  .nav-act .btn-ghost{display:none}
+}
+</style>
+</head>
+<body>
+<header class="nav">
+  <div class="rail nav-in">
+    <a class="brand" href="#top" aria-label="نورث للمسار المالي، الرئيسية">
+      <img class="logo-light" src="assets/north-mark.png" alt="">
+      <img class="logo-dark" src="assets/north-mark-white.png" alt="">
+      <span><b>NORTH</b><i>للمسار المالي</i></span>
+    </a>
+    <nav class="nav-links" aria-label="التنقل الرئيسي">
+      <a href="#top">الرئيسية</a>
+      <a href="#tracks">المسارات التعليمية</a>
+      <a href="#plans">الباقات</a>
+      <a href="#about">من نحن</a>
+    </nav>
+    <div class="nav-act">
+      <button class="icon-btn" id="theme-toggle" type="button" aria-label="تبديل المظهر"><span class="ms" id="theme-ico">dark_mode</span></button>
+      <a class="btn btn-ghost btn-sm" href="#login">تسجيل الدخول</a>
+      <a class="btn btn-primary btn-sm" href="#plans">ابدأ رحلتك</a>
+      <button class="icon-btn menu-btn" type="button" aria-label="القائمة"><span class="ms">menu</span></button>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+
+<section class="hero">
+  <div class="rail hero-in">
+    <div>
+      <span class="pill rise d1">منصة تعليمية سعودية للأسواق المالية</span>
+      <h1 class="rise d2">ابدأ رحلتك في الأسواق المالية <b>بخطوات أوضح ووعي أكبر</b></h1>
+      <p class="sub rise d3">مسارات مرتّبة من الصفر: قراءة السوق، وإدارة المخاطر، واختبار قصير بعد كل وحدة يقيس فهمك.</p>
+      <div class="hero-cta rise d4">
+        <a class="btn btn-primary" href="#tracks">اكتشف المسارات التعليمية</a>
+        <a class="btn btn-ghost" href="#plans">ابدأ رحلتك</a>
+      </div>
+    </div>
+
+    <div class="panel rise d3">
+      <div class="panel-top">
+        <span class="ms sm" style="color:var(--accent)">candlestick_chart</span>
+        <b>الدرس 9: كسر المقاومة</b>
+        <span class="tf"><span>H4</span><span class="on">D1</span><span>W1</span></span>
+      </div>
+      <div class="panel-body">
+<svg class="chart" viewBox="0 0 620 352" role="img" aria-label="رسم بياني تدريبي يوضح مستويي دعم ومقاومة">
+<defs><linearGradient id="emaFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="var(--accent)" stop-opacity=".22"/><stop offset="100%" stop-color="var(--accent)" stop-opacity="0"/></linearGradient></defs>
+<line class="grid" x1="10" y1="322.0" x2="570" y2="322.0"/>
+<text class="ax" x="576" y="325.5">97</text>
+<line class="grid" x1="10" y1="245.0" x2="570" y2="245.0"/>
+<text class="ax" x="576" y="248.5">102</text>
+<line class="grid" x1="10" y1="168.0" x2="570" y2="168.0"/>
+<text class="ax" x="576" y="171.5">108</text>
+<line class="grid" x1="10" y1="91.0" x2="570" y2="91.0"/>
+<text class="ax" x="576" y="94.5">113</text>
+<line class="grid" x1="10" y1="14.0" x2="570" y2="14.0"/>
+<text class="ax" x="576" y="17.5">119</text>
+<path class="emaArea" d="M18.2,270.0 L18.2,270.0 L34.5,267.8 L50.9,269.2 L67.2,266.0 L83.6,262.2 L99.9,263.8 L116.3,259.8 L132.6,255.4 L149.0,255.9 L165.4,251.2 L181.7,243.7 L198.1,243.8 L214.4,242.2 L230.8,235.0 L247.1,225.6 L263.5,220.4 L279.8,211.9 L296.2,211.4 L312.5,210.1 L328.9,203.9 L345.2,194.8 L361.6,189.0 L377.9,178.2 L394.3,168.4 L410.6,164.4 L427.0,157.5 L443.4,150.0 L459.7,143.1 L476.1,141.3 L492.4,133.7 L508.8,123.9 L525.1,116.5 L541.5,105.2 L557.8,93.2 L557.8,322.0 L18.2,322.0 Z" fill="url(#emaFill)"/>
+<line class="lvl res" x1="10" y1="155.9" x2="566" y2="155.9"/>
+<text class="lvlT res" x="16" y="148.9">مقاومة 109</text>
+<line class="lvl sup" x1="10" y1="264.6" x2="566" y2="264.6"/>
+<text class="lvlT sup" x="16" y="279.6">دعم 101</text>
+<line class="wick up" x1="18.2" y1="266.6" x2="18.2" y2="288.3"/>
+<rect class="body up" x="13.6" y="270.0" width="9.2" height="10.6" rx="1"/>
+<line class="wick up" x1="34.5" y1="253.1" x2="34.5" y2="275.3"/>
+<rect class="body up" x="30.0" y="259.8" width="9.2" height="10.2" rx="1"/>
+<line class="wick dn" x1="50.9" y1="253.4" x2="50.9" y2="276.5"/>
+<rect class="body dn" x="46.3" y="259.8" width="9.2" height="14.2" rx="1"/>
+<line class="wick up" x1="67.2" y1="252.2" x2="67.2" y2="277.0"/>
+<rect class="body up" x="62.7" y="255.0" width="9.2" height="19.1" rx="1"/>
+<line class="wick up" x1="83.6" y1="239.6" x2="83.6" y2="258.2"/>
+<rect class="body up" x="79.0" y="248.8" width="9.2" height="6.2" rx="1"/>
+<line class="wick dn" x1="99.9" y1="241.3" x2="99.9" y2="279.7"/>
+<rect class="body dn" x="95.4" y="248.8" width="9.2" height="20.7" rx="1"/>
+<line class="wick up" x1="116.3" y1="240.1" x2="116.3" y2="279.9"/>
+<rect class="body up" x="111.7" y="245.7" width="9.2" height="23.8" rx="1"/>
+<line class="wick up" x1="132.6" y1="230.6" x2="132.6" y2="250.3"/>
+<rect class="body up" x="128.1" y="240.1" width="9.2" height="5.6" rx="1"/>
+<line class="wick dn" x1="149.0" y1="236.9" x2="149.0" y2="262.2"/>
+<rect class="body dn" x="144.4" y="240.1" width="9.2" height="17.4" rx="1"/>
+<line class="wick up" x1="165.4" y1="231.2" x2="165.4" y2="264.6"/>
+<rect class="body up" x="160.8" y="234.9" width="9.2" height="22.6" rx="1"/>
+<line class="wick up" x1="181.7" y1="212.1" x2="181.7" y2="241.7"/>
+<rect class="body up" x="177.1" y="217.4" width="9.2" height="17.5" rx="1"/>
+<line class="wick dn" x1="198.1" y1="214.8" x2="198.1" y2="248.3"/>
+<rect class="body dn" x="193.5" y="217.4" width="9.2" height="27.0" rx="1"/>
+<line class="wick up" x1="214.4" y1="230.6" x2="214.4" y2="249.2"/>
+<rect class="body up" x="209.8" y="236.4" width="9.2" height="8.0" rx="1"/>
+<line class="wick up" x1="230.8" y1="203.6" x2="230.8" y2="241.1"/>
+<rect class="body up" x="226.2" y="209.6" width="9.2" height="26.8" rx="1"/>
+<line class="wick up" x1="247.1" y1="184.9" x2="247.1" y2="213.9"/>
+<rect class="body up" x="242.5" y="193.0" width="9.2" height="16.6" rx="1"/>
+<line class="wick dn" x1="263.5" y1="186.4" x2="263.5" y2="211.7"/>
+<rect class="body dn" x="258.9" y="193.0" width="9.2" height="9.0" rx="1"/>
+<line class="wick up" x1="279.8" y1="177.4" x2="279.8" y2="212.6"/>
+<rect class="body up" x="275.2" y="182.0" width="9.2" height="20.0" rx="1"/>
+<line class="wick dn" x1="296.2" y1="176.3" x2="296.2" y2="218.3"/>
+<rect class="body dn" x="291.6" y="182.0" width="9.2" height="27.7" rx="1"/>
+<line class="wick up" x1="312.5" y1="199.3" x2="312.5" y2="212.2"/>
+<rect class="body up" x="308.0" y="205.6" width="9.2" height="4.1" rx="1"/>
+<line class="wick up" x1="328.9" y1="173.4" x2="328.9" y2="212.7"/>
+<rect class="body up" x="324.3" y="182.1" width="9.2" height="23.5" rx="1"/>
+<line class="wick up" x1="345.2" y1="158.2" x2="345.2" y2="190.2"/>
+<rect class="body up" x="340.7" y="163.0" width="9.2" height="19.1" rx="1"/>
+<line class="wick dn" x1="361.6" y1="155.9" x2="361.6" y2="175.0"/>
+<rect class="body dn" x="357.0" y="163.0" width="9.2" height="5.9" rx="1"/>
+<line class="wick up" x1="377.9" y1="130.1" x2="377.9" y2="175.1"/>
+<rect class="body up" x="373.4" y="140.3" width="9.2" height="28.6" rx="1"/>
+<line class="wick up" x1="394.3" y1="131.3" x2="394.3" y2="148.5"/>
+<rect class="body up" x="389.7" y="134.0" width="9.2" height="6.4" rx="1"/>
+<line class="wick dn" x1="410.6" y1="123.3" x2="410.6" y2="159.8"/>
+<rect class="body dn" x="406.1" y="134.0" width="9.2" height="16.6" rx="1"/>
+<line class="wick up" x1="427.0" y1="128.0" x2="427.0" y2="158.5"/>
+<rect class="body up" x="422.4" y="133.4" width="9.2" height="17.2" rx="1"/>
+<line class="wick up" x1="443.4" y1="117.8" x2="443.4" y2="137.0"/>
+<rect class="body up" x="438.8" y="123.8" width="9.2" height="9.6" rx="1"/>
+<line class="wick up" x1="459.7" y1="116.1" x2="459.7" y2="132.6"/>
+<rect class="body up" x="455.1" y="118.8" width="9.2" height="5.1" rx="1"/>
+<line class="wick dn" x1="476.1" y1="114.5" x2="476.1" y2="140.4"/>
+<rect class="body dn" x="471.5" y="118.8" width="9.2" height="16.2" rx="1"/>
+<line class="wick up" x1="492.4" y1="104.5" x2="492.4" y2="140.9"/>
+<rect class="body up" x="487.8" y="107.4" width="9.2" height="27.6" rx="1"/>
+<line class="wick up" x1="508.8" y1="79.9" x2="508.8" y2="116.5"/>
+<rect class="body up" x="504.2" y="89.6" width="9.2" height="17.7" rx="1"/>
+<line class="wick dn" x1="525.1" y1="85.1" x2="525.1" y2="96.3"/>
+<rect class="body dn" x="520.5" y="89.6" width="9.2" height="1.6" rx="1"/>
+<line class="wick up" x1="541.5" y1="55.7" x2="541.5" y2="101.0"/>
+<rect class="body up" x="536.9" y="65.4" width="9.2" height="25.3" rx="1"/>
+<line class="wick up" x1="557.8" y1="47.7" x2="557.8" y2="69.5"/>
+<rect class="body up" x="553.2" y="51.3" width="9.2" height="14.1" rx="1"/>
+<polyline class="ema" points="18.2,270.0 34.5,267.8 50.9,269.2 67.2,266.0 83.6,262.2 99.9,263.8 116.3,259.8 132.6,255.4 149.0,255.9 165.4,251.2 181.7,243.7 198.1,243.8 214.4,242.2 230.8,235.0 247.1,225.6 263.5,220.4 279.8,211.9 296.2,211.4 312.5,210.1 328.9,203.9 345.2,194.8 361.6,189.0 377.9,178.2 394.3,168.4 410.6,164.4 427.0,157.5 443.4,150.0 459.7,143.1 476.1,141.3 492.4,133.7 508.8,123.9 525.1,116.5 541.5,105.2 557.8,93.2"/>
+<circle class="dot" cx="557.8" cy="93.2" r="3.4"/>
+<text class="ax" x="34.5" y="342" text-anchor="middle">يناير</text>
+<text class="ax" x="198.1" y="342" text-anchor="middle">مارس</text>
+<text class="ax" x="361.6" y="342" text-anchor="middle">مايو</text>
+<text class="ax" x="525.1" y="342" text-anchor="middle">يوليو</text>
+</svg>
+      </div>
+      <p class="panel-cap"><span class="ms sm">school</span> نموذج تدريبي داخل المنصة. السعر يتجاوز المقاومة عند <span class="num">109</span> بعد ارتداد من الدعم.</p>
+      <div class="panel-figs">
+        <div><b>1 : 2</b><span>المخاطرة إلى العائد</span></div>
+        <div><b>1%</b><span>أقصى مخاطرة للصفقة</span></div>
+        <div><b>3</b><span>مستويات تعليمية</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="ticker" aria-hidden="true">
+  <div class="ticker-track">
+    <span><span class="ms">bar_chart</span> الشموع اليابانية</span>
+    <span><span class="ms">horizontal_rule</span> الدعم والمقاومة</span>
+    <span><span class="ms">shield</span> وقف الخسارة</span>
+    <span><span class="ms">calculate</span> حجم المركز</span>
+    <span><span class="ms">swap_vert</span> أنواع الأوامر</span>
+    <span><span class="ms">timeline</span> الأطر الزمنية</span>
+    <span><span class="ms">account_balance_wallet</span> توزيع رأس المال</span>
+    <span><span class="ms">description</span> خطة التداول</span>
+    <span><span class="ms">bar_chart</span> الشموع اليابانية</span>
+    <span><span class="ms">horizontal_rule</span> الدعم والمقاومة</span>
+    <span><span class="ms">shield</span> وقف الخسارة</span>
+    <span><span class="ms">calculate</span> حجم المركز</span>
+    <span><span class="ms">swap_vert</span> أنواع الأوامر</span>
+    <span><span class="ms">timeline</span> الأطر الزمنية</span>
+    <span><span class="ms">account_balance_wallet</span> توزيع رأس المال</span>
+    <span><span class="ms">description</span> خطة التداول</span>
+  </div>
+</div>
+
+<section class="rail" style="padding-top:clamp(44px,5vw,72px)">
+  <div class="figs">
+    <div class="fig"><b>3</b><span>مسارات تعليمية متدرّجة</span></div>
+    <div class="fig"><b>48</b><span>درساً مسجّلاً</span></div>
+    <div class="fig"><b>12</b><span>اختباراً قصيراً</span></div>
+    <div class="fig"><b>24/7</b><span>وصول إلى المحتوى</span></div>
+  </div>
+  <p class="figs-note"><span class="ms sm">info</span> أرقام تجريبية لعرض التصميم، وتُحدَّث من لوحة التحكم بعد تجهيز المحتوى.</p>
+</section>
+
+<section class="band" id="about">
+  <div class="rail">
+    <div class="sec-head">
+      <h2 class="h2">تتعلّم قبل أن تخاطر، لا بعدها</h2>
+      <p class="lede">بُنيت المنصة على فكرة واحدة: أن يصل المتدرّب إلى السوق وهو يفهم ما يفعله. المحتوى يسير بترتيب ثابت، ولا ينفتح الدرس التالي قبل أن يُقاس فهم الذي قبله.</p>
+    </div>
+    <div class="bento">
+      <article class="cell cell-wide cell-dark">
+        <span class="ms">checklist</span>
+        <h3>دروس عملية منظّمة</h3>
+        <p>كل درس قصير ومحدد الهدف، ومربوط بتطبيق على رسم بياني، حتى لا تبقى الفكرة نظرية.</p>
+        <div class="mini">
+          <i><span class="ms">check_circle</span> 7. قراءة جسم الشمعة والظل</i>
+          <i><span class="ms">check_circle</span> 8. رسم مستوى دعم على الإطار اليومي</i>
+          <i class="pend"><span class="ms">radio_button_unchecked</span> 9. كسر المقاومة وإعادة الاختبار</i>
+        </div>
+      </article>
+      <article class="cell cell-wide cell-wash">
+        <span class="ms">shield</span>
+        <h3>إدارة المخاطر</h3>
+        <p>وحدة كاملة تربط وقف الخسارة بحجم المركز، فتعرف كم سهماً تشتري قبل أن تضغط زر الشراء.</p>
+        <div class="risk">
+          <div><b>1%</b><span>مخاطرة الصفقة</span></div>
+          <hr>
+          <div><b>2.40</b><span>مسافة الوقف</span></div>
+          <hr>
+          <div><b>416</b><span>حجم المركز بالسهم</span></div>
+        </div>
+      </article>
+      <article class="cell">
+        <span class="ms">school</span>
+        <h3>التعلّم من الصفر</h3>
+        <p>تبدأ من المصطلحات: أمر السوق والأمر المحدد، السيولة، والفارق السعري. لا يُفترض أي خلفية سابقة.</p>
+      </article>
+      <article class="cell">
+        <span class="ms">quiz</span>
+        <h3>اختبارات لقياس الفهم</h3>
+        <p>اختبار بعد كل وحدة، ونتيجته تدلّك على النقطة التي تحتاج إعادتها بالضبط.</p>
+      </article>
+      <article class="cell">
+        <span class="ms">trending_up</span>
+        <h3>متابعة التقدّم</h3>
+        <p>لوحة تعرض ما أنجزته من كل مسار، ونتائج اختباراتك، والدرس الذي توقفت عنده.</p>
+      </article>
+      <article class="cell cell-wide">
+        <span class="ms">videocam</span>
+        <h3>حصص مباشرة مع المدرّب</h3>
+        <p>جلسات مجدولة لمراجعة السوق والإجابة على الأسئلة، مع تسجيل متاح لمن فاتته الحصة.</p>
+      </article>
+      <article class="cell cell-wide">
+        <span class="ms">devices</span>
+        <h3>يفتح على أي جهاز</h3>
+        <p>المنصة تعمل من المتصفح على الجوال والحاسب، ويبقى تقدّمك محفوظاً أينما سجّلت الدخول.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="tracks" style="background:var(--surface);border-block:1px solid var(--line)">
+  <div class="rail">
+    <div class="sec-head">
+      <span class="pill">المسارات التعليمية</span>
+      <h2 class="h2">ثلاثة مستويات، بترتيب واحد لا يُقفز فيه</h2>
+      <p class="lede">المسارات مبنية فوق بعضها: الثاني يفترض أنك أنهيت الأول، والثالث يفترض أنك تقرأ الرسم البياني بثقة.</p>
+    </div>
+    <div class="rows">
+      <article class="row">
+        <span class="row-n">01</span>
+        <div class="row-main">
+          <h3>أساسيات التداول</h3>
+          <span class="chip">مبتدئ</span>
+        </div>
+        <div class="row-side">
+          <p>ما هو السوق المالي، وكيف تُنفَّذ الصفقة فعلياً. يغطي أنواع الأوامر، ساعات التداول، العمولات، والفرق بين الاستثمار والمضاربة.</p>
+          <div class="row-meta">
+            <span class="tag"><span class="ms">play_lesson</span> <b class="num">14</b> درساً</span>
+            <span class="tag"><span class="ms">schedule</span> <b class="num">3</b> ساعات</span>
+            <span class="tag"><span class="ms">quiz</span> <b class="num">4</b> اختبارات</span>
+          </div>
+        </div>
+      </article>
+      <article class="row">
+        <span class="row-n">02</span>
+        <div class="row-main">
+          <h3>قراءة الرسوم البيانية وتحليل السوق</h3>
+          <span class="chip">متوسط</span>
+        </div>
+        <div class="row-side">
+          <p>من الشمعة الواحدة إلى الاتجاه العام. ترسم مستويات الدعم والمقاومة، وتقرأ الحجم، وتتعامل مع الأطر الزمنية المختلفة دون تشتت.</p>
+          <div class="row-meta">
+            <span class="tag"><span class="ms">play_lesson</span> <b class="num">18</b> درساً</span>
+            <span class="tag"><span class="ms">schedule</span> <b class="num">5</b> ساعات</span>
+            <span class="tag"><span class="ms">quiz</span> <b class="num">5</b> اختبارات</span>
+          </div>
+        </div>
+      </article>
+      <article class="row">
+        <span class="row-n">03</span>
+        <div class="row-main">
+          <h3>إدارة رأس المال والمخاطر</h3>
+          <span class="chip">متقدّم</span>
+        </div>
+        <div class="row-side">
+          <p>الجزء الذي يحدد بقاءك في السوق. حساب حجم المركز من وقف الخسارة، وتوزيع رأس المال، وحدود الخسارة اليومية والأسبوعية.</p>
+          <div class="row-meta">
+            <span class="tag"><span class="ms">play_lesson</span> <b class="num">16</b> درساً</span>
+            <span class="tag"><span class="ms">schedule</span> <b class="num">4</b> ساعات</span>
+            <span class="tag"><span class="ms">quiz</span> <b class="num">3</b> اختبارات</span>
+          </div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="band">
+  <div class="rail">
+    <div class="sec-head"><h2 class="h2">خمس خطوات من التسجيل إلى أول تقييم</h2></div>
+    <div class="rail-steps">
+      <div class="st"><span class="st-n">1</span><h4>أنشئ حسابك</h4><p>بريد ورقم جوال، ويفتح الحساب مباشرة.</p></div>
+      <div class="st"><span class="st-n">2</span><h4>اختر مسارك</h4><p>من المستوى الأول، أو من حيث يضعك اختبار التحديد.</p></div>
+      <div class="st"><span class="st-n">3</span><h4>شاهد الدروس</h4><p>دروس قصيرة مرتبة، مع ملف تمارين لكل وحدة.</p></div>
+      <div class="st"><span class="st-n">4</span><h4>حل الاختبار</h4><p>اختبار بعد كل وحدة يحدد ما تحتاج إعادته.</p></div>
+      <div class="st"><span class="st-n">5</span><h4>تابع تقدّمك</h4><p>لوحتك تعرض النسبة المنجزة والدرس التالي.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="plans" style="background:var(--surface);border-block:1px solid var(--line)">
+  <div class="rail">
+    <div class="sec-head">
+      <span class="pill">الباقات</span>
+      <h2 class="h2">اختر الباقة التي تناسب مرحلتك</h2>
+      <p class="lede">كل الباقات تشمل محتوى مستواها كاملاً ومتابعة التقدّم. الفرق في عمق المحتوى، وفي الحصص المباشرة والمتابعة.</p>
+    </div>
+    <div class="plans">
+      <article class="plan">
+        <div class="plan-h"><span class="tier t1"></span><h3>البرونزية</h3></div>
+        <div class="price"><b>199</b><span>ر.س شهرياً</span></div>
+        <p>بداية منظمة لمن يدخل المجال لأول مرة.</p>
+        <ul>
+          <li><span class="ms">check</span> المسار الأول: أساسيات التداول</li>
+          <li><span class="ms">check</span> اختبارات المستوى الأول</li>
+          <li><span class="ms">check</span> لوحة متابعة التقدّم</li>
+          <li class="off"><span class="ms">close</span> الحصص المباشرة</li>
+          <li class="off"><span class="ms">close</span> متابعة فردية مع المدرّب</li>
+        </ul>
+        <a class="btn btn-ghost btn-wide" href="#login">اشترك الآن</a>
+      </article>
+      <article class="plan feat">
+        <span class="plan-badge">الأنسب للأغلبية</span>
+        <div class="plan-h"><span class="tier t2"></span><h3>الفضية</h3></div>
+        <div class="price"><b>399</b><span>ر.س شهرياً</span></div>
+        <p>لمن أنهى الأساسيات ويريد قراءة السوق بنفسه.</p>
+        <ul>
+          <li><span class="ms">check</span> المساران الأول والثاني</li>
+          <li><span class="ms">check</span> جميع الاختبارات وملفات التمارين</li>
+          <li><span class="ms">check</span> حصة مباشرة شهرية مع التسجيل</li>
+          <li><span class="ms">check</span> مراجعة أسبوعية للسوق</li>
+          <li class="off"><span class="ms">close</span> متابعة فردية مع المدرّب</li>
+        </ul>
+        <a class="btn btn-primary btn-wide" href="#login">اشترك الآن</a>
+      </article>
+      <article class="plan">
+        <div class="plan-h"><span class="tier t3"></span><h3>الذهبية</h3></div>
+        <div class="price"><b>699</b><span>ر.س شهرياً</span></div>
+        <p>المسار الكامل مع متابعة حتى بناء خطة تداول مكتوبة.</p>
+        <ul>
+          <li><span class="ms">check</span> المسارات الثلاثة كاملة</li>
+          <li><span class="ms">check</span> وحدة إدارة رأس المال والمخاطر</li>
+          <li><span class="ms">check</span> حصص مباشرة أسبوعية</li>
+          <li><span class="ms">check</span> متابعة فردية ومراجعة خطتك</li>
+          <li><span class="ms">check</span> شهادة إتمام المسار</li>
+        </ul>
+        <a class="btn btn-ghost btn-wide" href="#login">اشترك الآن</a>
+      </article>
+    </div>
+    <p class="note"><span class="ms">edit_note</span> الأسعار والمزايا المعروضة مبدئية لغرض اعتماد التصميم، وقابلة للتعديل بالكامل قبل الإطلاق.</p>
+  </div>
+</section>
+
+<section class="rail">
+  <div class="close-in">
+    <div>
+      <h2>ابدأ من حيث يجب أن تبدأ: الفهم</h2>
+      <p>أنشئ حسابك، وادخل المستوى الأول، واختبر فهمك قبل أن تخاطر بريال واحد.</p>
+    </div>
+    <div class="close-act">
+      <a class="btn btn-primary btn-wide" href="#login">ابدأ رحلتك</a>
+      <a class="btn btn-ghost btn-wide" href="#tracks">اكتشف المسارات التعليمية</a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer">
+  <div class="rail">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <img class="logo-light" src="assets/north-logo.png" alt="نورث للمسار المالي">
+        <img class="logo-dark" src="assets/north-logo-white.png" alt="نورث للمسار المالي">
+        <p>منصة تعليمية سعودية متخصصة في أساسيات الأسواق المالية، وقراءة السوق، وإدارة المخاطر، بمحتوى مرتّب ومستويات متدرّجة.</p>
+      </div>
+      <div class="fcol">
+        <h4>المنصة</h4>
+        <ul>
+          <li><a href="#tracks">المسارات التعليمية</a></li>
+          <li><a href="#plans">الباقات</a></li>
+          <li><a href="#about">من نحن</a></li>
+          <li><a href="#login">تسجيل الدخول</a></li>
+        </ul>
+      </div>
+      <div class="fcol">
+        <h4>السياسات</h4>
+        <ul>
+          <li><a href="#terms">الشروط والأحكام</a></li>
+          <li><a href="#privacy">سياسة الخصوصية</a></li>
+          <li><a href="#refund">سياسة الاسترجاع</a></li>
+          <li><a href="#disclaimer">إخلاء المسؤولية</a></li>
+        </ul>
+      </div>
+      <div class="fcol">
+        <h4>تواصل معنا</h4>
+        <p><span class="sel">info@north-sa.com</span></p>
+        <span class="lab">الجوال</span>
+        <p><span class="sel">+966 5X XXX XXXX</span></p>
+      </div>
+    </div>
+    <div class="fbar">
+      <span>© 2026 نورث للمسار المالي. جميع الحقوق محفوظة.</span>
+      <nav><a href="#terms">الشروط</a><a href="#privacy">الخصوصية</a><a href="#disclaimer">إخلاء المسؤولية</a></nav>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var root=document.documentElement, btn=document.getElementById('theme-toggle'), ico=document.getElementById('theme-ico');
+  function current(){
+    var set=root.getAttribute('data-theme');
+    if(set) return set;
+    return window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';
+  }
+  function paint(){ ico.textContent = current()==='dark' ? 'light_mode' : 'dark_mode'; }
+  try{ var s=localStorage.getItem('north-theme'); if(s) root.setAttribute('data-theme',s); }catch(e){}
+  paint();
+  btn.addEventListener('click',function(){
+    var next = current()==='dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme',next);
+    try{ localStorage.setItem('north-theme',next); }catch(e){}
+    paint();
+  });
+  document.querySelectorAll('a[href^="#"]').forEach(function(a){
+    a.addEventListener('click',function(e){
+      var id=a.getAttribute('href'); if(id.length<2) return;
+      var t=document.querySelector(id);
+      if(t){ e.preventDefault(); t.scrollIntoView({behavior:'smooth',block:'start'}); }
+    });
+  });
+})();
+</script>
+</body>
+</html>
