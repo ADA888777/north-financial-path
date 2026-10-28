@@ -34,6 +34,7 @@
 
   <nav class="tabs" id="tabs">
     <button class="tab on" type="button" data-tab="members">الأعضاء</button>
+    <button class="tab" type="button" data-tab="tracks">المسارات</button>
     <button class="tab" type="button" data-tab="levels">المستويات</button>
     <button class="tab" type="button" data-tab="lessons">الدروس والاستراتيجيات</button>
     <button class="tab" type="button" data-tab="quizzes">الاختبارات</button>
@@ -187,6 +188,61 @@
     </div>
   </section>
 
+  <!-- ===================== المسارات ===================== -->
+  <section data-panel="tracks" hidden>
+    <div class="kpis" id="tr-kpis">
+      <div class="kpi"><span>منشورة</span><b>—</b></div>
+      <div class="kpi"><span>مسودة</span><b>—</b></div>
+      <div class="kpi"><span>في دليل المبتدئين</span><b>—</b></div>
+    </div>
+
+    <div class="panel-box">
+      <h2 id="tr-form-title">إضافة مسار</h2>
+      <p class="sub">المسار يجمع المستويات. وما تعلّمينه «للمبتدئين» يظهر في دليل المبتدئين على صفحة المتعلم.</p>
+      <form id="tr-form" novalidate>
+        <div class="grid2">
+          <div class="fld" data-fld="tr-title">
+            <label for="tr-title">عنوان المسار <span class="req">*</span></label>
+            <input type="text" id="tr-title" placeholder="مثال: مسار التحليل الفني">
+            <p class="bad-msg"></p>
+          </div>
+          <div class="fld">
+            <label for="tr-label">وسم المستوى</label>
+            <input type="text" id="tr-label" placeholder="مبتدئ · متوسط · متقدم">
+            <p class="hint">نص قصير يظهر بجانب اسم المسار.</p>
+          </div>
+        </div>
+
+        <div class="fld" style="margin-top:16px">
+          <label for="tr-desc">الوصف</label>
+          <textarea id="tr-desc" rows="3" placeholder="ماذا يغطي هذا المسار"></textarea>
+        </div>
+
+        <div class="grid2" style="margin-top:16px">
+          <div class="fld">
+            <label for="tr-order">ترتيب العرض</label>
+            <input type="text" inputmode="numeric" id="tr-order" value="0">
+          </div>
+          <div class="fld" style="justify-content:flex-end;gap:12px">
+            <label class="chk" for="tr-pub"><input type="checkbox" id="tr-pub"><span>منشور</span></label>
+            <label class="chk" for="tr-beg"><input type="checkbox" id="tr-beg"><span>للمبتدئين</span></label>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:10px;margin-top:22px;flex-wrap:wrap">
+          <button class="bt bt-main" type="submit"><span class="spin" aria-hidden="true"></span><span data-label>حفظ المسار</span></button>
+          <button class="bt bt-soft" id="tr-reset" type="button" hidden>إلغاء التعديل</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="panel-box">
+      <h2>المسارات</h2>
+      <p class="sub">عدد المستويات بجانب كل مسار. المسار بلا مستويات لا يظهر للمتعلم ولو كان منشوراً.</p>
+      <div id="tr-list"></div>
+    </div>
+  </section>
+
   <!-- ===================== المستويات ===================== -->
   <section data-panel="levels" hidden>
     <div class="kpis" id="lv-kpis">
@@ -205,10 +261,16 @@
             <p class="bad-msg"></p>
           </div>
           <div class="fld">
-            <label for="lv-subtitle">عنوان فرعي</label>
-            <input type="text" id="lv-subtitle" placeholder="اختياري">
+            <label for="lv-track">المسار</label>
+            <select id="lv-track"><option value="">بلا مسار</option></select>
+            <p class="hint">المستوى بلا مسار لا يظهر في خارطة التقدم ولا في دليل المبتدئين.</p>
           </div>
         </div>
+        <div class="fld" style="margin-top:16px">
+          <label for="lv-subtitle">عنوان فرعي</label>
+          <input type="text" id="lv-subtitle" placeholder="اختياري">
+        </div>
+
         <div class="fld" style="margin-top:16px">
           <label for="lv-desc">الوصف</label>
           <textarea id="lv-desc" rows="3" placeholder="ماذا يتعلم المشترك في هذا المستوى"></textarea>
@@ -452,6 +514,14 @@
             <input type="text" id="cl-url" dir="ltr" placeholder="https://...">
           </div>
           <div class="fld">
+            <label for="cl-kind">نوع الحصة</label>
+            <select id="cl-kind">
+              <option value="live">حصة مباشرة جماعية</option>
+              <option value="private">كلاس خاص فردي</option>
+            </select>
+            <p class="hint">تظهر للمتعلم في القائمة الموافقة لنوعها.</p>
+          </div>
+          <div class="fld">
             <label for="cl-status">الحالة</label>
             <select id="cl-status">
               <option value="scheduled">مجدولة</option>
@@ -545,6 +615,7 @@
 <script src="assets/admin-form.js"></script>
 <script src="assets/admin-members.js"></script>
 <script src="assets/admin-stories.js"></script>
+<script src="assets/admin-tracks.js"></script>
 <script src="assets/admin-levels.js"></script>
 <script src="assets/admin-lessons.js"></script>
 <script src="assets/admin-quizzes.js"></script>
