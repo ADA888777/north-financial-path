@@ -540,3 +540,33 @@ img{max-width:100%;display:block}
 .legal .warn .ms{font-size:20px;color:var(--warn-title)}
 .legal-foot{margin-top:42px;padding-top:24px;border-top:1px solid var(--line);font-size:14px;color:var(--fg-2)}
 .legal-foot a{font-weight:600}
+
+/* ---- أسئلة شائعة ---- */
+.faq{max-width:860px;margin-inline:auto;display:flex;flex-direction:column;gap:10px}
+.faq details{
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--rb);
+  overflow:hidden;transition:border-color .2s;
+}
+.faq details[open]{border-color:color-mix(in srgb,var(--accent) 38%,var(--line))}
+.faq summary{
+  display:flex;align-items:center;gap:14px;cursor:pointer;list-style:none;
+  padding:17px 20px;font-size:15px;font-weight:600;color:var(--fg);line-height:1.6;
+}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary:hover{color:var(--accent)}
+.faq .q{flex:1;min-width:0}
+.faq .sign{
+  width:26px;height:26px;border-radius:7px;flex-shrink:0;display:grid;place-items:center;
+  background:var(--accent-wash);color:var(--accent);position:relative;transition:transform .22s;
+}
+.faq .sign::before,.faq .sign::after{
+  content:"";position:absolute;background:currentColor;border-radius:2px;
+}
+.faq .sign::before{width:11px;height:1.8px}
+.faq .sign::after{width:1.8px;height:11px;transition:opacity .2s,transform .22s}
+.faq details[open] .sign{transform:rotate(90deg)}
+.faq details[open] .sign::after{opacity:0}
+.faq .a{padding:0 20px 19px;color:var(--fg-2);font-size:14.5px;line-height:1.95}
+.faq .a a{color:var(--accent);text-decoration:underline;text-underline-offset:3px}
+@media (prefers-reduced-motion:reduce){.faq .sign,.faq .sign::after{transition:none}}
+@media (max-width:640px){.faq summary{padding:15px 16px;font-size:14.5px}.faq .a{padding:0 16px 17px}}
