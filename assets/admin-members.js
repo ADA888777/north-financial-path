@@ -29,7 +29,8 @@
 
     Promise.all([
       db.from('profiles').select('*', { count: 'exact', head: true }),
-      db.from('profiles').select('*', { count: 'exact', head: true }).eq('status', 'active'),
+      db.from('profiles').select('*', { count: 'exact', head: true })
+        .eq('status', 'active').eq('subscription_status', 'active'),
       db.from('user_roles').select('*', { count: 'exact', head: true }).eq('role', 'admin'),
       db.from('profiles').select('*', { count: 'exact', head: true }).gte('created_at', cut)
     ]).then(function (res) {
@@ -64,6 +65,16 @@
     });
   }
 
+  function subTag(p) {
+    if (p.status !== 'active') return '<span class="tag tag-off">موقوف</span>';
+    var expired = p.subscription_expires_at && new Date(p.subscription_expires_at) <= new Date();
+    if (p.subscription_status === 'active' && !expired) return '<span class="tag tag-ok">نافذ</span>';
+    var label = expired ? 'منتهٍ'
+      : p.subscription_status === 'cancelled' ? 'ملغى'
+      : p.subscription_status === 'expired' ? 'منتهٍ' : 'غير مفعّل';
+    return '<span class="tag tag-off">' + label + '</span>';
+  }
+
   function draw() {
     var box = el('members-list');
     var q = (el('m-search').value || '').trim().toLowerCase();
@@ -79,19 +90,19 @@
     }
 
     box.innerHTML = '<div class="tbl-wrap"><table class="tbl"><thead><tr>' +
-      '<th>الاسم</th><th>البريد</th><th>رقم العضوية</th><th>الجوال</th>' +
-      '<th>الباقة</th><th>الحالة</th><th>الدور</th><th>انضم</th>' +
+      '<th>الاسم</th><th>اسم المستخدم</th><th>البريد</th><th>رقم العضوية</th>' +
+      '<th>الباقة</th><th>الاشتراك</th><th>ينتهي</th><th>الدور</th>' +
       '</tr></thead><tbody>' +
       view.map(function (p) {
         return '<tr>' +
           '<td>' + esc(p.full_name || '—') + '</td>' +
+          '<td><span class="num">' + esc(p.username || '—') + '</span></td>' +
           '<td><span class="num muted">' + esc(p.email || '—') + '</span></td>' +
           '<td><span class="num">' + esc(p.membership_no || '—') + '</span></td>' +
-          '<td><span class="num muted">' + esc(p.phone || '—') + '</span></td>' +
           '<td>' + esc(p.plan || '—') + '</td>' +
-          '<td><span class="tag ' + (p.status === 'active' ? 'tag-ok">فعّال' : 'tag-off">موقوف') + '</span></td>' +
-          '<td>' + (p._role === 'admin' ? '<span class="tag tag-admin">إدارة</span>' : '<span class="muted">عضو</span>') + '</td>' +
-          '<td class="muted">' + esc(A.fmtDate(p.created_at)) + '</td>' +
+          '<td>' + subTag(p) + '</td>' +
+          '<td class="muted">' + (p.subscription_expires_at ? esc(A.fmtDate(p.subscription_expires_at)) : '—') + '</td>' +
+          '<td>' + (p._role === 'admin' ? '<span class="tag tag-admin">إدارة</span>' : '<span class="muted">مشترك</span>') + '</td>' +
         '</tr>';
       }).join('') +
       '</tbody></table></div>';
@@ -121,7 +132,7 @@
     e.preventDefault();
     if (busy) return;
 
-    ['name', 'email', 'password', 'phone'].forEach(function (n) { bad(n, ''); });
+    ['name', 'email', 'password', 'phone', 'username', 'membership'].forEach(function (n) { bad(n, ''); });
 
     var name = el('m-name').value.trim();
     var email = el('m-email').value.trim();
@@ -132,6 +143,11 @@
     if (!email) { bad('email', 'البريد الإلكتروني مطلوب لإنشاء الحساب.'); problems++; }
     else if (!EMAIL.test(email)) { bad('email', 'صيغة البريد غير صحيحة.'); problems++; }
     if (pass && pass.length < 8) { bad('password', 'كلمة المرور 8 خانات على الأقل، أو اتركها فارغة.'); problems++; }
+
+    var user = el('m-user').value.trim();
+    if (user && !/^[A-Za-z0-9._-]{3,32}$/.test(user)) {
+      bad('username', 'حروف لاتينية وأرقام ونقطة وشرطة فقط، 3 إلى 32 خانة.'); problems++;
+    }
     if (problems) return;
 
     busy = true;
@@ -155,8 +171,12 @@
         email: email,
         phone: el('m-phone').value.trim() || null,
         plan: el('m-plan').value,
+        username: user || null,
         membership_no: el('m-no').value.trim() || null,
-        password: pass || null
+        subscription_status: el('m-sub').value,
+        subscription_expires_at: el('m-exp').value || null,
+        password: pass || null,
+        site_url: window.location.origin + window.location.pathname.replace(/[^/]*$/, '')
       }
     }).then(function (r) {
       if (r.error) {
@@ -172,11 +192,42 @@
       if (d.error) { done(false, 'تعذّرت الإضافة: ' + d.error); return; }
       fnReady = true;
       el('fn-note').hidden = true;
-      done(true, 'أُضيف العضو' + (d.password ? ' — كلمة المرور: ' + d.password : '') + '.');
+      showCreated(d);
+      done(true, 'أُنشئ حساب المشترك.');
     }).catch(function (err) {
       done(false, 'تعذّرت الإضافة: ' + (err && err.message ? err.message : 'خطأ غير معروف'));
     });
   });
+
+  /* ---------- بيانات الدخول بعد الإنشاء ---------- */
+  function showCreated(d) {
+    el('c-email').textContent = d.email || '';
+    el('c-no').textContent = d.membership_no || '—';
+    el('c-pass').textContent = d.password || '—';
+    el('created').hidden = false;
+
+    var linkBtn = el('c-link');
+    linkBtn.hidden = !d.set_password_link;
+
+    function copy(text, okMsg) {
+      try {
+        navigator.clipboard.writeText(text)
+          .then(function () { A.toast(okMsg); })
+          .catch(function () { A.toast('تعذّر النسخ. حدّد النص وانسخه يدوياً.', 'bad'); });
+      } catch (e) { A.toast('تعذّر النسخ. حدّد النص وانسخه يدوياً.', 'bad'); }
+    }
+
+    el('c-copy').onclick = function () {
+      copy('منصة نورث للمسار المالي\n' +
+           'رابط الدخول: ' + window.location.origin + '/login.html\n' +
+           'البريد: ' + (d.email || '') + '\n' +
+           'رقم العضوية: ' + (d.membership_no || '') + '\n' +
+           'كلمة المرور: ' + (d.password || '') + '\n' +
+           'غيّر كلمة المرور بعد أول دخول.',
+           'نُسخت بيانات الدخول.');
+    };
+    linkBtn.onclick = function () { copy(d.set_password_link, 'نُسخ رابط تعيين كلمة المرور.'); };
+  }
 
   window.addEventListener('north:tab', function (ev) {
     if (ev.detail === 'members' && loaded) kpis();

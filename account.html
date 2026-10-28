@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>حسابي — نورث للمسار المالي</title>
+<link rel="icon" href="assets/north-mark.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Cormorant+Garamond:wght@600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,300..400,0..1,0&display=block">
+<link rel="stylesheet" href="assets/app.css">
+<link rel="stylesheet" href="assets/auth.css">
+<link rel="stylesheet" href="assets/account.css">
+</head>
+<body>
+
+<header class="nav">
+  <div class="rail nav-in">
+    <a class="brand" href="index.html" aria-label="نورث للمسار المالي، الرئيسية">
+      <img class="logo-light" src="assets/north-mark.png" alt="">
+      <img class="logo-dark" src="assets/north-mark-white.png" alt="">
+      <span><b>NORTH</b><i>للمسار المالي</i></span>
+    </a>
+
+    <nav class="nav-links" aria-label="التنقل الرئيسي">
+      <a href="index.html#tracks">المسارات التعليمية</a>
+      <a href="index.html#classes">الكلاسات الخاصة</a>
+    </nav>
+
+    <div class="nav-act">
+      <button class="icon-btn" id="theme-toggle" type="button" aria-label="تبديل المظهر"><span class="ms" id="theme-ico">dark_mode</span></button>
+
+      <div class="acct" id="acct" hidden>
+        <button class="acct-btn" id="acct-btn" type="button" aria-expanded="false" aria-controls="acct-menu">
+          <span class="acct-ava" id="ava">؟</span>
+          <span class="acct-id">
+            <b id="hdr-name">—</b>
+            <span class="num" id="hdr-no">—</span>
+          </span>
+          <span class="ms sm acct-chev">expand_more</span>
+        </button>
+
+        <div class="acct-menu" id="acct-menu" hidden>
+          <div class="acct-head">
+            <b id="menu-name">—</b>
+            <span class="num" id="menu-email">—</span>
+          </div>
+          <dl class="acct-rows">
+            <div><dt>رقم العضوية</dt><dd class="num" id="menu-no">—</dd></div>
+            <div><dt>اسم المستخدم</dt><dd class="num" id="menu-user">—</dd></div>
+            <div><dt>الباقة</dt><dd id="menu-plan">—</dd></div>
+            <div><dt>الاشتراك</dt><dd id="menu-sub">—</dd></div>
+          </dl>
+          <div class="acct-foot">
+            <a class="btn btn-ghost btn-sm btn-wide" href="reset.html">تغيير كلمة المرور</a>
+            <button class="btn btn-ghost btn-sm btn-wide" id="logout" type="button">تسجيل الخروج</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="rail gate" id="gate" hidden></div>
+
+<main class="rail acct-main" id="shell" hidden>
+
+  <div class="welcome">
+    <div>
+      <p class="pill">حسابك</p>
+      <h1 id="hero-name">—</h1>
+      <p class="lede" id="hero-sub">—</p>
+    </div>
+    <div class="idcard">
+      <span>رقم العضوية</span>
+      <b class="num" id="hero-no">—</b>
+    </div>
+  </div>
+
+  <div class="note-strip" id="pw-note" hidden>
+    <span class="ms">key</span>
+    <span>تستخدم كلمة المرور الأولية التي أنشأتها الإدارة.
+      <a href="reset.html">عيّن كلمة مرور خاصة بك</a> لحماية حسابك.</span>
+  </div>
+
+  <div class="acct-grid">
+    <section class="acct-box">
+      <h2>بيانات الحساب</h2>
+      <dl class="acct-rows wide">
+        <div><dt>الاسم الكامل</dt><dd id="d-name">—</dd></div>
+        <div><dt>البريد الإلكتروني</dt><dd class="num" id="d-email">—</dd></div>
+        <div><dt>اسم المستخدم</dt><dd class="num" id="d-user">—</dd></div>
+        <div><dt>رقم العضوية</dt><dd class="num" id="d-no">—</dd></div>
+        <div><dt>الجوال</dt><dd class="num" id="d-phone">—</dd></div>
+        <div><dt>تاريخ الانضمام</dt><dd id="d-joined">—</dd></div>
+      </dl>
+    </section>
+
+    <section class="acct-box">
+      <h2>الاشتراك</h2>
+      <div class="sub-state" id="sub-state">
+        <span class="ms" id="sub-ico">hourglass_top</span>
+        <b id="sub-title">جارٍ التحميل…</b>
+        <p id="sub-note"></p>
+      </div>
+      <dl class="acct-rows wide">
+        <div><dt>الباقة</dt><dd id="d-plan">—</dd></div>
+        <div><dt>ينتهي في</dt><dd id="d-expires">—</dd></div>
+      </dl>
+      <a class="btn btn-primary btn-wide" id="renew" href="https://salla.sa/northacademy" target="_blank" rel="noopener noreferrer" hidden>تجديد الاشتراك</a>
+    </section>
+  </div>
+
+  <section class="acct-box" id="content-box">
+    <h2>محتواك</h2>
+    <div id="content-state"></div>
+  </section>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js"></script>
+<script src="assets/supabase.js"></script>
+<script src="assets/account.js"></script>
+</body>
+</html>

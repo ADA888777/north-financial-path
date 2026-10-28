@@ -51,7 +51,7 @@
     </div>
 
     <div class="panel-box">
-      <h2>إضافة عضو جديد</h2>
+      <h2>إضافة مشترك</h2>
       <div class="note-box" id="fn-note" hidden>
         <span class="ms">info</span>
         <span>إنشاء الحسابات يحتاج دالة الخادم <code>create-member</code>. حتى تُنشر، أضيفي العضو من
@@ -76,7 +76,7 @@
           <div class="fld" data-fld="email">
             <label for="m-email">البريد الإلكتروني <span class="req">*</span></label>
             <input type="email" id="m-email" dir="ltr" placeholder="name@example.com">
-            <p class="hint">يستخدمه العضو لتسجيل الدخول، فهو مطلوب لإنشاء الحساب.</p>
+            <p class="hint">البريد المسجّل عند البروكر. يستخدمه المشترك لتسجيل الدخول.</p>
             <p class="bad-msg"></p>
           </div>
           <div class="fld" data-fld="plan">
@@ -89,21 +89,63 @@
         </div>
 
         <div class="grid2" style="margin-top:16px">
+          <div class="fld" data-fld="username">
+            <label for="m-user">اسم المستخدم في المنصة</label>
+            <input type="text" id="m-user" dir="ltr" placeholder="nour.a">
+            <p class="hint">حروف لاتينية وأرقام ونقطة وشرطة، 3 إلى 32 خانة. فريد.</p>
+            <p class="bad-msg"></p>
+          </div>
           <div class="fld" data-fld="membership">
             <label for="m-no">رقم العضوية</label>
-            <input type="text" id="m-no" placeholder="تلقائي">
-            <p class="hint">اتركه فارغاً ويتولّد تلقائياً.</p>
-          </div>
-          <div class="fld" data-fld="password">
-            <label for="m-pass">كلمة المرور</label>
-            <input type="text" id="m-pass" dir="ltr" placeholder="تلقائية">
-            <p class="hint">اتركها فارغة وتتولّد تلقائياً (8 خانات أو أكثر).</p>
+            <input type="text" id="m-no" dir="ltr" placeholder="تلقائي">
+            <p class="hint">اتركه فارغاً ويتولّد تلقائياً. لا يتكرر.</p>
             <p class="bad-msg"></p>
           </div>
         </div>
 
+        <div class="grid2" style="margin-top:16px">
+          <div class="fld" data-fld="substatus">
+            <label for="m-sub">حالة الاشتراك</label>
+            <select id="m-sub">
+              <option value="active">نافذ</option>
+              <option value="inactive">غير مفعّل</option>
+              <option value="expired">منتهٍ</option>
+              <option value="cancelled">ملغى</option>
+            </select>
+          </div>
+          <div class="fld" data-fld="expires">
+            <label for="m-exp">ينتهي في</label>
+            <input type="date" id="m-exp" dir="ltr">
+            <p class="hint">اتركه فارغاً لاشتراك بلا تاريخ انتهاء.</p>
+          </div>
+        </div>
+
+        <div class="grid2" style="margin-top:16px">
+          <div class="fld" data-fld="password">
+            <label for="m-pass">كلمة المرور الأولية</label>
+            <input type="text" id="m-pass" dir="ltr" placeholder="تتولّد تلقائياً">
+            <p class="hint">اتركها فارغة وتتولّد تلقائياً. يغيّرها المشترك بنفسه بعد أول دخول.</p>
+            <p class="bad-msg"></p>
+          </div>
+          <div class="fld"></div>
+        </div>
+
+        <div class="panel-box" id="created" hidden style="margin-top:18px;background:var(--a-card-2)">
+          <h2 style="font-size:16px;margin-bottom:14px">بيانات الدخول — انسخها الآن</h2>
+          <p class="sub" style="margin:-8px 0 16px">لن تُعرض كلمة المرور مرة أخرى. الأفضل إرسال رابط تعيين كلمة المرور.</p>
+          <dl class="acct-rows wide" style="margin:0;padding:0;display:flex;flex-direction:column;gap:12px">
+            <div style="display:flex;justify-content:space-between;gap:12px"><dt style="color:var(--a-fg-2);font-size:13px">البريد</dt><dd class="num" id="c-email" style="margin:0"></dd></div>
+            <div style="display:flex;justify-content:space-between;gap:12px"><dt style="color:var(--a-fg-2);font-size:13px">رقم العضوية</dt><dd class="num" id="c-no" style="margin:0"></dd></div>
+            <div style="display:flex;justify-content:space-between;gap:12px"><dt style="color:var(--a-fg-2);font-size:13px">كلمة المرور</dt><dd class="num" id="c-pass" style="margin:0"></dd></div>
+          </dl>
+          <div style="display:flex;gap:10px;margin-top:18px;flex-wrap:wrap">
+            <button class="bt bt-main" id="c-copy" type="button"><span class="ms sm">content_copy</span> نسخ البيانات</button>
+            <button class="bt bt-soft" id="c-link" type="button" hidden><span class="ms sm">link</span> نسخ رابط تعيين كلمة المرور</button>
+          </div>
+        </div>
+
         <button class="bt bt-main bt-wide" type="submit" style="margin-top:22px">
-          <span class="spin" aria-hidden="true"></span><span data-label>إضافة العضو</span>
+          <span class="spin" aria-hidden="true"></span><span data-label>إنشاء الحساب</span>
         </button>
       </form>
     </div>

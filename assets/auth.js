@@ -133,8 +133,8 @@
         text.indexOf('rate limit') !== -1 || text.indexOf('too many') !== -1) {
       return { ok: false, message: 'عدد المحاولات كبير. انتظر دقيقة ثم أعد المحاولة.' };
     }
-    if (code === 'signup_disabled') {
-      return { ok: false, message: 'التسجيل متوقف مؤقتاً. تواصل معنا.' };
+    if (code === 'signup_disabled' || text.indexOf('signups not allowed') !== -1) {
+      return { ok: false, message: 'الحسابات تُنشأ من إدارة المنصة. تواصل معنا بعد إتمام اشتراكك.' };
     }
     return { ok: false, message: 'تعذّر إتمام الطلب الآن. تأكد من اتصالك بالإنترنت وحاول مرة أخرى.' };
   }
@@ -150,28 +150,6 @@
       return db.auth
         .signInWithPassword({ email: payload.email, password: payload.password })
         .then(function (res) { return res.error ? authError(res.error) : { ok: true }; })
-        .catch(authError);
-    }
-
-    if (payload.kind === 'signup') {
-      return db.auth
-        .signUp({
-          email: payload.email,
-          password: payload.password,
-          options: {
-            data: { full_name: payload.name },
-            emailRedirectTo: SITE + 'login.html'
-          }
-        })
-        .then(function (res) {
-          if (res.error) return authError(res.error);
-          var user = res.data && res.data.user;
-          /* Supabase يعيد مستخدماً بلا identities حين يكون البريد مسجّلاً مسبقاً */
-          if (user && user.identities && user.identities.length === 0) {
-            return { ok: false, field: 'email', message: 'هذا البريد الإلكتروني مسجّل مسبقاً. سجّل الدخول بدلاً من ذلك.' };
-          }
-          return { ok: true };
-        })
         .catch(authError);
     }
 
@@ -256,7 +234,7 @@
     var msg = document.querySelector('#login-done span:last-child');
 
     /* قائمة بيضاء: ?next= يأتي من العنوان فلا يُتبع إلا لصفحة معروفة داخل الموقع */
-    var ALLOWED = ['admin.html', 'admin-stories.html', 'index.html'];
+    var ALLOWED = ['admin.html', 'account.html', 'index.html'];
     var asked = null;
     try {
       var q = new URLSearchParams(window.location.search).get('next');
@@ -267,7 +245,7 @@
       if (msg) {
         msg.textContent = dest.indexOf('admin') === 0
           ? 'تم تسجيل الدخول. ننقلك إلى لوحة الإدارة…'
-          : 'تم تسجيل الدخول. ننقلك إلى الصفحة الرئيسية…';
+          : 'تم تسجيل الدخول. ننقلك إلى حسابك…';
       }
       setTimeout(function () { window.location.href = dest; }, 1100);
     }
@@ -276,8 +254,8 @@
 
     /* الأدمن يذهب إلى لوحته، وغيره إلى الموقع */
     db.rpc('is_admin')
-      .then(function (r) { go(!r.error && r.data === true ? 'admin.html' : 'index.html'); })
-      .catch(function () { go('index.html'); });
+      .then(function (r) { go(!r.error && r.data === true ? 'admin.html' : 'account.html'); })
+      .catch(function () { go('account.html'); });
   });
 
   /* ---------- استعادة كلمة المرور ---------- */
@@ -293,43 +271,6 @@
   }, function (form) {
     form.hidden = true;
     showBanner('reset-done');
-  });
-
-  /* ---------- إنشاء حساب ---------- */
-  wireForm('signup-form', function () {
-    var problems = [];
-    var name = (document.getElementById('name').value || '').trim();
-    var email = (document.getElementById('email').value || '').trim();
-    var password = document.getElementById('password').value || '';
-    var confirm = document.getElementById('confirm').value || '';
-    var terms = document.getElementById('terms').checked;
-
-    if (!name) problems.push({ field: 'name', message: 'أدخل اسمك.' });
-    else if (name.length < 3) problems.push({ field: 'name', message: 'الاسم قصير جداً. اكتب اسمك كاملاً.' });
-
-    if (!email) problems.push({ field: 'email', message: 'أدخل بريدك الإلكتروني.' });
-    else if (!EMAIL.test(email)) problems.push({ field: 'email', message: 'صيغة البريد الإلكتروني غير صحيحة. مثال: name@example.com' });
-
-    if (!password) problems.push({ field: 'password', message: 'أدخل كلمة المرور.' });
-    else if (password.length < 8) problems.push({ field: 'password', message: 'كلمة المرور يجب أن تكون 8 خانات على الأقل.' });
-    else if (!/[A-Za-z]/.test(password) || !/[0-9]/.test(password)) problems.push({ field: 'password', message: 'كلمة المرور يجب أن تجمع بين حروف وأرقام.' });
-
-    if (!confirm) problems.push({ field: 'confirm', message: 'أعد كتابة كلمة المرور.' });
-    else if (confirm !== password) problems.push({ field: 'confirm', message: 'كلمتا المرور غير متطابقتين.' });
-
-    if (!terms) problems.push({ field: 'terms', message: 'يلزم الموافقة على الشروط وسياسة الخصوصية للمتابعة.' });
-    return problems;
-  }, function () {
-    return {
-      kind: 'signup',
-      name: document.getElementById('name').value.trim(),
-      email: document.getElementById('email').value.trim(),
-      password: document.getElementById('password').value
-    };
-  }, function (form) {
-    document.getElementById('signup-email-out').textContent = document.getElementById('email').value.trim();
-    form.hidden = true;
-    showBanner('signup-done');
   });
 
   /* ---------- تعيين كلمة مرور جديدة بعد فتح رابط الاستعادة ---------- */
