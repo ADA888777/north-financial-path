@@ -234,7 +234,7 @@
     var msg = document.querySelector('#login-done span:last-child');
 
     /* قائمة بيضاء: ?next= يأتي من العنوان فلا يُتبع إلا لصفحة معروفة داخل الموقع */
-    var ALLOWED = ['admin.html', 'account.html', 'index.html'];
+    var ALLOWED = ['admin.html', 'learn.html', 'level.html', 'lesson.html', 'quiz.html', 'account.html', 'index.html'];
     var asked = null;
     try {
       var q = new URLSearchParams(window.location.search).get('next');
@@ -245,7 +245,7 @@
       if (msg) {
         msg.textContent = dest.indexOf('admin') === 0
           ? 'تم تسجيل الدخول. ننقلك إلى لوحة الإدارة…'
-          : 'تم تسجيل الدخول. ننقلك إلى حسابك…';
+          : 'تم تسجيل الدخول. ننقلك إلى لوحتك…';
       }
       setTimeout(function () { window.location.href = dest; }, 1100);
     }
@@ -254,8 +254,8 @@
 
     /* الأدمن يذهب إلى لوحته، وغيره إلى الموقع */
     db.rpc('is_admin')
-      .then(function (r) { go(!r.error && r.data === true ? 'admin.html' : 'account.html'); })
-      .catch(function () { go('account.html'); });
+      .then(function (r) { go(!r.error && r.data === true ? 'admin.html' : 'learn.html'); })
+      .catch(function () { go('learn.html'); });
   });
 
   /* ---------- استعادة كلمة المرور ---------- */

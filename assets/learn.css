@@ -1,0 +1,124 @@
+/* واجهات المتعلم — تبني على توكنات app.css و account.css */
+.lrn{padding-block:clamp(26px,4vw,42px) clamp(50px,6vw,80px);position:relative;z-index:1}
+
+/* ترحيب */
+.hello{display:flex;align-items:flex-start;justify-content:space-between;gap:22px;flex-wrap:wrap;margin-bottom:24px}
+.hello h1{font-size:clamp(24px,3.2vw,36px);letter-spacing:-.02em}
+.hello .sub{color:var(--fg-2);font-size:15px;margin-top:8px}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.chip-i{
+  display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;
+  background:var(--surface-2);border:1px solid var(--line);border-radius:999px;padding:7px 14px;
+}
+.chip-i .ms{font-size:16px;color:var(--accent)}
+.chip-i.ok{background:color-mix(in srgb,var(--up) 13%,transparent);border-color:transparent;color:var(--up)}
+.chip-i.ok .ms{color:var(--up)}
+.chip-i.off{background:color-mix(in srgb,var(--dn) 12%,transparent);border-color:transparent;color:var(--dn)}
+.chip-i.off .ms{color:var(--dn)}
+.chip-i .num{font-family:var(--mono);direction:ltr}
+
+/* شريط التقدّم */
+.bar{height:7px;border-radius:999px;background:var(--surface-2);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent);border-radius:999px;transition:width .5s cubic-bezier(.4,0,.2,1)}
+@media (prefers-reduced-motion:reduce){.bar i{transition:none}}
+
+/* بطاقات */
+.lgrid{display:grid;grid-template-columns:1.35fr .65fr;gap:18px;align-items:start}
+.lbox{background:var(--surface);border:1px solid var(--line);border-radius:var(--rp);padding:clamp(20px,3vw,26px);min-width:0}
+.lbox h2{font-size:17.5px;margin-bottom:16px;display:flex;align-items:center;gap:9px}
+.lbox h2 .ms{font-size:20px;color:var(--accent)}
+.lbox + .lbox{margin-top:18px}
+
+/* متابعة التعلم */
+.resume{
+  background:linear-gradient(145deg,#0D2C4B,#06131F);color:#E9F0F8;
+  border:1px solid rgba(147,169,193,.18);border-radius:var(--rp);
+  padding:clamp(22px,3vw,30px);display:flex;align-items:center;justify-content:space-between;
+  gap:20px;flex-wrap:wrap;margin-bottom:18px;
+}
+.resume span.lbl{font-size:12.5px;color:#9FB6CE;display:block}
+.resume b{font-size:clamp(17px,2.2vw,22px);display:block;margin-top:6px;color:#fff;line-height:1.5}
+.resume .btn-light{background:#fff;color:#0A1C30}
+.resume .btn-light:hover{background:#C9DEF4;color:#0A1C30}
+
+/* قائمة المستويات */
+.lvl{border:1px solid var(--line);border-radius:var(--rb);padding:16px 18px;margin-bottom:10px;transition:border-color .2s}
+.lvl:hover{border-color:color-mix(in srgb,var(--accent) 42%,var(--line))}
+.lvl-h{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:10px;flex-wrap:wrap}
+.lvl-h b{font-size:15.5px}
+.lvl-h span{font-size:12.5px;color:var(--fg-2);font-family:var(--mono)}
+.lvl-f{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:10px;flex-wrap:wrap}
+.lvl-f a{font-size:13px;font-weight:600;color:var(--accent)}
+.lvl-f a:hover{text-decoration:underline;text-underline-offset:3px}
+.done-tag{font-size:11.5px;font-weight:600;color:var(--up);background:color-mix(in srgb,var(--up) 14%,transparent);border-radius:999px;padding:3px 10px}
+
+/* مهام */
+.task{display:flex;align-items:flex-start;gap:12px;padding:13px 0;border-bottom:1px solid var(--line)}
+.task:last-child{border-bottom:none}
+.task input{width:19px;height:19px;margin:0;margin-top:2px;accent-color:var(--accent);cursor:pointer;flex-shrink:0}
+.task div{flex:1;min-width:0}
+.task b{font-size:14.5px;display:block;line-height:1.5}
+.task p{font-size:12.5px;color:var(--fg-2);margin-top:3px;line-height:1.7}
+.task.is-done b{color:var(--fg-2);text-decoration:line-through;text-decoration-color:var(--line-2)}
+
+/* خريطة النشاط */
+.days{display:flex;gap:5px;flex-wrap:wrap}
+.day{width:26px;height:26px;border-radius:7px;background:var(--surface-2);border:1px solid var(--line)}
+.day.on{background:var(--accent);border-color:var(--accent)}
+.day.today{box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 35%,transparent)}
+.days-note{font-size:12px;color:var(--fg-3);margin-top:12px;line-height:1.7}
+
+/* اختبارات */
+.qz{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 0;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.qz:last-child{border-bottom:none}
+.qz b{font-size:14.5px}
+.qz .meta{font-size:12.5px;color:var(--fg-2);margin-top:3px;font-family:var(--mono)}
+
+.empty{text-align:center;color:var(--fg-2);font-size:14px;line-height:1.9;padding:26px 14px}
+.empty .ms{font-size:30px;color:var(--fg-3);display:block;margin-bottom:10px}
+
+/* صفحة الدرس */
+.lesson-head{margin-bottom:24px}
+.crumb{font-size:13px;color:var(--fg-2);margin-bottom:10px;display:flex;align-items:center;gap:7px}
+.crumb a{color:var(--accent)}
+.crumb a:hover{text-decoration:underline;text-underline-offset:3px}
+.lesson-head h1{font-size:clamp(23px,3vw,33px);letter-spacing:-.02em}
+.prose{font-size:15.5px;line-height:2.05;color:var(--fg)}
+.prose p{margin-bottom:16px}
+.vocab{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.vterm{background:var(--surface-2);border-radius:var(--rb);padding:14px 16px}
+.vterm b{font-size:14.5px;display:block}
+.vterm span{font-size:13px;color:var(--fg-2);display:block;margin-top:5px;line-height:1.8}
+.summary-box{background:var(--accent-wash);border-radius:var(--rp);padding:18px 20px;font-size:14.5px;line-height:1.95}
+.lesson-nav{display:flex;gap:10px;justify-content:space-between;flex-wrap:wrap;margin-top:26px}
+.video-wrap{position:relative;aspect-ratio:16/9;border-radius:var(--rp);overflow:hidden;background:var(--surface-2);margin-bottom:22px}
+.video-wrap a{
+  position:absolute;inset:0;display:grid;place-items:center;gap:10px;align-content:center;
+  color:var(--fg-2);font-size:14px;text-align:center;padding:20px;
+}
+.video-wrap .ms{font-size:40px;color:var(--accent)}
+
+/* صفحة الاختبار */
+.q-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--rp);padding:clamp(18px,3vw,24px);margin-bottom:14px}
+.q-card > b{font-size:15.5px;display:block;margin-bottom:14px;line-height:1.7}
+.opt{display:flex;align-items:flex-start;gap:11px;padding:12px 14px;border:1px solid var(--line);border-radius:var(--rb);cursor:pointer;margin-bottom:8px;transition:border-color .18s,background .18s}
+.opt:hover{border-color:var(--accent);background:var(--accent-wash)}
+.opt input{width:18px;height:18px;margin:0;margin-top:2px;accent-color:var(--accent);cursor:pointer;flex-shrink:0}
+.opt span{font-size:14.5px;line-height:1.7}
+.opt:has(input:checked){border-color:var(--accent);background:var(--accent-wash)}
+.result{border-radius:var(--rp);padding:clamp(22px,3vw,30px);text-align:center;margin-bottom:18px}
+.result.pass{background:color-mix(in srgb,var(--up) 13%,transparent)}
+.result.fail{background:color-mix(in srgb,var(--dn) 11%,transparent)}
+.result .ms{font-size:42px;display:block;margin-bottom:10px}
+.result.pass .ms,.result.pass b{color:var(--up)}
+.result.fail .ms,.result.fail b{color:var(--dn)}
+.result b{font-size:clamp(26px,3.4vw,38px);font-family:var(--display);display:block;font-variant-numeric:tabular-nums}
+.result p{font-size:14.5px;color:var(--fg-2);margin-top:10px;line-height:1.8}
+
+@media (max-width:900px){.lgrid{grid-template-columns:1fr}}
+@media (max-width:620px){
+  .vocab{grid-template-columns:1fr}
+  .lesson-nav .btn{flex:1 1 100%}
+  .resume{flex-direction:column;align-items:stretch}
+  .resume .btn{width:100%}
+}

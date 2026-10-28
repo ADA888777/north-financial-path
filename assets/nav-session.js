@@ -52,6 +52,7 @@
           (role === 'admin'
             ? '<a class="btn btn-ghost btn-sm btn-wide" href="admin.html">لوحة الإدارة</a>'
             : '') +
+          '<a class="btn btn-ghost btn-sm btn-wide" href="learn.html">لوحتي</a>' +
           '<a class="btn btn-ghost btn-sm btn-wide" href="account.html">حسابي</a>' +
           '<button class="btn btn-ghost btn-sm btn-wide" id="nav-logout" type="button">تسجيل الخروج</button>' +
         '</div>' +

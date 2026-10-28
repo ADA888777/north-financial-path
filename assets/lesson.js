@@ -1,0 +1,111 @@
+/* صفحة الدرس. المحتوى يأتي من get_lesson، وبلا اشتراك لا يصل أصلاً. */
+(function () {
+  'use strict';
+  var L = window.northLearn;
+  if (!L) return;
+  var db = L.db, el = L.el, esc = L.esc;
+
+  var id = L.qs('id');
+  var lesson = null;
+
+  L.guard().then(function (s) {
+    if (!s) return;
+    if (!id) { L.deny('درس غير محدد', 'افتح الدرس من لوحتك.', false); return; }
+    load();
+  });
+
+  function load() {
+    db.rpc('get_lesson', { p_lesson: id }).then(function (r) {
+      if (r.error) { L.deny('تعذّر فتح الدرس', r.error.message, false); return; }
+      var d = r.data || {};
+      if (d.error) { L.deny('الدرس غير متاح', d.error, false); return; }
+      lesson = d;
+      render(d);
+      db.rpc('mark_lesson_opened', { p_lesson: id }).then(function () {});
+    });
+  }
+
+  function render(d) {
+    el('l-title').textContent = d.title || '';
+    document.title = (d.title || 'الدرس') + ' — نورث للمسار المالي';
+    el('crumb-lvl').textContent = d.kind === 'strategy' ? 'استراتيجية' : 'درس';
+
+    if (!d.allowed) {
+      el('l-locked').hidden = false;
+      el('l-locked').innerHTML =
+        '<div class="lbox"><div class="empty"><span class="ms">lock</span>' +
+        'هذا الدرس يتطلب اشتراكاً نافذاً.<br>إذا اشتركت عبر سلة ولم يُفعَّل حسابك، راسل الإدارة.' +
+        '<div style="margin-top:18px"><a class="btn btn-primary" href="account.html">حسابي</a></div>' +
+        '</div></div>';
+      return;
+    }
+
+    el('l-body').hidden = false;
+
+    /* الفيديو: رابط خارجي لا إطار مضمّن */
+    if (d.video_url) {
+      el('l-video').innerHTML =
+        '<div class="video-wrap"><a href="' + esc(d.video_url) + '" target="_blank" rel="noopener noreferrer">' +
+        '<span class="ms">play_circle</span><span>افتح فيديو الدرس</span></a></div>';
+    }
+
+    el('l-content').innerHTML = L.paras(d.content);
+
+    if (d.summary && d.summary.trim()) {
+      el('box-summary').hidden = false;
+      el('l-summary').innerHTML = L.paras(d.summary);
+    }
+
+    var v = d.vocab || [];
+    if (v.length) {
+      el('box-vocab').hidden = false;
+      el('l-vocab').innerHTML = v.map(function (x) {
+        return '<div class="vterm"><b>' + esc(x.term) + '</b>' +
+          (x.meaning ? '<span>' + esc(x.meaning) + '</span>' : '') + '</div>';
+      }).join('');
+    }
+
+    if (d.quiz_id) {
+      el('box-quiz').hidden = false;
+      el('l-quiz').href = 'quiz.html?id=' + encodeURIComponent(d.quiz_id);
+    }
+
+    var prev = el('l-prev'), next = el('l-next');
+    if (d.prev_id) prev.href = 'lesson.html?id=' + encodeURIComponent(d.prev_id);
+    else { prev.setAttribute('aria-disabled', 'true'); prev.style.visibility = 'hidden'; }
+    if (d.next_id) next.href = 'lesson.html?id=' + encodeURIComponent(d.next_id);
+    else { next.setAttribute('aria-disabled', 'true'); next.style.visibility = 'hidden'; }
+
+    paintDone(d.completed);
+  }
+
+  function paintDone(done) {
+    var b = el('l-done');
+    var label = b.querySelector('[data-label]');
+    label.textContent = done ? 'مكتمل — إلغاء' : 'تحديد كمكتمل';
+    b.className = done ? 'btn btn-ghost' : 'btn btn-primary';
+  }
+
+  var busy = false;
+  el('l-done').addEventListener('click', function () {
+    if (busy || !lesson) return;
+    busy = true;
+    var b = el('l-done');
+    b.setAttribute('aria-busy', 'true'); b.disabled = true;
+
+    db.rpc('set_lesson_done', { p_lesson: id, p_done: !lesson.completed })
+      .then(function (r) {
+        busy = false;
+        b.removeAttribute('aria-busy'); b.disabled = false;
+        if (r.error || (r.data && r.data.error)) return;
+        lesson.completed = !lesson.completed;
+        paintDone(lesson.completed);
+        /* بعد الإكمال ينتقل تلقائياً إلى التالي إن وُجد */
+        if (lesson.completed && lesson.next_id) {
+          setTimeout(function () {
+            window.location.href = 'lesson.html?id=' + encodeURIComponent(lesson.next_id);
+          }, 700);
+        }
+      });
+  });
+})();
