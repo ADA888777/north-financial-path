@@ -58,9 +58,18 @@
         '</div>' +
       '</div>';
 
-    var login = act.querySelector('a[href="login.html"]');
-    if (login) act.replaceChild(wrap, login);
-    else act.insertBefore(wrap, act.firstChild);
+    // الصفحة الرئيسية فيها زرّا ضيف: «تسجيل الدخول» و«ابدأ رحلتك». الأول
+    // يصير بطاقة الحساب، والباقي يُحذف — وإلا دُعي مشترك داخل حسابه إلى
+    // تسجيل الدخول، وضاق الشريط عن محتواه على الجوال.
+    var guests = act.querySelectorAll('a[href="login.html"]');
+    if (guests.length) {
+      act.replaceChild(wrap, guests[0]);
+      for (var i = 1; i < guests.length; i++) {
+        if (guests[i].parentNode) guests[i].parentNode.removeChild(guests[i]);
+      }
+    } else {
+      act.insertBefore(wrap, act.firstChild);
+    }
 
     var btn = wrap.querySelector('#acct-btn');
     var menu = wrap.querySelector('#acct-menu');

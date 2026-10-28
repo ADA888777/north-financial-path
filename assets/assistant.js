@@ -1,4 +1,5 @@
-/* واجهة المساعد. كل الأجوبة من دالة الخادم، ولا رد ثابت يُعرض كأنه ذكاء اصطناعي. */
+/* واجهة المساعد. كل جواب يأتي من ask_assistant() في القاعدة، مبنيّ على نص الدرس
+   نفسه ومعه اسم مصدره. وإن لم يوجد، يُعرض الامتناع كما هو ولا يُسمّى ذكاءً اصطناعياً. */
 (function () {
   'use strict';
   var L = window.northLearn;
@@ -11,7 +12,6 @@
   L.guard().then(function (s) {
     if (!s) return;
     history();
-    quota();
   });
 
   function bubble(role, text, opts) {
@@ -51,14 +51,6 @@
     });
   }
 
-  function quota() {
-    db.rpc('assistant_quota_left', { p_max: 40 }).then(function (r) {
-      if (r.error || typeof r.data !== 'number') return;
-      el('note').textContent = 'يتبقى لك ' +
-        new Intl.NumberFormat('ar-SA').format(r.data) + ' سؤالاً اليوم.';
-    });
-  }
-
   el('chat-form').addEventListener('submit', function (e) {
     e.preventDefault();
     if (busy) return;
@@ -82,7 +74,7 @@
     log.appendChild(dots);
     log.scrollTop = log.scrollHeight;
 
-    db.functions.invoke('assistant', { body: { question: q } }).then(function (r) {
+    db.rpc('ask_assistant', { p_question: q }).then(function (r) {
       busy = false;
       btn.removeAttribute('aria-busy'); btn.disabled = false;
       dots.remove();
@@ -91,18 +83,14 @@
       if (r.error || d.error) {
         var m = d.error || (r.error && r.error.message) || '';
         bubble('bot',
-          /not found|404|Failed to send/i.test(m)
-            ? 'المساعد غير مهيّأ بعد. لم تُنشر دالة الخادم.'
+          /function .* does not exist|schema cache/i.test(m)
+            ? 'المساعد غير مهيّأ بعد. لم تُشغَّل هجرة قاعدة البيانات.'
             : m || 'تعذّر الوصول إلى المساعد. حاول بعد قليل.',
           { error: true });
         return;
       }
 
       bubble('bot', d.answer, { grounded: d.grounded, sources: d.sources || [] });
-      if (typeof d.quota_left === 'number') {
-        el('note').textContent = 'يتبقى لك ' +
-          new Intl.NumberFormat('ar-SA').format(d.quota_left) + ' سؤالاً اليوم.';
-      }
     }).catch(function (err) {
       busy = false;
       btn.removeAttribute('aria-busy'); btn.disabled = false;

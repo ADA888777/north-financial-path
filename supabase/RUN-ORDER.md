@@ -21,6 +21,7 @@
 | 9 | `09_bookings_notify.sql` | المحللة المسؤولة، سجل إشعارات البريد، `available_slots()` | صفحة الكلاسات |
 | 10 | `10_notifications.sql` | التنبيهات داخل المنصة وتذكير انتهاء الاشتراك | جرس التنبيهات |
 | 11 | `11_assistant.sql` | فهرس البحث في الدروس وسجل المساعد | المساعد التعليمي |
+| 12 | `12_assistant_local.sql` | دالة المساعد داخل القاعدة: بحث عربي في الدروس | المساعد لا يرد |
 
 > ملفان يحملان الرقم 5 لأنهما كُتبا بالتوازي ولا يتعارضان. شغّلهما كليهما
 > بأي ترتيب بينهما، ثم انتقل إلى 7. لا يوجد ملف برقم 6.
@@ -58,7 +59,7 @@ notify pgrst, 'reload schema';
 - **Authentication ← URL Configuration**: أضف عنوان الموقع إلى
   **Redirect URLs** ليعمل رابط تعيين كلمة المرور.
 
-## 4) دوال الخادم — ثلاث دوال
+## 4) دوال الخادم — دالتان
 
 ```bash
 supabase login
@@ -66,7 +67,6 @@ supabase link --project-ref ukdcdbbbzeqztoqctnxb
 
 supabase functions deploy create-member
 supabase functions deploy notify-booking
-supabase functions deploy assistant
 ```
 
 ### المفاتيح السرية
@@ -74,20 +74,20 @@ supabase functions deploy assistant
 ```bash
 supabase secrets set RESEND_API_KEY=...
 supabase secrets set MAIL_FROM="نورث للمسار المالي <no-reply@النطاق>"
-supabase secrets set ANTHROPIC_API_KEY=...
 ```
 
 `SUPABASE_URL` و `SUPABASE_ANON_KEY` و `SUPABASE_SERVICE_ROLE_KEY` تُضبط
 تلقائياً في بيئة الدوال، فلا تُكتب يدوياً ولا توضع في المستودع.
 
-**لا يوضع `service_role` ولا مفتاح بريد ولا مفتاح نموذج في كود الواجهة
-إطلاقاً.** مفتاح `service_role` يتجاوز كل سياسات RLS.
+**لا يوضع `service_role` ولا مفتاح بريد في كود الواجهة إطلاقاً.** مفتاح `service_role` يتجاوز كل سياسات RLS.
 
 | الدالة | بدونها |
 | --- | --- |
 | `create-member` | زر «إنشاء الحساب» في اللوحة لا يعمل |
 | `notify-booking` | الحجز ينجح لكن لا يصل بريد |
-| `assistant` | المساعد يعرض أنه غير مهيّأ |
+
+المساعد لا يحتاج دالة خادم: هو `ask_assistant()` داخل القاعدة نفسها
+(`12_assistant_local.sql`).
 
 ## 5) ملاحظة على تكرار دوال الاختبار
 
