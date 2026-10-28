@@ -175,22 +175,303 @@
     </div>
   </section>
 
-  <!-- ===================== أقسام لم تُنفَّذ ===================== -->
+  <!-- ===================== المستويات ===================== -->
   <section data-panel="levels" hidden>
-    <div class="state"><span class="ms">stairs</span>
-      قسم المستويات لم يُنفَّذ بعد.<br>متطلباته في <code>docs/BACKEND-SPEC.md</code></div>
+    <div class="kpis" id="lv-kpis">
+      <div class="kpi"><span>منشورة</span><b>—</b></div>
+      <div class="kpi"><span>مسودة</span><b>—</b></div>
+    </div>
+
+    <div class="panel-box">
+      <h2 id="lv-form-title">إضافة مستوى</h2>
+      <p class="sub">المستوى وعاء للدروس والاختبارات. المسودة لا تخرج من قاعدة البيانات.</p>
+      <form id="lv-form" novalidate>
+        <div class="grid2">
+          <div class="fld" data-fld="lv-title">
+            <label for="lv-title">عنوان المستوى <span class="req">*</span></label>
+            <input type="text" id="lv-title" placeholder="مثال: المستوى التأسيسي">
+            <p class="bad-msg"></p>
+          </div>
+          <div class="fld">
+            <label for="lv-subtitle">عنوان فرعي</label>
+            <input type="text" id="lv-subtitle" placeholder="اختياري">
+          </div>
+        </div>
+        <div class="fld" style="margin-top:16px">
+          <label for="lv-desc">الوصف</label>
+          <textarea id="lv-desc" rows="3" placeholder="ماذا يتعلم المشترك في هذا المستوى"></textarea>
+        </div>
+        <div class="grid2" style="margin-top:16px">
+          <div class="fld">
+            <label for="lv-order">ترتيب العرض</label>
+            <input type="text" inputmode="numeric" id="lv-order" value="0">
+          </div>
+          <div class="fld" style="justify-content:flex-end">
+            <label class="chk" for="lv-pub"><input type="checkbox" id="lv-pub"><span>منشور</span></label>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:22px;flex-wrap:wrap">
+          <button class="bt bt-main" type="submit"><span class="spin" aria-hidden="true"></span><span data-label>حفظ المستوى</span></button>
+          <button class="bt bt-soft" id="lv-reset" type="button" hidden>إلغاء التعديل</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="panel-box">
+      <h2>المستويات</h2>
+      <div id="lv-list"></div>
+    </div>
   </section>
+
+  <!-- ===================== الدروس والاستراتيجيات ===================== -->
   <section data-panel="lessons" hidden>
-    <div class="state"><span class="ms">menu_book</span>
-      قسم الدروس والاستراتيجيات لم يُنفَّذ بعد.<br>متطلباته في <code>docs/BACKEND-SPEC.md</code></div>
+    <div class="kpis" id="ls-kpis">
+      <div class="kpi"><span>منشورة</span><b>—</b></div>
+      <div class="kpi"><span>مسودة</span><b>—</b></div>
+      <div class="kpi"><span>استراتيجيات</span><b>—</b></div>
+      <div class="kpi"><span>عيّنة مجانية</span><b>—</b></div>
+    </div>
+
+    <div class="panel-box">
+      <h2 id="ls-form-title">إضافة درس</h2>
+      <p class="sub">الدرس المنشور يراه المشترك النافذ اشتراكه فقط، إلا إذا علّمتِه عيّنة مجانية.</p>
+      <form id="ls-form" novalidate>
+        <div class="grid2">
+          <div class="fld" data-fld="ls-title">
+            <label for="ls-title">العنوان <span class="req">*</span></label>
+            <input type="text" id="ls-title" placeholder="عنوان الدرس أو الاستراتيجية">
+            <p class="bad-msg"></p>
+          </div>
+          <div class="fld">
+            <label for="ls-kind">النوع</label>
+            <select id="ls-kind">
+              <option value="lesson">درس</option>
+              <option value="strategy">استراتيجية</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid2" style="margin-top:16px">
+          <div class="fld">
+            <label for="ls-level">المستوى</label>
+            <select id="ls-level"><option value="">بلا مستوى</option></select>
+          </div>
+          <div class="fld">
+            <label for="ls-video">رابط الفيديو</label>
+            <input type="text" id="ls-video" dir="ltr" placeholder="https://...">
+            <p class="hint">اختياري. يوتيوب أو فيميو أو أي رابط مباشر.</p>
+          </div>
+        </div>
+
+        <div class="fld" style="margin-top:16px">
+          <label for="ls-summary">نبذة قصيرة</label>
+          <textarea id="ls-summary" rows="2" placeholder="سطر أو سطران يظهران في القائمة"></textarea>
+        </div>
+
+        <div class="fld" style="margin-top:16px">
+          <label for="ls-content">المحتوى</label>
+          <textarea id="ls-content" rows="6" placeholder="شرح الدرس"></textarea>
+        </div>
+
+        <div class="grid2" style="margin-top:16px">
+          <div class="fld">
+            <label for="ls-dur">المدة بالدقائق</label>
+            <input type="text" inputmode="numeric" id="ls-dur" placeholder="اختياري">
+          </div>
+          <div class="fld">
+            <label for="ls-order">ترتيب العرض</label>
+            <input type="text" inputmode="numeric" id="ls-order" value="0">
+          </div>
+        </div>
+
+        <div class="grid2" style="margin-top:16px">
+          <div class="fld" style="justify-content:flex-end">
+            <label class="chk" for="ls-pub"><input type="checkbox" id="ls-pub"><span>منشور</span></label>
+          </div>
+          <div class="fld" style="justify-content:flex-end">
+            <label class="chk" for="ls-free"><input type="checkbox" id="ls-free"><span>عيّنة مجانية للزائر</span></label>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:10px;margin-top:22px;flex-wrap:wrap">
+          <button class="bt bt-main" type="submit"><span class="spin" aria-hidden="true"></span><span data-label>حفظ الدرس</span></button>
+          <button class="bt bt-soft" id="ls-reset" type="button" hidden>إلغاء التعديل</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="panel-box">
+      <h2>الدروس والاستراتيجيات</h2>
+      <div class="fld" style="max-width:320px;margin-bottom:18px">
+        <input type="search" id="ls-search" placeholder="ابحث بالعنوان">
+      </div>
+      <div id="ls-list"></div>
+    </div>
   </section>
+
+  <!-- ===================== الاختبارات ===================== -->
   <section data-panel="quizzes" hidden>
-    <div class="state"><span class="ms">quiz</span>
-      قسم الاختبارات لم يُنفَّذ بعد.<br>متطلباته في <code>docs/BACKEND-SPEC.md</code></div>
+    <div class="kpis" id="qz-kpis">
+      <div class="kpi"><span>منشورة</span><b>—</b></div>
+      <div class="kpi"><span>مسودة</span><b>—</b></div>
+      <div class="kpi"><span>مجموع الأسئلة</span><b>—</b></div>
+    </div>
+
+    <div class="panel-box">
+      <h2 id="qz-form-title">إضافة اختبار</h2>
+      <p class="sub">الأسئلة والإجابات لا تخرج من القاعدة إلا للإدارة. المشترك يأخذ الورقة بلا إجابات، والتصحيح داخل القاعدة.</p>
+      <form id="qz-form" novalidate>
+        <div class="grid2">
+          <div class="fld" data-fld="qz-title">
+            <label for="qz-title">عنوان الاختبار <span class="req">*</span></label>
+            <input type="text" id="qz-title" placeholder="مثال: اختبار المستوى الأول">
+            <p class="bad-msg"></p>
+          </div>
+          <div class="fld">
+            <label for="qz-level">المستوى</label>
+            <select id="qz-level"><option value="">بلا مستوى</option></select>
+          </div>
+        </div>
+        <div class="fld" style="margin-top:16px">
+          <label for="qz-desc">الوصف</label>
+          <textarea id="qz-desc" rows="2" placeholder="تعليمات مختصرة للمختبَر"></textarea>
+        </div>
+        <div class="grid2" style="margin-top:16px">
+          <div class="fld" data-fld="qz-pass">
+            <label for="qz-pass">درجة النجاح ٪</label>
+            <input type="text" inputmode="numeric" id="qz-pass" value="60">
+            <p class="bad-msg"></p>
+          </div>
+          <div class="fld">
+            <label for="qz-order">ترتيب العرض</label>
+            <input type="text" inputmode="numeric" id="qz-order" value="0">
+          </div>
+        </div>
+        <div class="fld" style="margin-top:16px;justify-content:flex-end">
+          <label class="chk" for="qz-pub"><input type="checkbox" id="qz-pub"><span>منشور</span></label>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:22px;flex-wrap:wrap">
+          <button class="bt bt-main" type="submit"><span class="spin" aria-hidden="true"></span><span data-label>حفظ الاختبار</span></button>
+          <button class="bt bt-soft" id="qz-reset" type="button" hidden>إلغاء التعديل</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="panel-box">
+      <h2>الاختبارات</h2>
+      <div id="qz-list"></div>
+    </div>
+
+    <div class="panel-box" id="qn-box" hidden>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:8px">
+        <h2 style="margin:0">أسئلة: <span id="qn-quiz"></span></h2>
+        <button class="bt bt-soft" id="qn-close" type="button">إغلاق</button>
+      </div>
+      <p class="sub">كل سؤال بأربعة خيارات، واختاري الخيار الصحيح. يُحفظ السؤال وخياراته معاً.</p>
+
+      <form id="qn-form" novalidate>
+        <div class="fld" data-fld="qn-text">
+          <label for="qn-text">نص السؤال <span class="req">*</span></label>
+          <input type="text" id="qn-text" placeholder="اكتبي السؤال">
+          <p class="bad-msg"></p>
+        </div>
+        <div class="fld" data-fld="qn-answers" style="margin-top:16px">
+          <label>الخيارات <span class="req">*</span></label>
+          <p class="hint">اختاري الدائرة بجانب الخيار الصحيح. خياران على الأقل.</p>
+          <div id="qn-answers" style="display:flex;flex-direction:column;gap:10px;margin-top:8px"></div>
+          <p class="bad-msg"></p>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap">
+          <button class="bt bt-main" type="submit"><span class="spin" aria-hidden="true"></span><span data-label>إضافة السؤال</span></button>
+        </div>
+      </form>
+
+      <div id="qn-list" style="margin-top:24px"></div>
+    </div>
   </section>
+
+  <!-- ===================== الحصص والحجوزات ===================== -->
   <section data-panel="classes" hidden>
-    <div class="state"><span class="ms">calendar_month</span>
-      قسم الحصص والحجوزات لم يُنفَّذ بعد.<br>متطلباته في <code>docs/BACKEND-SPEC.md</code></div>
+    <div class="kpis" id="cl-kpis">
+      <div class="kpi"><span>حصص قادمة</span><b>—</b></div>
+      <div class="kpi"><span>منشورة</span><b>—</b></div>
+      <div class="kpi"><span>مجموع الحجوزات</span><b>—</b></div>
+      <div class="kpi"><span>مقاعد شاغرة قادمة</span><b>—</b></div>
+    </div>
+
+    <div class="panel-box">
+      <h2 id="cl-form-title">إضافة حصة</h2>
+      <p class="sub">الحجز للمشترك النافذ اشتراكه فقط، والسعة مفروضة في قاعدة البيانات لا في الواجهة.</p>
+      <form id="cl-form" novalidate>
+        <div class="grid2">
+          <div class="fld" data-fld="cl-title">
+            <label for="cl-title">عنوان الحصة <span class="req">*</span></label>
+            <input type="text" id="cl-title" placeholder="مثال: جلسة تحليل السوق">
+            <p class="bad-msg"></p>
+          </div>
+          <div class="fld" data-fld="cl-start">
+            <label for="cl-start">موعد البداية <span class="req">*</span></label>
+            <input type="datetime-local" id="cl-start" dir="ltr">
+            <p class="bad-msg"></p>
+          </div>
+        </div>
+
+        <div class="fld" style="margin-top:16px">
+          <label for="cl-desc">الوصف</label>
+          <textarea id="cl-desc" rows="3" placeholder="ماذا يغطي اللقاء"></textarea>
+        </div>
+
+        <div class="grid2" style="margin-top:16px">
+          <div class="fld" data-fld="cl-dur">
+            <label for="cl-dur">المدة بالدقائق</label>
+            <input type="text" inputmode="numeric" id="cl-dur" value="60">
+            <p class="bad-msg"></p>
+          </div>
+          <div class="fld" data-fld="cl-cap">
+            <label for="cl-cap">عدد المقاعد</label>
+            <input type="text" inputmode="numeric" id="cl-cap" value="10">
+            <p class="bad-msg"></p>
+          </div>
+        </div>
+
+        <div class="grid2" style="margin-top:16px">
+          <div class="fld">
+            <label for="cl-url">رابط الاجتماع</label>
+            <input type="text" id="cl-url" dir="ltr" placeholder="https://...">
+          </div>
+          <div class="fld">
+            <label for="cl-status">الحالة</label>
+            <select id="cl-status">
+              <option value="scheduled">مجدولة</option>
+              <option value="done">انتهت</option>
+              <option value="cancelled">ملغاة</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="fld" style="margin-top:16px;justify-content:flex-end">
+          <label class="chk" for="cl-pub"><input type="checkbox" id="cl-pub"><span>منشورة</span></label>
+        </div>
+
+        <div style="display:flex;gap:10px;margin-top:22px;flex-wrap:wrap">
+          <button class="bt bt-main" type="submit"><span class="spin" aria-hidden="true"></span><span data-label>حفظ الحصة</span></button>
+          <button class="bt bt-soft" id="cl-reset" type="button" hidden>إلغاء التعديل</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="panel-box">
+      <h2>الحصص</h2>
+      <div id="cl-list"></div>
+    </div>
+
+    <div class="panel-box" id="bk-box" hidden>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:8px">
+        <h2 style="margin:0">حجوزات: <span id="bk-slot"></span></h2>
+        <button class="bt bt-soft" id="bk-close" type="button">إغلاق</button>
+      </div>
+      <div id="bk-list" style="margin-top:16px"></div>
+    </div>
   </section>
 
 </div>
@@ -249,7 +530,12 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js"></script>
 <script src="assets/supabase.js"></script>
 <script src="assets/admin.js"></script>
+<script src="assets/admin-form.js"></script>
 <script src="assets/admin-members.js"></script>
 <script src="assets/admin-stories.js"></script>
+<script src="assets/admin-levels.js"></script>
+<script src="assets/admin-lessons.js"></script>
+<script src="assets/admin-quizzes.js"></script>
+<script src="assets/admin-classes.js"></script>
 </body>
 </html>
