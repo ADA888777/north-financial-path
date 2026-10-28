@@ -11,10 +11,11 @@
   --up:#2C8A68; --dn:#BE5F3F;
   --note-bg:#EAF7F0; --note-line:#BBE2CE; --note-title:#1B6447; --note-fg:#2E6B51;
   --shadow:14px 30px 60px -36px rgba(10,28,48,.45);
-  --dia-1:#D6E8F8; --dia-2:#EFF5FC;
-  --brz-1:#F7E6C4; --brz-2:#FCF4E4;
-  --tier-chip:#FFFFFF; --tier-chip-ink:#0A1C30; --tier-ink:#0A1C30;
-  --tier-badge-bg:#FFFFFF; --tier-badge-ink:#0A1C30; --tier-edge:rgba(10,28,48,.10);
+  --dia-1:#AFE9FC; --dia-2:#C6E8FB; --dia-3:#DEE5FC;
+  --brz-1:#F4E4B8; --brz-2:#F6E7CA; --brz-3:#F3E3DA;
+  --tier-chip:#FFFFFF; --tier-chip-ink:#0F6594; --tier-ink:#0F1A30; --tier-sub:#44586F;
+  --tier-badge-bg:rgba(255,255,255,.62); --tier-badge-ink:#13405F; --tier-badge-line:rgba(15,101,148,.28);
+  --tier-edge:rgba(16,40,70,.08); --tier-cta:#105DF9; --tier-cta-h:#0B4AD0;
   --display:'Readex Pro','Segoe UI',system-ui,sans-serif;
   --body:'IBM Plex Sans Arabic','Segoe UI',system-ui,sans-serif;
   --mono:'IBM Plex Mono',ui-monospace,monospace;
@@ -31,10 +32,11 @@
   --up:#49B38A; --dn:#D97C57;
   --note-bg:rgba(73,179,138,.11); --note-line:rgba(73,179,138,.30); --note-title:#7FD3AE; --note-fg:#A6CDBB;
   --shadow:14px 30px 60px -30px rgba(0,0,0,.7);
-  --dia-1:#123A61; --dia-2:#0B2237;
-  --brz-1:#4A3A1C; --brz-2:#241B0E;
-  --tier-chip:#F4F8FC; --tier-chip-ink:#0A1C30; --tier-ink:#F2F7FC;
-  --tier-badge-bg:rgba(255,255,255,.14); --tier-badge-ink:#F2F7FC; --tier-edge:rgba(255,255,255,.22);
+  --dia-1:#15426D; --dia-2:#0F2F4F; --dia-3:#0B2038;
+  --brz-1:#4D3C1C; --brz-2:#352914; --brz-3:#24190E;
+  --tier-chip:#F2F8FD; --tier-chip-ink:#0F6594; --tier-ink:#F2F7FC; --tier-sub:#AEC4DA;
+  --tier-badge-bg:rgba(255,255,255,.12); --tier-badge-ink:#EAF2FA; --tier-badge-line:rgba(255,255,255,.24);
+  --tier-edge:rgba(255,255,255,.12); --tier-cta:#2C72FB; --tier-cta-h:#5A92FC;
   color-scheme:dark;
 }}
 :root[data-theme="dark"]{
@@ -46,10 +48,11 @@
   --up:#49B38A; --dn:#D97C57;
   --note-bg:rgba(73,179,138,.11); --note-line:rgba(73,179,138,.30); --note-title:#7FD3AE; --note-fg:#A6CDBB;
   --shadow:14px 30px 60px -30px rgba(0,0,0,.7);
-  --dia-1:#123A61; --dia-2:#0B2237;
-  --brz-1:#4A3A1C; --brz-2:#241B0E;
-  --tier-chip:#F4F8FC; --tier-chip-ink:#0A1C30; --tier-ink:#F2F7FC;
-  --tier-badge-bg:rgba(255,255,255,.14); --tier-badge-ink:#F2F7FC; --tier-edge:rgba(255,255,255,.22);
+  --dia-1:#15426D; --dia-2:#0F2F4F; --dia-3:#0B2038;
+  --brz-1:#4D3C1C; --brz-2:#352914; --brz-3:#24190E;
+  --tier-chip:#F2F8FD; --tier-chip-ink:#0F6594; --tier-ink:#F2F7FC; --tier-sub:#AEC4DA;
+  --tier-badge-bg:rgba(255,255,255,.12); --tier-badge-ink:#EAF2FA; --tier-badge-line:rgba(255,255,255,.24);
+  --tier-edge:rgba(255,255,255,.12); --tier-cta:#2C72FB; --tier-cta-h:#5A92FC;
   color-scheme:dark;
 }
 
@@ -74,7 +77,8 @@ img{max-width:100%;display:block}
 .ms{
   font-family:'Material Symbols Rounded';font-weight:300;font-style:normal;
   font-size:22px;line-height:1;letter-spacing:normal;direction:ltr;display:inline-block;
-  white-space:nowrap;font-feature-settings:'liga';-webkit-font-smoothing:antialiased;user-select:none;
+  white-space:nowrap;font-feature-settings:'liga';font-variation-settings:'FILL' 0,'wght' 300;
+  -webkit-font-smoothing:antialiased;user-select:none;
   /* keeps un-loaded ligature text from widening the layout */
   max-width:1.4em;overflow:hidden;
 }
@@ -280,33 +284,47 @@ img{max-width:100%;display:block}
 .st h4{font-size:15.5px}
 .st p{font-size:13px;color:var(--fg-2);line-height:1.7}
 
-/* ---- subscription tiers: two stacked cards, checkout lives on Salla ---- */
-.tiers{display:flex;flex-direction:column;gap:20px;max-width:920px;margin-inline:auto}
+/* ---- subscription tiers: matched to the client reference, checkout on Salla ---- */
+.tiers-head{max-width:960px;margin-inline:auto}
+.tiers-note{max-width:960px;margin-inline:auto}
+.tiers{display:flex;flex-direction:column;gap:22px;max-width:960px;margin-inline:auto}
 .tier-card{
-  position:relative;border-radius:24px;padding:clamp(26px,3.4vw,40px);
-  display:flex;flex-direction:column;gap:clamp(26px,3.4vw,44px);
-  border:1px solid var(--line);box-shadow:var(--shadow);overflow:hidden;
+  position:relative;border-radius:28px;padding:clamp(26px,3.6vw,44px);
+  display:flex;flex-direction:column;gap:clamp(30px,7vw,100px);
+  border:1px solid var(--tier-edge);box-shadow:0 20px 44px -30px rgba(16,40,70,.4);
 }
-.tier-dia{background:linear-gradient(145deg,var(--dia-1),var(--dia-2))}
-.tier-brz{background:linear-gradient(145deg,var(--brz-1),var(--brz-2))}
+.tier-dia{background:linear-gradient(135deg,var(--dia-1) 0%,var(--dia-2) 52%,var(--dia-3) 100%)}
+.tier-brz{background:linear-gradient(135deg,var(--brz-1) 0%,var(--brz-2) 52%,var(--brz-3) 100%)}
 .tier-top{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
 .tier-ico{
-  width:56px;height:56px;border-radius:16px;display:grid;place-items:center;flex-shrink:0;
-  background:var(--tier-chip);box-shadow:0 8px 20px -12px rgba(10,28,48,.45);
+  width:clamp(64px,6vw,84px);aspect-ratio:1;border-radius:22px;
+  display:grid;place-items:center;flex-shrink:0;
+  background:var(--tier-chip);box-shadow:0 10px 24px -14px rgba(16,40,70,.5);
 }
-.tier-ico .ms{font-size:27px;color:var(--tier-chip-ink)}
+.tier-ico .ms{
+  font-size:clamp(28px,3vw,36px);color:var(--tier-chip-ink);
+  font-variation-settings:'FILL' 1,'wght' 400;max-width:1.2em;
+}
 .tier-badge{
-  font-size:13px;font-weight:600;color:var(--tier-badge-ink);
-  background:var(--tier-badge-bg);border:1px solid var(--tier-edge);
-  border-radius:999px;padding:7px 16px;white-space:nowrap;
+  font-size:14px;font-weight:600;color:var(--tier-badge-ink);
+  background:var(--tier-badge-bg);border:1px solid var(--tier-badge-line);
+  border-radius:999px;padding:9px 19px;white-space:nowrap;
 }
-.tier-body h3{font-size:clamp(24px,3.2vw,34px);letter-spacing:-.02em;color:var(--tier-ink)}
+.tier-body h3{font-size:clamp(26px,3.6vw,38px);font-weight:700;letter-spacing:-.02em;color:var(--tier-ink)}
 .tier-body p{
-  font-size:clamp(15px,1.5vw,17px);line-height:1.8;margin-top:12px;max-width:46ch;
-  color:color-mix(in srgb,var(--tier-ink) 78%,transparent);
+  font-size:clamp(15px,1.5vw,17.5px);line-height:1.8;margin-top:14px;max-width:48ch;
+  color:var(--tier-sub);
 }
-.tier-btn{align-self:flex-start;padding-inline:30px}
-@media (max-width:640px){.tier-btn{align-self:stretch}}
+.tier-btn{
+  align-self:flex-start;background:var(--tier-cta);color:#fff;border:none;
+  font-size:clamp(15px,1.5vw,17px);font-weight:600;padding:16px 36px;border-radius:12px;
+  box-shadow:0 12px 26px -14px var(--tier-cta);
+}
+.tier-btn:hover{background:var(--tier-cta-h);color:#fff}
+@media (max-width:640px){
+  .tier-card{border-radius:22px}
+  .tier-btn{align-self:stretch;padding-inline:20px}
+}
 
 .note{
   margin-top:22px;font-size:12.5px;color:var(--fg-2);display:flex;gap:9px;align-items:flex-start;
