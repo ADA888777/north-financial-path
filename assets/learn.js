@@ -107,7 +107,8 @@
       box.innerHTML = '<h2><span class="ms">videocam</span> الكلاسات الخاصة</h2>' +
         '<p style="color:var(--fg-2);font-size:14px;line-height:1.9;margin-bottom:16px">' +
         'جلسة فردية مع المدرّب. اختر الموعد المناسب من المواعيد المتاحة.</p>' +
-        '<a class="btn btn-ghost btn-wide" href="classes.html">المواعيد والحجوزات</a>';
+        '<a class="btn btn-ghost btn-wide" href="classes.html">المواعيد والحجوزات</a>' +
+        '<a class="btn btn-ghost btn-wide" href="assistant.html" style="margin-top:9px">اسأل المساعد التعليمي</a>';
       var alerts = document.getElementById('alerts-box');
       alerts.parentNode.insertBefore(box, alerts);
     }
