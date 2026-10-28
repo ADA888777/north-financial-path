@@ -88,11 +88,13 @@
 .sub-state.off{background:color-mix(in srgb,var(--dn) 11%,transparent)}
 .sub-state.off .ms,.sub-state.off b{color:var(--dn)}
 
-.locked{
+div.locked{
   border:1px dashed var(--line-2);border-radius:var(--rp);padding:34px 24px;text-align:center;
   color:var(--fg-2);font-size:14.5px;line-height:1.9;
 }
-.locked .ms{font-size:32px;color:var(--fg-3);display:block;margin-bottom:12px}
+/* الاسم عام جداً: «مقفل» حالةٌ تتكرّر في صفحات أخرى (مراحل الخارطة
+   مثلاً)، فتخطف هذه القاعدة أيقوناتها وتكبّرها. مقيّدة بصندوقها وحده. */
+div.locked > .ms{font-size:32px;color:var(--fg-3);display:block;margin-bottom:12px}
 
 @media (max-width:860px){.acct-grid{grid-template-columns:1fr}}
 @media (max-width:640px){

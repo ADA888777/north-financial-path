@@ -25,10 +25,8 @@
       <span><b>NORTH</b><i>للمسار المالي</i></span>
     </a>
     <nav class="nav-links" aria-label="التنقل">
+      <a href="index.html">الموقع</a>
       <a href="learn.html">لوحتي</a>
-      <a href="classes.html">الكلاسات</a>
-      <a href="assistant.html">المساعد</a>
-      <a href="account.html">حسابي</a>
     </nav>
     <div class="nav-act">
       <button class="icon-btn" id="theme-toggle" type="button" aria-label="تبديل المظهر"><span class="ms" id="theme-ico">dark_mode</span></button>
@@ -36,6 +34,8 @@
     </div>
   </div>
 </header>
+
+<nav class="lnav" id="lnav" aria-label="أقسام المتعلم"></nav>
 
 <div class="rail gate" id="gate" hidden></div>
 
@@ -49,35 +49,57 @@
     </div>
   </div>
 
+  <!-- 1) سلسلة التعلم اليومية -->
+  <section class="lbox streak-box">
+    <h2><span class="ms">local_fire_department</span> سلسلة التعلم</h2>
+    <div id="streak"></div>
+  </section>
+
+  <!-- 2) ملخص مستوى المتعلم -->
+  <section class="sum" id="summary" aria-label="ملخص مستواك"></section>
+
+  <!-- 6) تابع التعلم -->
   <div id="resume-box"></div>
 
   <div class="lgrid">
     <div>
-      <section class="lbox">
-        <h2><span class="ms">school</span> مستوياتك</h2>
-        <div id="levels"></div>
-      </section>
-
-      <section class="lbox">
-        <h2><span class="ms">quiz</span> الاختبارات</h2>
-        <div id="quizzes"></div>
-      </section>
-    </div>
-
-    <div>
-      <section class="lbox">
-        <h2><span class="ms">local_fire_department</span> الاستمرارية</h2>
-        <div id="streak"></div>
-      </section>
-
+      <!-- 4) مهام اليوم -->
       <section class="lbox">
         <h2><span class="ms">checklist</span> مهام اليوم</h2>
         <div id="tasks"></div>
       </section>
 
-      <section class="lbox" id="alerts-box" hidden>
-        <h2><span class="ms">notifications</span> تنبيهات</h2>
-        <div id="alerts"></div>
+      <!-- 5) نشاط المتعلم -->
+      <section class="lbox">
+        <h2><span class="ms">insights</span> نشاطك
+          <span class="seg" id="act-range" role="group" aria-label="مدى العرض"></span>
+        </h2>
+        <div id="activity"></div>
+      </section>
+
+      <!-- 8) خارطة التقدم -->
+      <section class="lbox">
+        <h2><span class="ms">map</span> خارطة التقدم</h2>
+        <div id="map-mini"></div>
+      </section>
+    </div>
+
+    <div>
+      <!-- 7) آخر إشعار -->
+      <section class="lbox">
+        <h2><span class="ms">notifications</span> آخر إشعار</h2>
+        <div id="last-note"></div>
+      </section>
+
+      <!-- 3) دليل المبتدئين -->
+      <section class="lbox" id="guide-box" hidden>
+        <h2><span class="ms">explore</span> دليل المبتدئين</h2>
+        <div id="guide"></div>
+      </section>
+
+      <section class="lbox">
+        <h2><span class="ms">quiz</span> الاختبارات</h2>
+        <div id="quizzes"></div>
       </section>
     </div>
   </div>
@@ -89,6 +111,7 @@
 <script src="assets/nav-session.js"></script>
 <script src="assets/bell.js"></script>
 <script src="assets/learn-core.js"></script>
+<script src="assets/learn-nav.js"></script>
 <script src="assets/learn.js"></script>
 </body>
 </html>

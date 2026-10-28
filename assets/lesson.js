@@ -63,6 +63,9 @@
         return '<div class="vterm"><b>' + esc(x.term) + '</b>' +
           (x.meaning ? '<span>' + esc(x.meaning) + '</span>' : '') + '</div>';
       }).join('');
+      el('l-vocab').insertAdjacentHTML('afterend',
+        '<a class="btn btn-ghost btn-sm btn-wide" style="margin-top:12px" ' +
+        'href="cards.html?lesson=' + encodeURIComponent(id) + '">راجعها كبطاقات</a>');
     }
 
     if (d.quiz_id) {
@@ -77,6 +80,7 @@
     else { next.setAttribute('aria-disabled', 'true'); next.style.visibility = 'hidden'; }
 
     paintDone(d.completed);
+    if (window.northLessonResume) window.northLessonResume(d);
   }
 
   function paintDone(done) {
@@ -108,4 +112,45 @@
         }
       });
   });
+
+  /* ---------- موضع القراءة ----------
+     يُحفظ كنسبة من طول الصفحة لا كإزاحة بالبكسل: البكسل يتغيّر مع حجم
+     الشاشة والخط، فيعود المتعلم إلى موضع غير الذي ترك. */
+  function scrollPct() {
+    var h = document.documentElement.scrollHeight - window.innerHeight;
+    if (h <= 0) return 0;
+    return Math.max(0, Math.min(100, Math.round((window.scrollY / h) * 100)));
+  }
+
+  var lastSent = -1, timer = null;
+
+  function remember() {
+    if (!lesson || !lesson.allowed) return;
+    var p = scrollPct();
+    if (Math.abs(p - lastSent) < 5) return;
+    lastSent = p;
+    db.rpc('save_lesson_spot', { p_lesson: id, p_pos: p }).catch(function () {});
+  }
+
+  window.addEventListener('scroll', function () {
+    if (timer) return;
+    timer = setTimeout(function () { timer = null; remember(); }, 1500);
+  }, { passive: true });
+
+  window.addEventListener('pagehide', remember);
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'hidden') remember();
+  });
+
+  /* الرجوع إلى حيث وقف: ?at= من اللوحة، وإلا الموضع المحفوظ في القاعدة */
+  window.northLessonResume = function (d) {
+    var at = parseInt(L.qs('at'), 10);
+    var pos = isNaN(at) ? (d.spot || 0) : at;
+    if (!pos || pos < 5 || !d.allowed) return;
+    requestAnimationFrame(function () {
+      var h = document.documentElement.scrollHeight - window.innerHeight;
+      if (h > 0) window.scrollTo({ top: (pos / 100) * h, behavior: 'smooth' });
+      lastSent = pos;
+    });
+  };
 })();

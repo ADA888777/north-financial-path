@@ -28,7 +28,8 @@
   }
 
   function load() {
-    Promise.all([db.rpc('available_slots'), db.rpc('my_bookings')]).then(function (r) {
+    // الكلاسات الخاصة وحدها. الحصص المباشرة الجماعية لها صفحتها.
+    Promise.all([db.rpc('slots_by_kind', { p_kind: 'private' }), db.rpc('my_bookings')]).then(function (r) {
       if (r[0].error) {
         el('slots').innerHTML = state('error', 'تعذّر تحميل المواعيد. ' + esc(r[0].error.message));
       } else {
