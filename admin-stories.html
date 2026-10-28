@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>إدارة قصص النجاح — نورث</title>
+<link rel="icon" href="assets/north-mark.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Cormorant+Garamond:wght@600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,300..400,0..1,0&display=block">
+<link rel="stylesheet" href="assets/app.css">
+<link rel="stylesheet" href="assets/auth.css">
+<link rel="stylesheet" href="assets/admin.css">
+</head>
+<body>
+
+<header class="nav">
+  <div class="rail nav-in">
+    <a class="brand" href="index.html" aria-label="نورث للمسار المالي، الرئيسية">
+      <img class="logo-light" src="assets/north-mark.png" alt="">
+      <img class="logo-dark" src="assets/north-mark-white.png" alt="">
+      <span><b>NORTH</b><i>لوحة الإدارة</i></span>
+    </a>
+    <div class="nav-act" style="margin-inline-start:auto">
+      <button class="icon-btn" id="theme-toggle" type="button" aria-label="تبديل المظهر"><span class="ms" id="theme-ico">dark_mode</span></button>
+      <a class="btn btn-ghost btn-sm" href="index.html">عرض الموقع</a>
+    </div>
+  </div>
+</header>
+
+<div class="rail gate" id="gate" hidden></div>
+
+<main class="rail" id="shell" hidden>
+  <div class="adm-bar">
+    <nav class="adm-nav">
+      <a href="admin.html"><span class="ms">dashboard</span> اللوحة</a>
+      <a href="admin-stories.html" class="on"><span class="ms">auto_stories</span> قصص النجاح</a>
+    </nav>
+    <div class="adm-who">
+      <span class="ms sm">account_circle</span>
+      <span class="num" id="who"></span>
+      <button class="btn btn-ghost btn-sm" id="logout" type="button">خروج</button>
+    </div>
+  </div>
+
+  <div class="adm-head">
+    <div>
+      <h1>قصص النجاح</h1>
+      <p>المنشورة تظهر في الصفحة الرئيسية. المسودة لا تخرج من قاعدة البيانات.</p>
+    </div>
+    <button class="btn btn-primary" id="add" type="button">
+      <span class="ms sm">add</span> إضافة قصة
+    </button>
+  </div>
+
+  <div id="list"></div>
+
+  <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
+    <div class="sheet-in">
+      <div class="sheet-h">
+        <h2 id="sheet-title">إضافة قصة نجاح</h2>
+        <button class="iconbtn" id="close" type="button" aria-label="إغلاق"><span class="ms">close</span></button>
+      </div>
+
+      <form class="auth-form" id="form" style="margin-top:0" novalidate>
+        <div class="field">
+          <label for="file">الصورة</label>
+          <label class="drop" for="file" id="drop">
+            <span class="ms">add_photo_alternate</span>
+            <p>اختر صورة — JPG أو PNG أو WebP، بحد أقصى 3 ميغابايت</p>
+            <input type="file" id="file" accept="image/jpeg,image/png,image/webp">
+          </label>
+          <p class="err" id="err-file"><span class="ms">error</span><span></span></p>
+        </div>
+
+        <div class="field" data-field="title">
+          <label for="title">العنوان <span class="req">*</span></label>
+          <div class="inp-wrap"><input type="text" id="title" placeholder="عنوان القصة"></div>
+          <p class="err" id="err-title"><span class="ms">error</span><span></span></p>
+        </div>
+
+        <div class="field">
+          <label for="body">نص القصة</label>
+          <div class="inp-wrap"><textarea id="body" rows="5" placeholder="تجربة المتدرب"></textarea></div>
+        </div>
+
+        <div class="two">
+          <div class="field">
+            <label for="trainee">اسم المتدرب</label>
+            <div class="inp-wrap"><input type="text" id="trainee" placeholder="اختياري"></div>
+          </div>
+          <div class="field">
+            <label for="order">ترتيب العرض</label>
+            <div class="inp-wrap"><input type="text" inputmode="numeric" id="order" value="0"></div>
+          </div>
+        </div>
+
+        <label class="switch" for="showname">
+          <input type="checkbox" id="showname">
+          <span>اعرض اسم المتدرب في الموقع</span>
+        </label>
+        <label class="switch" for="published">
+          <input type="checkbox" id="published">
+          <span>منشورة</span>
+        </label>
+
+        <div class="sheet-f">
+          <button class="btn btn-primary" type="submit">
+            <span class="spin" aria-hidden="true"></span><span data-label>حفظ</span>
+          </button>
+          <button class="btn btn-ghost" id="cancel" type="button">إلغاء</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</main>
+
+<div class="toast" id="toast"><span class="ms"></span><span></span></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js"></script>
+<script src="assets/supabase.js"></script>
+<script src="assets/admin.js"></script>
+<script src="assets/admin-stories.js"></script>
+</body>
+</html>

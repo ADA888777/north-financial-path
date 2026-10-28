@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>لوحة الإدارة — نورث</title>
+<link rel="icon" href="assets/north-mark.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Cormorant+Garamond:wght@600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,300..400,0..1,0&display=block">
+<link rel="stylesheet" href="assets/app.css">
+<link rel="stylesheet" href="assets/auth.css">
+<link rel="stylesheet" href="assets/admin.css">
+</head>
+<body>
+
+<header class="nav">
+  <div class="rail nav-in">
+    <a class="brand" href="index.html" aria-label="نورث للمسار المالي، الرئيسية">
+      <img class="logo-light" src="assets/north-mark.png" alt="">
+      <img class="logo-dark" src="assets/north-mark-white.png" alt="">
+      <span><b>NORTH</b><i>لوحة الإدارة</i></span>
+    </a>
+    <div class="nav-act" style="margin-inline-start:auto">
+      <button class="icon-btn" id="theme-toggle" type="button" aria-label="تبديل المظهر"><span class="ms" id="theme-ico">dark_mode</span></button>
+      <a class="btn btn-ghost btn-sm" href="index.html">عرض الموقع</a>
+    </div>
+  </div>
+</header>
+
+<div class="rail gate" id="gate" hidden></div>
+
+<main class="rail" id="shell" hidden>
+  <div class="adm-bar">
+    <nav class="adm-nav">
+      <a href="admin.html" class="on"><span class="ms">dashboard</span> اللوحة</a>
+      <a href="admin-stories.html"><span class="ms">auto_stories</span> قصص النجاح</a>
+    </nav>
+    <div class="adm-who">
+      <span class="ms sm">account_circle</span>
+      <span class="num" id="who"></span>
+      <button class="btn btn-ghost btn-sm" id="logout" type="button">خروج</button>
+    </div>
+  </div>
+
+  <div class="adm-head">
+    <div>
+      <h1>اللوحة</h1>
+      <p>أرقام مباشرة من قاعدة البيانات.</p>
+    </div>
+  </div>
+
+  <div class="kpis" id="kpis">
+    <div class="kpi"><span class="ms">group</span><b>—</b><span>مستخدم</span></div>
+    <div class="kpi"><span class="ms">auto_stories</span><b>—</b><span>قصة منشورة</span></div>
+    <div class="kpi"><span class="ms">edit_note</span><b>—</b><span>مسودة</span></div>
+    <div class="kpi"><span class="ms">admin_panel_settings</span><b>—</b><span>حساب إدارة</span></div>
+  </div>
+
+  <div class="state" id="todo">
+    <span class="ms">construction</span>
+    أقسام المستخدمين والمسارات والاشتراكات والحجوزات لم تُنفَّذ بعد.
+    متطلباتها في <code>docs/BACKEND-SPEC.md</code>.
+  </div>
+
+</main>
+
+<div class="toast" id="toast"><span class="ms"></span><span></span></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js"></script>
+<script src="assets/supabase.js"></script>
+<script src="assets/admin.js"></script>
+<script src="assets/admin-home.js"></script>
+</body>
+</html>
