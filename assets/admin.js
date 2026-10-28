@@ -79,8 +79,8 @@
           '<h1>' + esc(title) + '</h1>' +
           '<p>' + esc(note) + '</p>' +
           (showLogin
-            ? '<a class="btn btn-primary" href="login.html?next=' + encodeURIComponent(here()) + '">تسجيل الدخول</a>'
-            : '<a class="btn btn-ghost" href="index.html">العودة إلى الموقع</a>') +
+            ? '<a class="bt bt-main" href="login.html?next=' + encodeURIComponent(here()) + '">تسجيل الدخول</a>'
+            : '<a class="bt bt-soft" href="index.html">العودة إلى الموقع</a>') +
         '</div>';
     }
 
@@ -102,6 +102,7 @@
         }
         if (shell) shell.hidden = false;
         if (gate) gate.hidden = true;
+        wireTabs();
         var who = el('who');
         if (who) who.textContent = session.user.email;
         var out = el('logout');
@@ -116,6 +117,36 @@
       deny('تعذّر التحقق', 'حدث خطأ أثناء التحقق من الصلاحية: ' + (e && e.message ? e.message : ''), false);
       return null;
     });
+  }
+
+
+  /* ---------- التبويبات ---------- */
+  function wireTabs() {
+    var tabs = document.querySelectorAll('#tabs .tab');
+    var panels = document.querySelectorAll('[data-panel]');
+    if (!tabs.length) return;
+
+    function show(name, push) {
+      var found = false;
+      panels.forEach(function (p) {
+        var on = p.getAttribute('data-panel') === name;
+        p.hidden = !on;
+        if (on) found = true;
+      });
+      if (!found) return show('members', push);
+      tabs.forEach(function (t) { t.classList.toggle('on', t.getAttribute('data-tab') === name); });
+      if (push) {
+        try { history.replaceState(null, '', '#' + name); } catch (e) {}
+      }
+      window.dispatchEvent(new CustomEvent('north:tab', { detail: name }));
+    }
+
+    tabs.forEach(function (t) {
+      t.addEventListener('click', function () { show(t.getAttribute('data-tab'), true); });
+    });
+
+    var initial = (window.location.hash || '').replace('#', '');
+    show(initial || 'members', false);
   }
 
   window.northAdmin = {

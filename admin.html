@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="rtl" data-theme="dark">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -11,67 +11,203 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Cormorant+Garamond:wght@600&display=swap">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,300..400,0..1,0&display=block">
 <link rel="stylesheet" href="assets/app.css">
-<link rel="stylesheet" href="assets/auth.css">
 <link rel="stylesheet" href="assets/admin.css">
 </head>
-<body>
-
-<header class="nav">
-  <div class="rail nav-in">
-    <a class="brand" href="index.html" aria-label="نورث للمسار المالي، الرئيسية">
-      <img class="logo-light" src="assets/north-mark.png" alt="">
-      <img class="logo-dark" src="assets/north-mark-white.png" alt="">
-      <span><b>NORTH</b><i>لوحة الإدارة</i></span>
-    </a>
-    <div class="nav-act" style="margin-inline-start:auto">
-      <button class="icon-btn" id="theme-toggle" type="button" aria-label="تبديل المظهر"><span class="ms" id="theme-ico">dark_mode</span></button>
-      <a class="btn btn-ghost btn-sm" href="index.html">عرض الموقع</a>
-    </div>
-  </div>
-</header>
+<body class="adm-body adm">
 
 <div class="rail gate" id="gate" hidden></div>
 
-<main class="rail" id="shell" hidden>
-  <div class="adm-bar">
-    <nav class="adm-nav">
-      <a href="admin.html" class="on"><span class="ms">dashboard</span> اللوحة</a>
-      <a href="admin-stories.html"><span class="ms">auto_stories</span> قصص النجاح</a>
-    </nav>
+<div class="rail" id="shell" hidden>
+
+  <div class="adm-top">
+    <a class="brand" href="index.html" aria-label="نورث للمسار المالي">
+      <img src="assets/north-mark-white.png" alt="" style="height:32px">
+      <span><b style="color:var(--a-fg)">NORTH</b><i style="color:var(--a-fg-2)">لوحة الإدارة</i></span>
+    </a>
     <div class="adm-who">
       <span class="ms sm">account_circle</span>
       <span class="num" id="who"></span>
-      <button class="btn btn-ghost btn-sm" id="logout" type="button">خروج</button>
+      <a class="bt bt-soft" href="index.html" style="padding:9px 16px;font-size:13px">الموقع</a>
+      <button class="bt bt-soft" id="logout" type="button" style="padding:9px 16px;font-size:13px">خروج</button>
     </div>
   </div>
 
-  <div class="adm-head">
-    <div>
-      <h1>اللوحة</h1>
-      <p>أرقام مباشرة من قاعدة البيانات.</p>
+  <nav class="tabs" id="tabs">
+    <button class="tab on" type="button" data-tab="members">الأعضاء</button>
+    <button class="tab" type="button" data-tab="levels">المستويات</button>
+    <button class="tab" type="button" data-tab="lessons">الدروس والاستراتيجيات</button>
+    <button class="tab" type="button" data-tab="quizzes">الاختبارات</button>
+    <button class="tab" type="button" data-tab="classes">الحصص</button>
+    <button class="tab" type="button" data-tab="stories">قصص النجاح</button>
+  </nav>
+
+  <!-- ===================== الأعضاء ===================== -->
+  <section data-panel="members">
+    <div class="kpis" id="member-kpis">
+      <div class="kpi"><span>كل الأعضاء</span><b>—</b></div>
+      <div class="kpi"><span>الحسابات الفعّالة</span><b>—</b></div>
+      <div class="kpi"><span>حسابات الإدارة</span><b>—</b></div>
+      <div class="kpi"><span>جدد آخر 30 يوم</span><b>—</b></div>
     </div>
-  </div>
 
-  <div class="kpis" id="kpis">
-    <div class="kpi"><span class="ms">group</span><b>—</b><span>مستخدم</span></div>
-    <div class="kpi"><span class="ms">auto_stories</span><b>—</b><span>قصة منشورة</span></div>
-    <div class="kpi"><span class="ms">edit_note</span><b>—</b><span>مسودة</span></div>
-    <div class="kpi"><span class="ms">admin_panel_settings</span><b>—</b><span>حساب إدارة</span></div>
-  </div>
+    <div class="panel-box">
+      <h2>إضافة عضو جديد</h2>
+      <div class="note-box" id="fn-note" hidden>
+        <span class="ms">info</span>
+        <span>إنشاء الحسابات يحتاج دالة الخادم <code>create-member</code>. حتى تُنشر، أضيفي العضو من
+        Supabase ← Authentication ← Add user، ثم عدّلي باقته من الجدول أدناه.</span>
+      </div>
 
-  <div class="state" id="todo">
-    <span class="ms">construction</span>
-    أقسام المستخدمين والمسارات والاشتراكات والحجوزات لم تُنفَّذ بعد.
-    متطلباتها في <code>docs/BACKEND-SPEC.md</code>.
-  </div>
+      <form id="member-form" novalidate>
+        <div class="grid2">
+          <div class="fld" data-fld="name">
+            <label for="m-name">اسم العميل <span class="req">*</span></label>
+            <input type="text" id="m-name" placeholder="الاسم كاملاً">
+            <p class="bad-msg"></p>
+          </div>
+          <div class="fld" data-fld="phone">
+            <label for="m-phone">الجوال</label>
+            <input type="text" id="m-phone" inputmode="tel" placeholder="05XXXXXXXX">
+            <p class="bad-msg"></p>
+          </div>
+        </div>
 
-</main>
+        <div class="grid2" style="margin-top:16px">
+          <div class="fld" data-fld="email">
+            <label for="m-email">البريد الإلكتروني <span class="req">*</span></label>
+            <input type="email" id="m-email" dir="ltr" placeholder="name@example.com">
+            <p class="hint">يستخدمه العضو لتسجيل الدخول، فهو مطلوب لإنشاء الحساب.</p>
+            <p class="bad-msg"></p>
+          </div>
+          <div class="fld" data-fld="plan">
+            <label for="m-plan">الباقة</label>
+            <select id="m-plan">
+              <option value="البرونزية">الباقة البرونزية</option>
+              <option value="الماسية">الباقة الماسية</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid2" style="margin-top:16px">
+          <div class="fld" data-fld="membership">
+            <label for="m-no">رقم العضوية</label>
+            <input type="text" id="m-no" placeholder="تلقائي">
+            <p class="hint">اتركه فارغاً ويتولّد تلقائياً.</p>
+          </div>
+          <div class="fld" data-fld="password">
+            <label for="m-pass">كلمة المرور</label>
+            <input type="text" id="m-pass" dir="ltr" placeholder="تلقائية">
+            <p class="hint">اتركها فارغة وتتولّد تلقائياً (8 خانات أو أكثر).</p>
+            <p class="bad-msg"></p>
+          </div>
+        </div>
+
+        <button class="bt bt-main bt-wide" type="submit" style="margin-top:22px">
+          <span class="spin" aria-hidden="true"></span><span data-label>إضافة العضو</span>
+        </button>
+      </form>
+    </div>
+
+    <div class="panel-box">
+      <h2>الأعضاء</h2>
+      <div class="fld" style="max-width:320px;margin-bottom:18px">
+        <input type="search" id="m-search" placeholder="ابحث بالاسم أو البريد أو رقم العضوية">
+      </div>
+      <div id="members-list"></div>
+    </div>
+  </section>
+
+  <!-- ===================== قصص النجاح ===================== -->
+  <section data-panel="stories" hidden>
+    <div class="kpis" id="story-kpis">
+      <div class="kpi"><span>منشورة</span><b>—</b></div>
+      <div class="kpi"><span>مسودة</span><b>—</b></div>
+    </div>
+    <div class="panel-box">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:20px">
+        <h2 style="margin:0">قصص النجاح</h2>
+        <button class="bt bt-main" id="add" type="button"><span class="ms sm">add</span> إضافة قصة</button>
+      </div>
+      <p class="sub" style="margin-top:-10px">المنشورة تظهر في الصفحة الرئيسية. المسودة لا تخرج من قاعدة البيانات.</p>
+      <div id="list"></div>
+    </div>
+  </section>
+
+  <!-- ===================== أقسام لم تُنفَّذ ===================== -->
+  <section data-panel="levels" hidden>
+    <div class="state"><span class="ms">stairs</span>
+      قسم المستويات لم يُنفَّذ بعد.<br>متطلباته في <code>docs/BACKEND-SPEC.md</code></div>
+  </section>
+  <section data-panel="lessons" hidden>
+    <div class="state"><span class="ms">menu_book</span>
+      قسم الدروس والاستراتيجيات لم يُنفَّذ بعد.<br>متطلباته في <code>docs/BACKEND-SPEC.md</code></div>
+  </section>
+  <section data-panel="quizzes" hidden>
+    <div class="state"><span class="ms">quiz</span>
+      قسم الاختبارات لم يُنفَّذ بعد.<br>متطلباته في <code>docs/BACKEND-SPEC.md</code></div>
+  </section>
+  <section data-panel="classes" hidden>
+    <div class="state"><span class="ms">calendar_month</span>
+      قسم الحصص والحجوزات لم يُنفَّذ بعد.<br>متطلباته في <code>docs/BACKEND-SPEC.md</code></div>
+  </section>
+
+</div>
+
+<!-- نموذج القصة -->
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
+  <div class="sheet-in">
+    <div class="sheet-h">
+      <h2 id="sheet-title">إضافة قصة نجاح</h2>
+      <button class="ib" id="close" type="button" aria-label="إغلاق"><span class="ms">close</span></button>
+    </div>
+    <form id="form" novalidate>
+      <div class="fld" style="margin-bottom:16px">
+        <label for="file">الصورة</label>
+        <label class="drop" for="file" id="drop">
+          <span class="ms">add_photo_alternate</span>
+          <p>اختر صورة — JPG أو PNG أو WebP، بحد أقصى 3 ميغابايت</p>
+          <input type="file" id="file" accept="image/jpeg,image/png,image/webp">
+        </label>
+        <p class="bad-msg" id="err-file"></p>
+      </div>
+      <div class="fld" data-fld="title" style="margin-bottom:16px">
+        <label for="title">العنوان <span class="req">*</span></label>
+        <input type="text" id="title" placeholder="عنوان القصة">
+        <p class="bad-msg"></p>
+      </div>
+      <div class="fld" style="margin-bottom:16px">
+        <label for="body">نص القصة</label>
+        <textarea id="body" rows="5" placeholder="تجربة المتدرب"></textarea>
+      </div>
+      <div class="grid2" style="margin-bottom:16px">
+        <div class="fld"><label for="trainee">اسم المتدرب</label>
+          <input type="text" id="trainee" placeholder="اختياري"></div>
+        <div class="fld"><label for="amount">المبلغ على البطاقة</label>
+          <input type="text" id="amount" placeholder="مثال: ٣٬٠٠٠ ر.س.">
+          <p class="hint">اتركه فارغاً لإخفاء الشارة.</p></div>
+      </div>
+      <div class="grid2" style="margin-bottom:18px">
+        <div class="fld"><label for="order">ترتيب العرض</label>
+          <input type="text" inputmode="numeric" id="order" value="0"></div>
+        <div class="fld" style="justify-content:flex-end;gap:12px">
+          <label class="chk" for="showname"><input type="checkbox" id="showname"><span>اعرض اسم المتدرب</span></label>
+          <label class="chk" for="published"><input type="checkbox" id="published"><span>منشورة</span></label>
+        </div>
+      </div>
+      <div class="sheet-f">
+        <button class="bt bt-main" type="submit"><span class="spin" aria-hidden="true"></span><span data-label>حفظ</span></button>
+        <button class="bt bt-soft" id="cancel" type="button">إلغاء</button>
+      </div>
+    </form>
+  </div>
+</div>
 
 <div class="toast" id="toast"><span class="ms"></span><span></span></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js"></script>
 <script src="assets/supabase.js"></script>
 <script src="assets/admin.js"></script>
-<script src="assets/admin-home.js"></script>
+<script src="assets/admin-members.js"></script>
+<script src="assets/admin-stories.js"></script>
 </body>
 </html>

@@ -10,6 +10,7 @@
   var TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
   var list = el('list'), sheet = el('sheet'), form = el('form');
+var storyRows = [];
   var fileIn = el('file'), drop = el('drop');
   var editingId = null;      /* null = إضافة */
   var editingPath = null;    /* مسار الصورة الحالية */
@@ -18,6 +19,14 @@
   var busy = false;
 
   A.guard().then(function (session) { if (session) load(); });
+
+  function kpis(rows) {
+    var c = document.querySelectorAll('#story-kpis .kpi b');
+    if (!c.length) return;
+    var pub = rows.filter(function (s) { return s.published; }).length;
+    c[0].textContent = new Intl.NumberFormat('ar-SA').format(pub);
+    c[1].textContent = new Intl.NumberFormat('ar-SA').format(rows.length - pub);
+  }
 
   /* ---------------- القائمة ---------------- */
   function skeleton() {
@@ -37,7 +46,9 @@
             '<br><br>إذا كان الجدول غير موجود، شغّل <code>supabase/01_stories_and_admin.sql</code>.</div>';
           return;
         }
-        render(r.data || []);
+        storyRows = r.data || [];
+        kpis(storyRows);
+        render(storyRows);
       });
   }
 
@@ -56,17 +67,17 @@
         '<div class="smeta">' +
           '<h3>' + esc(s.title) + '</h3>' +
           '<div class="line">' +
-            '<span class="badge ' + (s.published ? 'pub">منشورة' : 'draft">مسودة') + '</span>' +
+            '<span class="tag ' + (s.published ? 'tag-ok">منشورة' : 'tag-off">مسودة') + '</span>' +
             '<span>ترتيب ' + esc(s.sort_order) + '</span>' +
-            (s.amount ? '<span class="badge draft">' + esc(s.amount) + '</span>' : '') +
+            (s.amount ? '<span class="tag tag-off">' + esc(s.amount) + '</span>' : '') +
             '<span>آخر تعديل ' + esc(A.fmtDate(s.updated_at)) + '</span>' +
           '</div>' +
         '</div>' +
         '<div class="sacts">' +
-          '<button class="iconbtn" data-act="toggle" title="' + (s.published ? 'إلغاء النشر' : 'نشر') + '">' +
+          '<button class="ib" data-act="toggle" title="' + (s.published ? 'إلغاء النشر' : 'نشر') + '">' +
             '<span class="ms">' + (s.published ? 'visibility_off' : 'visibility') + '</span></button>' +
-          '<button class="iconbtn" data-act="edit" title="تعديل"><span class="ms">edit</span></button>' +
-          '<button class="iconbtn danger" data-act="del" title="حذف"><span class="ms">delete</span></button>' +
+          '<button class="ib" data-act="edit" title="تعديل"><span class="ms">edit</span></button>' +
+          '<button class="ib danger" data-act="del" title="حذف"><span class="ms">delete</span></button>' +
         '</div>' +
       '</div>';
     }).join('');
@@ -111,15 +122,16 @@
   }
 
   function fieldError(id, msg) {
-    var f = document.querySelector('[data-field="' + id + '"]') ||
-            el('err-' + id).closest('.field');
-    var box = el('err-' + id);
-    if (msg) {
-      f.classList.add('bad');
-      box.querySelector('span:last-child').textContent = msg;
-    } else {
-      f.classList.remove('bad');
+    if (id === 'file') {
+      var fb = el('err-file');
+      fb.textContent = msg || '';
+      fb.style.display = msg ? 'block' : 'none';
+      return;
     }
+    var f = document.querySelector('[data-fld="' + id + '"]');
+    if (!f) return;
+    f.classList.toggle('bad', !!msg);
+    if (msg) f.querySelector('.bad-msg').textContent = msg;
   }
 
   function open(s) {
