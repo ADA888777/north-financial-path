@@ -1,6 +1,6 @@
-/* نورث للمسار المالي — منطق نماذج المصادقة (واجهة فقط).
-   المرحلة الأولى: تحقق من المدخلات وحالات التحميل والأخطاء.
-   المرحلة الثانية: يُستبدل submitToApi بطلب فعلي إلى نظام المصادقة. */
+/* نورث للمسار المالي — منطق نماذج المصادقة.
+   التحقق من المدخلات وحالات التحميل والأخطاء + الاتصال الفعلي بـ Supabase Auth.
+   يعتمد على assets/supabase.js الذي ينشئ window.northDB. */
 (function () {
   'use strict';
 
@@ -104,42 +104,95 @@
     });
   });
 
-  /* ---------- حساب تجريبي واحد لتجربة الواجهة قبل ربط الخادم ---------- */
-  var DEMO_EMAIL = 'demo@north-sa.com';
-  var DEMO_PASSWORD = 'North1234';
+  /* ---------- الاتصال بـ Supabase ---------- */
+  var db = window.northDB || null;
+  /* مسار المجلد الذي تعيش فيه الصفحات، حتى تعمل الروابط محلياً وعلى الاستضافة */
+  var SITE = window.location.origin + window.location.pathname.replace(/[^/]*$/, '');
 
-  function registeredEmails() {
-    try { return JSON.parse(localStorage.getItem('north-demo-accounts') || '[]'); }
-    catch (e) { return []; }
-  }
-  function rememberEmail(email) {
-    try {
-      var list = registeredEmails();
-      if (list.indexOf(email) === -1) list.push(email);
-      localStorage.setItem('north-demo-accounts', JSON.stringify(list));
-    } catch (e) {}
+  /* ترجمة أخطاء Supabase إلى رسائل عربية يفهمها المستخدم */
+  function authError(error) {
+    var code = (error && error.code) || '';
+    var text = ((error && error.message) || '').toLowerCase();
+
+    if (code === 'invalid_credentials' || text.indexOf('invalid login credentials') !== -1) {
+      return { ok: false, message: 'البريد الإلكتروني أو كلمة المرور غير صحيحة.' };
+    }
+    if (code === 'email_not_confirmed' || text.indexOf('not confirmed') !== -1) {
+      return { ok: false, message: 'لم يتم تأكيد بريدك بعد. افتح رابط التأكيد الذي وصلك على بريدك.' };
+    }
+    if (code === 'user_already_exists' || text.indexOf('already registered') !== -1) {
+      return { ok: false, field: 'email', message: 'هذا البريد الإلكتروني مسجّل مسبقاً. سجّل الدخول بدلاً من ذلك.' };
+    }
+    if (code === 'weak_password' || text.indexOf('password should be') !== -1) {
+      return { ok: false, field: 'password', message: 'كلمة المرور ضعيفة. استخدم 8 خانات على الأقل تجمع حروفاً وأرقاماً.' };
+    }
+    if (code === 'validation_failed' || text.indexOf('invalid email') !== -1) {
+      return { ok: false, field: 'email', message: 'صيغة البريد الإلكتروني غير صحيحة.' };
+    }
+    if (code === 'over_email_send_rate_limit' || code === 'over_request_rate_limit' ||
+        text.indexOf('rate limit') !== -1 || text.indexOf('too many') !== -1) {
+      return { ok: false, message: 'عدد المحاولات كبير. انتظر دقيقة ثم أعد المحاولة.' };
+    }
+    if (code === 'signup_disabled') {
+      return { ok: false, message: 'التسجيل متوقف مؤقتاً. تواصل معنا.' };
+    }
+    return { ok: false, message: 'تعذّر إتمام الطلب الآن. تأكد من اتصالك بالإنترنت وحاول مرة أخرى.' };
   }
 
-  /* نداء وهمي يحاكي زمن استجابة الخادم. يُستبدل في المرحلة الثانية. */
+  /* الطلب الفعلي إلى Supabase Auth.
+     يُرجع دائماً { ok } أو { ok:false, field?, message } كما تتوقع بقية الملف. */
   function submitToApi(payload) {
-    return new Promise(function (resolve) {
-      setTimeout(function () {
-        if (payload.kind === 'reset') return resolve({ ok: true });
-        if (payload.kind === 'login') {
-          var known = payload.email === DEMO_EMAIL || registeredEmails().indexOf(payload.email) !== -1;
-          if (!known) return resolve({ ok: false, message: 'لا يوجد حساب مسجّل بهذا البريد الإلكتروني.' });
-          if (payload.email === DEMO_EMAIL && payload.password !== DEMO_PASSWORD) {
-            return resolve({ ok: false, message: 'كلمة المرور غير صحيحة. تأكد منها وحاول مرة أخرى.' });
+    if (!db) {
+      return Promise.resolve({ ok: false, message: 'تعذّر الاتصال بالخادم. حدّث الصفحة وحاول مرة أخرى.' });
+    }
+
+    if (payload.kind === 'login') {
+      return db.auth
+        .signInWithPassword({ email: payload.email, password: payload.password })
+        .then(function (res) { return res.error ? authError(res.error) : { ok: true }; })
+        .catch(authError);
+    }
+
+    if (payload.kind === 'signup') {
+      return db.auth
+        .signUp({
+          email: payload.email,
+          password: payload.password,
+          options: {
+            data: { full_name: payload.name },
+            emailRedirectTo: SITE + 'login.html'
           }
-          return resolve({ ok: true });
+        })
+        .then(function (res) {
+          if (res.error) return authError(res.error);
+          var user = res.data && res.data.user;
+          /* Supabase يعيد مستخدماً بلا identities حين يكون البريد مسجّلاً مسبقاً */
+          if (user && user.identities && user.identities.length === 0) {
+            return { ok: false, field: 'email', message: 'هذا البريد الإلكتروني مسجّل مسبقاً. سجّل الدخول بدلاً من ذلك.' };
+          }
+          return { ok: true };
+        })
+        .catch(authError);
+    }
+
+    if (payload.kind === 'newpass') {
+      return db.auth
+        .updateUser({ password: payload.password })
+        .then(function (res) { return res.error ? authError(res.error) : { ok: true }; })
+        .catch(authError);
+    }
+
+    /* استعادة كلمة المرور: لا نكشف إن كان البريد مسجّلاً أم لا */
+    return db.auth
+      .resetPasswordForEmail(payload.email, { redirectTo: SITE + 'reset.html' })
+      .then(function (res) {
+        var err = res && res.error;
+        if (err && (err.status === 429 || String(err.code || '').indexOf('rate_limit') !== -1)) {
+          return authError(err);
         }
-        if (registeredEmails().indexOf(payload.email) !== -1 || payload.email === DEMO_EMAIL) {
-          return resolve({ ok: false, field: 'email', message: 'هذا البريد الإلكتروني مسجّل مسبقاً. سجّل الدخول بدلاً من ذلك.' });
-        }
-        rememberEmail(payload.email);
-        resolve({ ok: true });
-      }, 900);
-    });
+        return { ok: true };
+      })
+      .catch(function () { return { ok: true }; });
   }
 
   /* ---------- إرسال النموذج مع منع النقر المتكرر ---------- */
@@ -200,6 +253,7 @@
   }, function (form) {
     form.hidden = true;
     showBanner('login-done');
+    setTimeout(function () { window.location.href = 'index.html'; }, 1200);
   });
 
   /* ---------- استعادة كلمة المرور ---------- */
@@ -253,4 +307,63 @@
     form.hidden = true;
     showBanner('signup-done');
   });
+
+  /* ---------- تعيين كلمة مرور جديدة بعد فتح رابط الاستعادة ---------- */
+  var newForm = document.getElementById('newpass-form');
+  if (db && newForm) {
+    var resetForm = document.getElementById('reset-form');
+    var opened = false;
+
+    function openNewPassword() {
+      if (opened) return;
+      opened = true;
+      if (resetForm) resetForm.hidden = true;
+      var intro = document.getElementById('reset-intro');
+      if (intro) intro.textContent = 'اختر كلمة مرور جديدة لحسابك.';
+      newForm.hidden = false;
+      var field = document.getElementById('password');
+      if (field) field.focus();
+    }
+
+    var entry = window.northEntryURL || { hash: window.location.hash || '', search: window.location.search || '' };
+
+    /* رابط منتهٍ أو مستخدَم مسبقاً */
+    if (entry.hash.indexOf('error') !== -1 || entry.search.indexOf('error') !== -1) {
+      showBanner('reset-link-bad');
+      history.replaceState(null, '', window.location.pathname);
+    }
+
+    db.auth.onAuthStateChange(function (event) {
+      if (event === 'PASSWORD_RECOVERY') openNewPassword();
+    });
+
+    /* احتياط: إذا اكتملت الجلسة قبل تسجيل المستمع أعلاه */
+    var fromLink = entry.hash.indexOf('type=recovery') !== -1 ||
+                   new URLSearchParams(entry.search).has('code');
+    if (fromLink) {
+      db.auth.getSession().then(function (res) {
+        if (res && res.data && res.data.session) openNewPassword();
+      });
+    }
+
+    wireForm('newpass-form', function () {
+      var problems = [];
+      var password = document.getElementById('password').value || '';
+      var confirm = document.getElementById('confirm').value || '';
+
+      if (!password) problems.push({ field: 'password', message: 'أدخل كلمة المرور الجديدة.' });
+      else if (password.length < 8) problems.push({ field: 'password', message: 'كلمة المرور يجب أن تكون 8 خانات على الأقل.' });
+      else if (!/[A-Za-z]/.test(password) || !/[0-9]/.test(password)) problems.push({ field: 'password', message: 'كلمة المرور يجب أن تجمع بين حروف وأرقام.' });
+
+      if (!confirm) problems.push({ field: 'confirm', message: 'أعد كتابة كلمة المرور.' });
+      else if (confirm !== password) problems.push({ field: 'confirm', message: 'كلمتا المرور غير متطابقتين.' });
+      return problems;
+    }, function () {
+      return { kind: 'newpass', password: document.getElementById('password').value };
+    }, function (form) {
+      form.hidden = true;
+      showBanner('newpass-done');
+      setTimeout(function () { window.location.href = 'login.html'; }, 1800);
+    });
+  }
 })();
