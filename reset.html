@@ -34,7 +34,12 @@
   <div class="auth-card">
     <a class="back" href="login.html"><span class="ms">arrow_forward</span> العودة إلى تسجيل الدخول</a>
     <h1>استعادة كلمة المرور</h1>
-    <p class="intro">أدخل بريدك الإلكتروني، ويصلك رابط لتعيين كلمة مرور جديدة.</p>
+    <p class="intro" id="reset-intro">أدخل بريدك الإلكتروني، ويصلك رابط لتعيين كلمة مرور جديدة.</p>
+
+    <div class="banner banner-err" id="reset-link-bad" style="margin-top:22px">
+      <span class="ms">error</span>
+      <span>انتهت صلاحية الرابط أو استُخدم من قبل. اطلب رابطاً جديداً من النموذج أدناه.</span>
+    </div>
 
     <form class="auth-form" id="reset-form" novalidate>
       <div class="banner banner-err" id="reset-form-banner">
@@ -55,15 +60,54 @@
       </button>
     </form>
 
+
+    <form class="auth-form" id="newpass-form" novalidate hidden>
+      <div class="banner banner-err" id="newpass-form-banner">
+        <span class="ms">error</span><span></span>
+      </div>
+
+      <div class="field" data-field="password">
+        <label for="password">كلمة المرور الجديدة <span class="req">*</span></label>
+        <div class="inp-wrap has-eye">
+          <input type="password" id="password" name="password" autocomplete="new-password" placeholder="8 خانات على الأقل">
+          <button type="button" class="eye" data-eye="password" aria-label="إظهار كلمة المرور" aria-pressed="false"><span class="ms sm">visibility</span></button>
+        </div>
+        <div class="meter" id="meter" aria-hidden="true"><i></i><i></i><i></i></div>
+        <p class="help">8 خانات على الأقل، وتجمع بين حروف وأرقام.</p>
+        <p class="err" id="err-password"><span class="ms">error</span><span></span></p>
+      </div>
+
+      <div class="field" data-field="confirm">
+        <label for="confirm">تأكيد كلمة المرور <span class="req">*</span></label>
+        <div class="inp-wrap has-eye">
+          <input type="password" id="confirm" name="confirm" autocomplete="new-password" placeholder="أعد كتابة كلمة المرور">
+          <button type="button" class="eye" data-eye="confirm" aria-label="إظهار كلمة المرور" aria-pressed="false"><span class="ms sm">visibility</span></button>
+        </div>
+        <p class="err" id="err-confirm"><span class="ms">error</span><span></span></p>
+      </div>
+
+      <button class="btn btn-primary btn-wide" type="submit">
+        <span class="spin" aria-hidden="true"></span>
+        <span data-label>حفظ كلمة المرور</span>
+      </button>
+    </form>
+
+    <div class="banner banner-ok" id="newpass-done" style="margin-top:22px">
+      <span class="ms">check_circle</span>
+      <span>تم تحديث كلمة المرور. ننقلك إلى صفحة تسجيل الدخول…</span>
+    </div>
+
     <div class="banner banner-ok" id="reset-done" style="margin-top:22px">
       <span class="ms">mark_email_unread</span>
-      <span>إذا كان البريد مسجّلاً لدينا، يصلك رابط إعادة التعيين خلال دقائق. إرسال البريد يُربط فعلياً في المرحلة الثانية.</span>
+      <span>إذا كان البريد مسجّلاً لدينا، يصلك رابط إعادة التعيين خلال دقائق. افتح الرابط من نفس الجهاز، وراجع مجلد الرسائل غير المرغوبة إن تأخر.</span>
     </div>
 
     <p class="auth-foot">تذكرت كلمة المرور؟ <a href="login.html">سجّل الدخول</a></p>
   </div>
 </main>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js"></script>
+<script src="assets/supabase.js"></script>
 <script src="assets/auth.js"></script>
 </body>
 </html>

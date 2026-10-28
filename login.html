@@ -36,11 +36,6 @@
     <h1>تسجيل الدخول</h1>
     <p class="intro">أدخل بريدك وكلمة المرور للوصول إلى مسارك ومتابعة تقدّمك.</p>
 
-    <div class="banner banner-note on" style="margin-top:22px">
-      <span class="ms">info</span>
-      <span>نموذج واجهة للمرحلة الأولى. للتجربة استخدم <span class="num" style="direction:ltr;display:inline-block">demo@north-sa.com</span> وكلمة المرور <span class="num" style="direction:ltr;display:inline-block">North1234</span>.</span>
-    </div>
-
     <form class="auth-form" id="login-form" novalidate>
       <div class="banner banner-err" id="login-form-banner">
         <span class="ms">error</span><span></span>
@@ -74,13 +69,15 @@
 
     <div class="banner banner-ok" id="login-done" style="margin-top:22px">
       <span class="ms">check_circle</span>
-      <span>تم التحقق من البيانات. في المرحلة الثانية تنتقل من هنا مباشرة إلى لوحة المتدرب.</span>
+      <span>تم تسجيل الدخول. ننقلك إلى الصفحة الرئيسية الآن…</span>
     </div>
 
     <p class="auth-foot">ليس لديك حساب؟ <a href="signup.html">أنشئ حساباً جديداً</a></p>
   </div>
 </main>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js"></script>
+<script src="assets/supabase.js"></script>
 <script src="assets/auth.js"></script>
 </body>
 </html>
