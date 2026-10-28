@@ -48,7 +48,12 @@
     kpis();
 
     Promise.all([
-      db.from('profiles').select('*').order('created_at', { ascending: false }).limit(500),
+      // تصحيح من مضى تاريخه قبل القراءة: العمود المخزّن قد يقول «نافذ»
+      // وقد انتهى، فتعرض اللوحة حالة والبوابة تعامله بأخرى.
+      db.rpc('sync_expired_subscriptions').then(function () {
+        return db.from('profiles').select('*')
+                 .order('created_at', { ascending: false }).limit(500);
+      }),
       db.from('user_roles').select('user_id, role')
     ]).then(function (r) {
       if (r[0].error) {
@@ -91,7 +96,7 @@
 
     box.innerHTML = '<div class="tbl-wrap"><table class="tbl"><thead><tr>' +
       '<th>الاسم</th><th>اسم المستخدم</th><th>البريد</th><th>رقم العضوية</th>' +
-      '<th>الباقة</th><th>الاشتراك</th><th>ينتهي</th><th>الدور</th>' +
+      '<th>الباقة</th><th>الاشتراك</th><th>ينتهي</th><th>الدور</th><th></th>' +
       '</tr></thead><tbody>' +
       view.map(function (p) {
         return '<tr>' +
@@ -103,12 +108,26 @@
           '<td>' + subTag(p) + '</td>' +
           '<td class="muted">' + (p.subscription_expires_at ? esc(A.fmtDate(p.subscription_expires_at)) : '—') + '</td>' +
           '<td>' + (p._role === 'admin' ? '<span class="tag tag-admin">إدارة</span>' : '<span class="muted">مشترك</span>') + '</td>' +
+          '<td><button class="bt bt-ghost bt-sm" type="button" data-sub="' + esc(p.id) +
+            '">إدارة الاشتراك</button></td>' +
         '</tr>';
       }).join('') +
       '</tbody></table></div>';
   }
 
   el('m-search').addEventListener('input', function () { if (loaded) draw(); });
+
+  /* تعديل الباقة والتجديد. التفويض على الحاوية لأن الصفوف تُعاد بناؤها
+     بعد كل حفظ، فمستمع على كل زر يضيع مع صفّه. */
+  el('members-list').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-sub]');
+    if (!b || !window.northSub) return;
+    window.northSub.open(b.getAttribute('data-sub'), function () {
+      loaded = false;
+      load();
+      kpis();
+    });
+  });
 
   /* ---------- دالة الخادم ---------- */
   var fnReady = false;
