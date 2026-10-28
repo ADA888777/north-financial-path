@@ -12,17 +12,44 @@
   var list = el('lv-list');
   var resetBtn = el('lv-reset');
   var titleBox = el('lv-form-title');
+  var trackSel = el('lv-track');
   var rows = [];
+  var tracks = [];
   var editing = null;
   var busy = false;
   var loaded = false;
 
-  A.guard().then(function (session) { if (session) load(); });
+  A.guard().then(function (session) { if (session) { fillTracks(); load(); } });
 
   /* يعيد التحميل عند فتح التبويب حتى تظهر تغييرات تبويب آخر */
   window.addEventListener('north:tab', function (e) {
-    if (e.detail === 'levels' && loaded) load();
+    if (e.detail === 'levels' && loaded) { fillTracks(); load(); }
   });
+  window.addEventListener('north:tracks', function (e) { paintTracks(e.detail || []); });
+
+  /* ---------- قائمة المسارات ---------- */
+  function fillTracks() {
+    if (!trackSel) return;
+    db.from('tracks').select('id, title').order('sort_order').then(function (r) {
+      if (!r.error) paintTracks(r.data || []);
+    });
+  }
+
+  function paintTracks(data) {
+    if (!trackSel) return;
+    tracks = data;
+    var keep = trackSel.value;
+    trackSel.innerHTML = '<option value="">بلا مسار</option>' + tracks.map(function (t) {
+      return '<option value="' + esc(t.id) + '">' + esc(t.title) + '</option>';
+    }).join('');
+    if (keep) trackSel.value = keep;
+  }
+
+  function trackName(id) {
+    if (!id) return '';
+    var hit = tracks.filter(function (t) { return t.id === id; })[0];
+    return hit ? hit.title : '';
+  }
 
   function kpis() {
     var cells = document.querySelectorAll('#lv-kpis .kpi b');
@@ -60,6 +87,9 @@
           '<div class="line">' +
             '<span class="tag ' + (lv.published ? 'tag-ok">منشور' : 'tag-off">مسودة') + '</span>' +
             '<span>ترتيب ' + esc(lv.sort_order) + '</span>' +
+            (lv.track_id
+              ? '<span>' + esc(trackName(lv.track_id) || 'مسار') + '</span>'
+              : '<span style="color:var(--a-warn)">بلا مسار</span>') +
             (lv.subtitle ? '<span>' + esc(lv.subtitle) + '</span>' : '') +
             '<span>آخر تعديل ' + esc(A.fmtDate(lv.updated_at)) + '</span>' +
           '</div>' +
@@ -104,6 +134,7 @@
     titleBox.textContent = 'تعديل المستوى';
     el('lv-title').value = lv.title || '';
     el('lv-subtitle').value = lv.subtitle || '';
+    if (trackSel) trackSel.value = lv.track_id || '';
     el('lv-desc').value = lv.description || '';
     el('lv-order').value = lv.sort_order;
     el('lv-pub').checked = !!lv.published;
@@ -117,6 +148,7 @@
     titleBox.textContent = 'إضافة مستوى';
     form.reset();
     el('lv-order').value = '0';
+    if (trackSel) trackSel.value = '';
     resetBtn.hidden = true;
     F.clearErrs(form);
   }
@@ -138,6 +170,7 @@
     var payload = {
       title: title,
       subtitle: el('lv-subtitle').value.trim() || null,
+      track_id: trackSel && trackSel.value ? trackSel.value : null,
       description: el('lv-desc').value.trim(),
       sort_order: F.int(el('lv-order').value, 0),
       published: el('lv-pub').checked

@@ -24,6 +24,7 @@
   var loaded = false;
 
   var STATUS = { scheduled: 'مجدولة', done: 'انتهت', cancelled: 'ملغاة' };
+  var KIND = { live: 'مباشرة جماعية', private: 'كلاس خاص' };
 
   A.guard().then(function (session) { if (session) load(); });
 
@@ -88,6 +89,7 @@
             '<span class="tag ' + (s.published ? 'tag-ok">منشورة' : 'tag-off">مسودة') + '</span>' +
             '<span class="tag ' + (s.status === 'scheduled' ? 'tag-admin' : 'tag-off') + '">' +
               esc(STATUS[s.status] || s.status) + '</span>' +
+            '<span class="tag tag-off">' + esc(KIND[s.kind] || s.kind || 'كلاس خاص') + '</span>' +
             '<span>' + esc(F.fmtDateTime(s.starts_at)) + '</span>' +
             '<span>' + F.num(s.duration_min) + ' دقيقة</span>' +
             '<span style="' + (full ? 'color:var(--a-warn)' : '') + '">' +
@@ -147,6 +149,7 @@
     el('cl-dur').value = s.duration_min;
     el('cl-cap').value = s.capacity;
     el('cl-url').value = s.meeting_url || '';
+    el('cl-kind').value = s.kind || 'private';
     el('cl-status').value = s.status;
     el('cl-pub').checked = !!s.published;
     resetBtn.hidden = false;
@@ -160,6 +163,7 @@
     form.reset();
     el('cl-dur').value = '60';
     el('cl-cap').value = '10';
+    el('cl-kind').value = 'live';
     el('cl-status').value = 'scheduled';
     resetBtn.hidden = true;
     F.clearErrs(form);
@@ -212,6 +216,7 @@
       duration_min: dur,
       capacity: cap,
       meeting_url: el('cl-url').value.trim() || null,
+      kind: el('cl-kind').value,
       status: el('cl-status').value,
       published: el('cl-pub').checked
     };
