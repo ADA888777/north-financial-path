@@ -64,6 +64,11 @@
     var gate = el('gate');
     var shell = el('shell');
 
+    function here() {
+      var f = window.location.pathname.split('/').pop();
+      return f || 'admin.html';
+    }
+
     function deny(title, note, showLogin) {
       if (shell) shell.hidden = true;
       if (!gate) return;
@@ -74,7 +79,7 @@
           '<h1>' + esc(title) + '</h1>' +
           '<p>' + esc(note) + '</p>' +
           (showLogin
-            ? '<a class="btn btn-primary" href="login.html">تسجيل الدخول</a>'
+            ? '<a class="btn btn-primary" href="login.html?next=' + encodeURIComponent(here()) + '">تسجيل الدخول</a>'
             : '<a class="btn btn-ghost" href="index.html">العودة إلى الموقع</a>') +
         '</div>';
     }

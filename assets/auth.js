@@ -253,7 +253,31 @@
   }, function (form) {
     form.hidden = true;
     showBanner('login-done');
-    setTimeout(function () { window.location.href = 'index.html'; }, 1200);
+    var msg = document.querySelector('#login-done span:last-child');
+
+    /* قائمة بيضاء: ?next= يأتي من العنوان فلا يُتبع إلا لصفحة معروفة داخل الموقع */
+    var ALLOWED = ['admin.html', 'admin-stories.html', 'index.html'];
+    var asked = null;
+    try {
+      var q = new URLSearchParams(window.location.search).get('next');
+      if (q && ALLOWED.indexOf(q) !== -1) asked = q;
+    } catch (e) {}
+
+    function go(dest) {
+      if (msg) {
+        msg.textContent = dest.indexOf('admin') === 0
+          ? 'تم تسجيل الدخول. ننقلك إلى لوحة الإدارة…'
+          : 'تم تسجيل الدخول. ننقلك إلى الصفحة الرئيسية…';
+      }
+      setTimeout(function () { window.location.href = dest; }, 1100);
+    }
+
+    if (asked) { go(asked); return; }
+
+    /* الأدمن يذهب إلى لوحته، وغيره إلى الموقع */
+    db.rpc('is_admin')
+      .then(function (r) { go(!r.error && r.data === true ? 'admin.html' : 'index.html'); })
+      .catch(function () { go('index.html'); });
   });
 
   /* ---------- استعادة كلمة المرور ---------- */
