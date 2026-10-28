@@ -40,11 +40,11 @@ where routine_schema = 'public'
   and routine_name in (
     'is_admin','has_active_subscription','my_role',
     'my_dashboard','get_lesson','get_quiz','submit_quiz',
-    'available_slots','my_notifications','search_lesson_content')
+    'available_slots','my_notifications','ask_assistant')
 order by routine_name;
 ```
 
-يجب أن تظهر العشرة كلها. وإذا ظهر الخطأ نفسه بعد التشغيل:
+يجب أن تظهر العشرة كلها. (`search_lesson_content` حُذفت عمداً في الهجرة 12 لأنها كانت تغذّي نموذجاً خارجياً، وحلّت محلها `ask_assistant`.) وإذا ظهر الخطأ نفسه بعد التشغيل:
 
 ```sql
 notify pgrst, 'reload schema';

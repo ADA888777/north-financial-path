@@ -78,11 +78,14 @@ begin
 exception when duplicate_column then null;
 end $$;
 
+-- امتداد التشابه النصي. لا بد أن يسبق الفهرس أدناه، لأن gin_trgm_ops
+-- يأتي معه؛ وبدونه يفشل السكربت بـ
+-- operator class "gin_trgm_ops" does not exist for access method "gin".
+-- في Supabase تُثبَّت الامتدادات في مخطط extensions وهو ضمن search_path.
+create extension if not exists pg_trgm with schema extensions;
+
 create index if not exists lessons_norm_idx on public.lessons using gin (norm_blob gin_trgm_ops);
 create index if not exists vocab_norm_idx   on public.vocab (norm_term);
-
--- امتداد التشابه النصي؛ موجود افتراضياً في Supabase
-create extension if not exists pg_trgm;
 
 -- ------------------------------------------------------------
 -- 3) أفضل فقرة في درس تجيب عن السؤال
