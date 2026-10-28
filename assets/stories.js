@@ -22,7 +22,7 @@
   }
 
   db.from('success_stories')
-    .select('title, body, trainee_name, show_name, image_path')
+    .select('title, body, trainee_name, show_name, image_path, amount')
     .eq('published', true)
     .order('sort_order', { ascending: true })
     .order('created_at', { ascending: false })
@@ -50,8 +50,25 @@
             '<h3>' + esc(s.title) + '</h3>' +
             (s.body ? '<p>' + esc(s.body) + '</p>' : '') +
           '</div>' +
-          (who ? '<div class="story-foot"><span class="story-who">' + who + '</span></div>' : '') +
+          ((who || s.amount)
+            ? '<div class="story-foot">' +
+                '<span class="story-who">' + who + '</span>' +
+                (s.amount ? '<span class="story-amount">' + esc(s.amount) + '</span>' : '') +
+              '</div>'
+            : '') +
         '</article>';
       }).join('');
+
+      /* حين تُعرض مبالغ، يظهر تنبيه بجوارها. نتائج فردية لا تُعمَّم،
+         وهذا ما تنص عليه صفحة إخلاء المسؤولية على الموقع نفسه. */
+      if (rows.some(function (s) { return !!s.amount; })) {
+        var d = document.createElement('p');
+        d.className = 'stories-disc';
+        d.innerHTML = '<span class="ms">info</span><span>نتائج فردية تخص أصحابها، ' +
+          'وتختلف من شخص لآخر حسب ظروفه ورأس ماله ووقته. لا تمثل نتائج متوقعة ' +
+          'ولا تضمن المنصة تحقيق أي أرباح. اقرأ <a href="disclaimer.html">إخلاء المسؤولية</a>.</span>';
+        if (wrap.nextSibling) wrap.parentNode.insertBefore(d, wrap.nextSibling);
+        else wrap.parentNode.appendChild(d);
+      }
     });
 })();

@@ -571,3 +571,11 @@ img{max-width:100%;display:block}
 .faq .a a{color:var(--accent);text-decoration:underline;text-underline-offset:3px}
 @media (prefers-reduced-motion:reduce){.faq .sign,.faq .sign::after{transition:none}}
 @media (max-width:640px){.faq summary{padding:15px 16px;font-size:14.5px}.faq .a{padding:0 16px 17px}}
+
+.stories-disc{
+  margin-top:20px;display:flex;align-items:flex-start;gap:10px;max-width:80ch;
+  font-size:12.5px;line-height:1.85;color:var(--fg-2);
+  background:var(--surface-2);border-radius:var(--rp);padding:14px 16px;
+}
+.stories-disc .ms{font-size:18px;color:var(--fg-3);flex-shrink:0}
+.stories-disc a{color:var(--accent);text-decoration:underline;text-underline-offset:3px}

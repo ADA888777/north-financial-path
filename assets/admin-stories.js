@@ -58,6 +58,7 @@
           '<div class="line">' +
             '<span class="badge ' + (s.published ? 'pub">منشورة' : 'draft">مسودة') + '</span>' +
             '<span>ترتيب ' + esc(s.sort_order) + '</span>' +
+            (s.amount ? '<span class="badge draft">' + esc(s.amount) + '</span>' : '') +
             '<span>آخر تعديل ' + esc(A.fmtDate(s.updated_at)) + '</span>' +
           '</div>' +
         '</div>' +
@@ -132,6 +133,7 @@
     el('body').value = s ? (s.body || '') : '';
     el('trainee').value = s ? (s.trainee_name || '') : '';
     el('order').value = s ? String(s.sort_order) : '0';
+    el('amount').value = s ? (s.amount || '') : '';
     el('showname').checked = s ? !!s.show_name : false;
     el('published').checked = s ? !!s.published : false;
     setPreview(s && s.image_path ? A.imageUrl(s.image_path) : '');
@@ -219,6 +221,7 @@
         title: title,
         body: el('body').value.trim(),
         trainee_name: el('trainee').value.trim() || null,
+        amount: el('amount').value.trim() || null,
         show_name: el('showname').checked,
         published: el('published').checked,
         sort_order: order,
