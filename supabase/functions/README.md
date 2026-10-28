@@ -27,3 +27,27 @@ supabase functions deploy create-member --project-ref ukdcdbbbzeqztoqctnxb
 
 حتى تُنشر، تعمل بقية اللوحة طبيعياً، ويُضاف العضو مؤقتاً من
 Supabase ← Authentication ← Add user ثم تُعدَّل باقته من الجدول.
+
+## notify-booking
+
+ترسل إشعار الحجز بالبريد: رسالة للمحللة المسؤولة وأخرى تأكيد للمشترك.
+
+**لماذا من الخادم؟** مفتاح مزوّد البريد سرّي، ومن يملكه يرسل رسائل باسم
+المنصة. لا يوضع في المتصفح ولا في المستودع.
+
+**منع التكرار** بثلاث طبقات: مفتاح فريد `(booking_id, kind)` في جدول
+`booking_notifications`، ومعالجة الصفوف التي حالتها `pending` وحدها،
+وتحديث الحالة فور الإرسال.
+
+**عند الفشل** تصير الحالة `failed` مع نص الخطأ، فلا تُعاد تلقائياً بلا
+تدخّل. وبلا مفتاح بريد تصير `skipped` بدل أن تبقى معلّقة إلى الأبد،
+والحجز نفسه ينجح في الحالتين.
+
+**النشر**
+
+```bash
+supabase secrets set RESEND_API_KEY=... MAIL_FROM="نورث <no-reply@your-domain>"
+supabase functions deploy notify-booking --project-ref ukdcdbbbzeqztoqctnxb
+```
+
+المزوّد الافتراضي Resend. لتبديله، غيّر دالة `send` وحدها.

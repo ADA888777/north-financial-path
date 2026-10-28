@@ -100,22 +100,34 @@
     /* ---- المهام ---- */
     drawTasks(d.tasks || []);
 
+    /* ---- الكلاسات ---- */
+    if (d.allowed) {
+      var box = document.createElement('section');
+      box.className = 'lbox';
+      box.innerHTML = '<h2><span class="ms">videocam</span> الكلاسات الخاصة</h2>' +
+        '<p style="color:var(--fg-2);font-size:14px;line-height:1.9;margin-bottom:16px">' +
+        'جلسة فردية مع المدرّب. اختر الموعد المناسب من المواعيد المتاحة.</p>' +
+        '<a class="btn btn-ghost btn-wide" href="classes.html">المواعيد والحجوزات</a>';
+      var alerts = document.getElementById('alerts-box');
+      alerts.parentNode.insertBefore(box, alerts);
+    }
+
     /* ---- التنبيهات ---- */
-    var alerts = [];
+    var alertList = [];
     if (d.account_status !== 'active') {
-      alerts.push(['block', 'حسابك موقوف. تواصل مع إدارة المنصة.']);
+      alertList.push(['block', 'حسابك موقوف. تواصل مع إدارة المنصة.']);
     } else if (!d.allowed) {
-      alerts.push(['lock', 'اشتراكك غير نافذ، فالدروس والاختبارات مقفلة.']);
+      alertList.push(['lock', 'اشتراكك غير نافذ، فالدروس والاختبارات مقفلة.']);
     } else if (d.subscription_expires_at) {
       var left = Math.ceil((new Date(d.subscription_expires_at) - new Date()) / 864e5);
       if (left <= 14 && left >= 0) {
-        alerts.push(['schedule', 'يتبقى على انتهاء اشتراكك ' + num(left) +
+        alertList.push(['schedule', 'يتبقى على انتهاء اشتراكك ' + num(left) +
           (left === 1 ? ' يوم.' : ' يوماً.')]);
       }
     }
-    if (alerts.length) {
+    if (alertList.length) {
       el('alerts-box').hidden = false;
-      el('alerts').innerHTML = alerts.map(function (a) {
+      el('alerts').innerHTML = alertList.map(function (a) {
         return '<div class="task" style="border:none;padding:8px 0">' +
           '<span class="ms" style="color:var(--dn);font-size:20px">' + a[0] + '</span>' +
           '<div><b style="font-weight:500;font-size:14px">' + esc(a[1]) + '</b></div></div>';
