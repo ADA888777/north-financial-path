@@ -59,8 +59,17 @@
     catch (e) { return ''; }
   }
 
-  /* ---------- الحارس ---------- */
+  /* ---------- الحارس ----------
+     يُنادى مرة من كل وحدة، فنحتفظ بنتيجة أول نداء: فحص واحد للصلاحية
+     بدل ستة، وربط واحد للتبويبات بدل تكرار المستمعات. */
+  var guardOnce = null;
+
   function guard() {
+    if (!guardOnce) guardOnce = runGuard();
+    return guardOnce;
+  }
+
+  function runGuard() {
     var gate = el('gate');
     var shell = el('shell');
 
@@ -147,6 +156,11 @@
 
     var initial = (window.location.hash || '').replace('#', '');
     show(initial || 'members', false);
+
+    /* فتح رابط فيه #tab أو الرجوع بزر المتصفح يفتح التبويب الصحيح */
+    window.addEventListener('hashchange', function () {
+      show((window.location.hash || '').replace('#', '') || 'members', false);
+    });
   }
 
   window.northAdmin = {
