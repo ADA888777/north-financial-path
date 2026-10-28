@@ -112,9 +112,20 @@
 
   /* ---------- دالة الخادم ---------- */
   var fnReady = false;
+
+  /* نسأل الدالة بطلب فارغ: إن كانت منشورة ترد بخطأ تحقق (400) فنعرف
+     أنها حيّة، وإن لم تكن منشورة يرد البوابة 404. الطلب الفارغ لا ينشئ
+     شيئاً لأن الدالة ترفضه قبل أي كتابة. */
   function probeFunction() {
-    /* نكتفي بإظهار التنبيه حتى تثبت الدالة بأول استدعاء ناجح */
-    el('fn-note').hidden = false;
+    var note = el('fn-note');
+    db.functions.invoke('create-member', { body: {} })
+      .then(function (r) {
+        var ctx = r && r.error && r.error.context;
+        var status = ctx && ctx.status;
+        fnReady = !r.error || (status && status !== 404);
+        note.hidden = !!fnReady;
+      })
+      .catch(function () { note.hidden = false; });
   }
 
   /* ---------- إضافة عضو ---------- */
