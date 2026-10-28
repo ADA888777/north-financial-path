@@ -186,6 +186,7 @@
         membership_no: el('m-no').value.trim() || null,
         subscription_status: el('m-sub').value,
         subscription_expires_at: el('m-exp').value || null,
+        status: el('m-status').value,
         password: pass || null,
         site_url: window.location.origin + window.location.pathname.replace(/[^/]*$/, '')
       }

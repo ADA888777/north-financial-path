@@ -86,6 +86,10 @@
     put('d-user', p.username);
     put('d-no', p.membership_no);
     put('d-phone', p.phone);
+    var on = p.status === 'active';
+    var pill = '<span class="st-pill ' + (on ? 'st-on">فعّال' : 'st-off">موقوف') + '</span>';
+    el('d-status').innerHTML = pill;
+    el('menu-status').innerHTML = pill;
     put('d-joined', fmt(p.created_at));
     put('d-plan', p.plan);
     put('d-expires', p.subscription_expires_at ? fmt(p.subscription_expires_at) : 'بلا تاريخ انتهاء');
@@ -119,6 +123,8 @@
     }
 
     /* ---------- المحتوى: البوابة من قاعدة البيانات لا من الواجهة ---------- */
+    wireEdit(p);
+
     db.rpc('has_active_subscription').then(function (r) {
       var ok = !r.error && r.data === true;
       el('content-state').innerHTML = ok
@@ -127,6 +133,75 @@
         : '<div class="locked"><span class="ms">lock</span>' +
           'المحتوى المدفوع مقفل حتى يصبح اشتراكك نافذاً.<br>' +
           'إذا اشتركت عبر سلة ولم يُفعَّل حسابك، راسل الإدارة.</div>';
+    });
+  }
+
+  /* ---------- تعديل الحقول المسموحة ---------- */
+  function wireEdit(p) {
+    var open = el('edit-open'), form = el('edit-form'), rows = el('view-rows');
+    if (!open || !form) return;
+
+    function fieldErr(id, msg) {
+      var f = document.querySelector('[data-field="' + id + '"]');
+      if (!f) return;
+      f.classList.toggle('bad', !!msg);
+      if (msg) f.querySelector('.err span:last-child').textContent = msg;
+    }
+
+    function show(editing) {
+      form.hidden = !editing;
+      open.hidden = editing;
+      rows.style.opacity = editing ? '.45' : '';
+      if (editing) {
+        el('f-name').value = p.full_name || '';
+        el('f-phone').value = p.phone || '';
+        el('f-name').focus();
+      }
+      fieldErr('fname', ''); fieldErr('fphone', '');
+    }
+
+    open.addEventListener('click', function () { show(true); });
+    el('edit-cancel').addEventListener('click', function () { show(false); });
+
+    var busy = false;
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (busy) return;
+
+      var name = el('f-name').value.trim();
+      var phone = el('f-phone').value.trim();
+      fieldErr('fname', ''); fieldErr('fphone', '');
+
+      if (!name) { fieldErr('fname', 'الاسم مطلوب.'); el('f-name').focus(); return; }
+      if (name.length < 3) { fieldErr('fname', 'الاسم قصير جداً.'); el('f-name').focus(); return; }
+      if (phone && !/^[0-9+\s-]{7,20}$/.test(phone)) {
+        fieldErr('fphone', 'رقم جوال غير صالح.'); el('f-phone').focus(); return;
+      }
+
+      busy = true;
+      var btn = form.querySelector('[type=submit]');
+      var label = btn.querySelector('[data-label]');
+      btn.setAttribute('aria-busy', 'true'); btn.disabled = true;
+      label.textContent = 'جارٍ الحفظ';
+
+      /* الأعمدة المسموحة فقط. أي حقل آخر ترفضه قاعدة البيانات. */
+      db.from('profiles')
+        .update({ full_name: name, phone: phone || null })
+        .eq('id', p.id)
+        .then(function (r) {
+          busy = false;
+          btn.removeAttribute('aria-busy'); btn.disabled = false;
+          label.textContent = 'حفظ';
+
+          if (r.error) { fieldErr('fname', 'تعذّر الحفظ: ' + r.error.message); return; }
+
+          p.full_name = name; p.phone = phone || null;
+          put('d-name', name); put('d-phone', phone);
+          put('hdr-name', name); put('menu-name', name);
+          put('hero-name', 'أهلاً، ' + name);
+          put('ava', (name || '؟').trim().charAt(0));
+          show(false);
+        });
     });
   }
 
@@ -145,6 +220,12 @@
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeMenu(); });
 
   el('logout').addEventListener('click', function () {
-    db.auth.signOut().then(function () { window.location.href = 'index.html'; });
+    /* global: يُبطل رموز الجلسة على الخادم لا في هذا المتصفح فقط */
+    db.auth.signOut({ scope: 'global' })
+      .catch(function () {})
+      .then(function () {
+        try { localStorage.removeItem('north-auth'); } catch (e) {}
+        window.location.replace('index.html');
+      });
   });
 })();

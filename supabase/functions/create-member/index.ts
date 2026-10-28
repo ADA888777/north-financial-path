@@ -65,6 +65,7 @@ Deno.serve(async (req) => {
   const subStatus = body.subscription_status ? String(body.subscription_status).trim() : 'active';
   const subExpires = body.subscription_expires_at ? String(body.subscription_expires_at) : null;
   const siteUrl = body.site_url ? String(body.site_url) : null;
+  const acctStatus = body.status === 'suspended' ? 'suspended' : 'active';
 
   if (!email || !/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(email)) {
     return reply({ error: 'بريد إلكتروني غير صالح' }, 400);
@@ -89,6 +90,17 @@ Deno.serve(async (req) => {
     const { data: taken } = await admin
       .from('profiles').select('id').eq('membership_no', membershipNo).maybeSingle();
     if (taken) return reply({ error: 'رقم العضوية مستخدم مسبقاً' }, 409);
+  }
+  {
+    const { data: taken } = await admin
+      .from('profiles').select('id, full_name').ilike('email', email).maybeSingle();
+    if (taken) {
+      return reply({
+        error: 'هذا البريد مسجّل مسبقاً' +
+          (taken.full_name ? ' باسم ' + taken.full_name : '') +
+          '. عدّل بياناته من جدول الأعضاء بدل إنشاء حساب جديد.',
+      }, 409);
+    }
   }
 
   const password = body.password ? String(body.password) : randomPassword();
@@ -121,6 +133,7 @@ Deno.serve(async (req) => {
     username,
     subscription_status: subStatus,
     subscription_expires_at: subExpires,
+    status: acctStatus,
     must_change_password: true,
     created_by: userData.user.id,
   };
