@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>فحص الاتصال — نورث</title>
+<link rel="icon" href="assets/north-mark.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@400;600;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="assets/app.css">
+<link rel="stylesheet" href="assets/auth.css">
+<style>
+  .diag{max-width:720px;margin-inline:auto;padding-block:32px;position:relative;z-index:1}
+  .diag h1{font-size:26px;margin-bottom:6px}
+  .diag .sub{color:var(--fg-2);font-size:14px;margin-bottom:26px}
+  .chk{display:flex;flex-direction:column;gap:9px;margin-bottom:26px}
+  .chk div{
+    display:flex;align-items:flex-start;gap:11px;background:var(--surface);
+    border:1px solid var(--line);border-radius:var(--rb);padding:13px 15px;font-size:14px;line-height:1.7;
+  }
+  .chk b{font-weight:600;flex-shrink:0}
+  .chk .v{color:var(--fg-2);font-family:var(--mono);font-size:12.5px;word-break:break-all;direction:ltr;text-align:left;flex:1}
+  .ok{color:var(--up)}.bad{color:var(--dn)}
+  pre{
+    background:var(--surface-2);border:1px solid var(--line);border-radius:var(--rb);
+    padding:15px;font-family:var(--mono);font-size:12.5px;line-height:1.8;
+    direction:ltr;text-align:left;white-space:pre-wrap;word-break:break-all;margin:0;
+  }
+  .diag h2{font-size:17px;margin:28px 0 12px}
+</style>
+</head>
+<body>
+
+<main class="rail diag">
+  <h1>فحص الاتصال</h1>
+  <p class="sub">صفحة تشخيص مؤقتة. تعرض الخطأ الخام من Supabase بدل الرسالة العامة. احذفيها بعد حل المشكلة.</p>
+
+  <div class="chk" id="env"></div>
+
+  <h2>جرّب تسجيل الدخول</h2>
+  <form class="auth-form" id="f" style="margin-top:0">
+    <div class="field">
+      <label for="e">البريد الإلكتروني</label>
+      <div class="inp-wrap"><input type="email" id="e" dir="ltr" placeholder="name@example.com"></div>
+    </div>
+    <div class="field">
+      <label for="p">كلمة المرور</label>
+      <div class="inp-wrap"><input type="password" id="p" placeholder="كلمة المرور"></div>
+    </div>
+    <button class="btn btn-primary btn-wide" type="submit">
+      <span class="spin" aria-hidden="true"></span><span data-label>فحص</span>
+    </button>
+  </form>
+
+  <h2>النتيجة الخام</h2>
+  <pre id="out">لم يُجرَ أي فحص بعد.</pre>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js"></script>
+<script src="assets/supabase.js"></script>
+<script>
+(function () {
+  'use strict';
+  var env = document.getElementById('env');
+  var out = document.getElementById('out');
+
+  function row(label, value, good) {
+    var d = document.createElement('div');
+    var mark = good === undefined ? '' : (good ? '<b class="ok">✓</b>' : '<b class="bad">✕</b>');
+    d.innerHTML = mark + '<b>' + label + '</b><span class="v"></span>';
+    d.querySelector('.v').textContent = value;
+    env.appendChild(d);
+  }
+
+  var libOK = !!(window.supabase && window.supabase.createClient);
+  row('مكتبة supabase-js', libOK ? 'محمّلة' : 'لم تُحمَّل — تحقق من الاتصال أو حاصر الإعلانات', libOK);
+
+  var dbOK = !!window.northDB;
+  row('عميل Supabase', dbOK ? 'جاهز' : 'لم يُنشأ', dbOK);
+
+  if (dbOK) {
+    try {
+      var u = window.northDB.supabaseUrl || '(غير متاح)';
+      row('عنوان المشروع', u);
+    } catch (e) { row('عنوان المشروع', 'تعذّرت القراءة'); }
+  }
+  row('عنوان هذه الصفحة', window.location.origin + '/');
+
+  /* هل المشروع مستيقظ ويقبل المفتاح؟ */
+  if (dbOK) {
+    window.northDB.auth.getSession().then(function (r) {
+      var s = r && r.data && r.data.session;
+      row('جلسة حالية', s ? ('مسجّل الدخول: ' + s.user.email) : 'لا توجد جلسة', !!s);
+      if (s) {
+        row('تأكيد البريد', s.user.email_confirmed_at || s.user.confirmed_at || 'غير مؤكَّد',
+            !!(s.user.email_confirmed_at || s.user.confirmed_at));
+      }
+    }).catch(function (e) { row('جلسة حالية', 'خطأ: ' + e.message, false); });
+  }
+
+  document.getElementById('f').addEventListener('submit', function (ev) {
+    ev.preventDefault();
+    if (!window.northDB) { out.textContent = 'العميل غير جاهز، راجع القائمة أعلاه.'; return; }
+    var btn = ev.target.querySelector('button');
+    btn.setAttribute('aria-busy', 'true'); btn.disabled = true;
+    out.textContent = 'جارٍ الفحص…';
+
+    window.northDB.auth.signInWithPassword({
+      email: document.getElementById('e').value.trim(),
+      password: document.getElementById('p').value
+    }).then(function (res) {
+      btn.removeAttribute('aria-busy'); btn.disabled = false;
+      if (res.error) {
+        out.textContent = JSON.stringify({
+          status: res.error.status,
+          code: res.error.code,
+          name: res.error.name,
+          message: res.error.message
+        }, null, 2);
+      } else {
+        var u = res.data.user;
+        out.textContent = JSON.stringify({
+          result: 'نجح الدخول',
+          id: u.id,
+          email: u.email,
+          email_confirmed_at: u.email_confirmed_at,
+          created_at: u.created_at
+        }, null, 2);
+      }
+    }).catch(function (e) {
+      btn.removeAttribute('aria-busy'); btn.disabled = false;
+      out.textContent = 'استثناء: ' + (e && e.message ? e.message : String(e));
+    });
+  });
+})();
+</script>
+</body>
+</html>
