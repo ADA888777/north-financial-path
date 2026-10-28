@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="تسجيل الدخول إلى منصة نورث للمسار المالي.">
+<meta name="theme-color" content="#0A1C30">
+<link rel="icon" href="assets/north-mark.png">
+<title>تسجيل الدخول — نورث للمسار المالي</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Cormorant+Garamond:wght@600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,300,0,0&display=block">
+<link rel="stylesheet" href="assets/app.css">
+<link rel="stylesheet" href="assets/auth.css">
+</head>
+<body>
+
+<header class="nav">
+  <div class="rail nav-in">
+    <a class="brand" href="index.html" aria-label="نورث للمسار المالي، الرئيسية">
+      <img class="logo-light" src="assets/north-mark.png" alt="">
+      <img class="logo-dark" src="assets/north-mark-white.png" alt="">
+      <span><b>NORTH</b><i>للمسار المالي</i></span>
+    </a>
+    <div class="nav-act" style="margin-inline-start:auto">
+      <button class="icon-btn" id="theme-toggle" type="button" aria-label="تبديل المظهر"><span class="ms" id="theme-ico">dark_mode</span></button>
+      <a class="btn btn-ghost btn-sm" href="signup.html">إنشاء حساب</a>
+    </div>
+  </div>
+</header>
+
+<main class="rail auth-wrap">
+  <div class="auth-card">
+    <a class="back" href="index.html"><span class="ms">arrow_forward</span> العودة إلى الرئيسية</a>
+    <h1>تسجيل الدخول</h1>
+    <p class="intro">أدخل بريدك وكلمة المرور للوصول إلى مسارك ومتابعة تقدّمك.</p>
+
+    <div class="banner banner-note on" style="margin-top:22px">
+      <span class="ms">info</span>
+      <span>نموذج واجهة للمرحلة الأولى. للتجربة استخدم <span class="num" style="direction:ltr;display:inline-block">demo@north-sa.com</span> وكلمة المرور <span class="num" style="direction:ltr;display:inline-block">North1234</span>.</span>
+    </div>
+
+    <form class="auth-form" id="login-form" novalidate>
+      <div class="banner banner-err" id="login-form-banner">
+        <span class="ms">error</span><span></span>
+      </div>
+
+      <div class="field" data-field="email">
+        <label for="email">البريد الإلكتروني <span class="req">*</span></label>
+        <div class="inp-wrap">
+          <input type="email" id="email" name="email" autocomplete="email" placeholder="name@example.com" dir="ltr">
+        </div>
+        <p class="err" id="err-email"><span class="ms">error</span><span></span></p>
+      </div>
+
+      <div class="field" data-field="password">
+        <div class="row-between">
+          <label for="password">كلمة المرور <span class="req">*</span></label>
+          <a class="link" href="reset.html">نسيت كلمة المرور؟</a>
+        </div>
+        <div class="inp-wrap has-eye">
+          <input type="password" id="password" name="password" autocomplete="current-password" placeholder="أدخل كلمة المرور">
+          <button type="button" class="eye" data-eye="password" aria-label="إظهار كلمة المرور" aria-pressed="false"><span class="ms sm">visibility</span></button>
+        </div>
+        <p class="err" id="err-password"><span class="ms">error</span><span></span></p>
+      </div>
+
+      <button class="btn btn-primary btn-wide" type="submit">
+        <span class="spin" aria-hidden="true"></span>
+        <span data-label>تسجيل الدخول</span>
+      </button>
+    </form>
+
+    <div class="banner banner-ok" id="login-done" style="margin-top:22px">
+      <span class="ms">check_circle</span>
+      <span>تم التحقق من البيانات. في المرحلة الثانية تنتقل من هنا مباشرة إلى لوحة المتدرب.</span>
+    </div>
+
+    <p class="auth-foot">ليس لديك حساب؟ <a href="signup.html">أنشئ حساباً جديداً</a></p>
+  </div>
+</main>
+
+<script src="assets/auth.js"></script>
+</body>
+</html>
