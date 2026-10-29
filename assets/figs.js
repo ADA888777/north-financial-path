@@ -57,11 +57,16 @@
       return;
     }
 
-    var h2 = document.getElementById('tr-h2');
-    if (h2) {
-      h2.textContent = list.length === 3
-        ? 'ثلاثة مستويات، كل مستوى يبني على الذي قبله.'
-        : n(list.length) + ' مستويات، كل مستوى يبني على الذي قبله.';
+    /* العدد تحت العنوان لا فيه: العنوان ثابت، والرقم يتبع ما يُنشر.
+       لا رقم مثبّت في الكود — إضافة مستوى من اللوحة تظهر هنا وحدها. */
+    var meta = document.getElementById('tr-meta');
+    if (meta) {
+      var lessons = list.reduce(function (a, t) { return a + (t.lessons || 0); }, 0);
+      var word = list.length === 1 ? 'مستوى واحد'
+               : list.length === 2 ? 'مستويان'
+               : n(list.length) + ' مستويات';
+      meta.textContent = word + (lessons ? ' · ' + n(lessons) + ' درساً منشوراً' : '');
+      meta.hidden = false;
     }
 
     rows.innerHTML = list.map(function (t, i) {
@@ -76,7 +81,8 @@
             n(t.quizzes) + '</b> ' + (t.quizzes === 1 ? 'اختبار' : 'اختبارات') + '</span>'
           : '');
 
-      return '<article class="row">' +
+      /* اللون نفسه الذي تراه في الخارطة بعد الدخول: من levels.color */
+      return '<article class="row lvc-' + esc(t.color || 'slate') + '">' +
         '<span class="row-n">' + String(i + 1).padStart(2, '0') + '</span>' +
         '<div class="row-main"><h3>' + esc(t.title) + '</h3>' +
           (t.level_label ? '<span class="chip">' + esc(t.level_label) + '</span>' : '') +

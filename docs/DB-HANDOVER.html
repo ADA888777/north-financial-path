@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>تسليم قاعدة بيانات NORTH</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#F4F7FB; --surface:#FFFFFF; --line:#E2E9F2; --fg:#0C1C2E; --fg-2:#4A5F77;
+  --fg-3:#7B8FA6; --accent:#2A6AA8; --accent-wash:#EAF2FA; --ok:#157F4B; --ok-bg:#E8F5EE;
+  --warn:#9A5B12; --warn-bg:#FDF2E2; --warn-line:#F0D5AC; --dn:#B3321F; --dn-bg:#FBEBE8;
+  --mono:'IBM Plex Mono',ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
+  --bg:#060F1C; --surface:#0A1829; --line:rgba(147,169,193,.18);
+  --fg:#E9F0F8; --fg-2:#A8BED4; --fg-3:#7E93AC; --accent:#7FB4E8; --accent-wash:rgba(127,180,232,.12);
+  --ok:#5FCF95; --ok-bg:rgba(95,207,149,.12); --warn:#E8B465; --warn-bg:rgba(232,180,101,.12);
+  --warn-line:rgba(232,180,101,.3); --dn:#E88B76; --dn-bg:rgba(232,139,118,.12);
+}}
+:root[data-theme="dark"]{
+  --bg:#060F1C; --surface:#0A1829; --line:rgba(147,169,193,.18);
+  --fg:#E9F0F8; --fg-2:#A8BED4; --fg-3:#7E93AC; --accent:#7FB4E8; --accent-wash:rgba(127,180,232,.12);
+  --ok:#5FCF95; --ok-bg:rgba(95,207,149,.12); --warn:#E8B465; --warn-bg:rgba(232,180,101,.12);
+  --warn-line:rgba(232,180,101,.3); --dn:#E88B76; --dn-bg:rgba(232,139,118,.12);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);
+  font-family:'Cairo',system-ui,sans-serif;font-size:16px;line-height:1.9;
+  padding:clamp(18px,4vw,48px) 16px}
+.wrap{max-width:860px;margin-inline:auto}
+header{margin-bottom:clamp(24px,4vw,40px)}
+.kicker{font-size:13px;font-weight:700;color:var(--accent);letter-spacing:.02em}
+h1{font-size:clamp(26px,4.4vw,40px);font-weight:900;line-height:1.25;margin:8px 0 12px}
+.lede{font-size:clamp(15px,1.8vw,17px);color:var(--fg-2);max-width:62ch;margin:0}
+section{background:var(--surface);border:1px solid var(--line);border-radius:16px;
+  padding:clamp(18px,3vw,28px);margin-bottom:16px;
+  box-shadow:0 1px 2px rgba(16,24,40,.04),0 10px 28px -20px rgba(16,24,40,.18)}
+h2{font-size:clamp(19px,2.4vw,24px);font-weight:900;line-height:1.35;margin:0 0 6px;
+  display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+h2 .n{font-family:var(--mono);font-size:.7em;font-weight:500;color:var(--accent);
+  background:var(--accent-wash);border-radius:8px;padding:2px 9px;flex:0 0 auto}
+h3{font-size:16px;font-weight:700;margin:22px 0 8px}
+p{margin:0 0 12px;color:var(--fg-2)}
+section > p:first-of-type{margin-top:6px}
+b,strong{color:var(--fg);font-weight:700}
+ul,ol{margin:0 0 12px;padding-inline-start:22px;color:var(--fg-2)}
+li{margin-bottom:8px}
+li::marker{color:var(--accent)}
+code{font-family:var(--mono);font-size:.88em;background:var(--accent-wash);
+  color:var(--accent);border-radius:6px;padding:2px 6px;overflow-wrap:anywhere}
+pre{background:#0C1C2E;color:#E9F0F8;border-radius:12px;padding:16px 18px;overflow-x:auto;
+  font-family:var(--mono);font-size:13.5px;line-height:1.8;direction:ltr;text-align:left;
+  margin:0 0 14px}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) pre{background:#04101C}}
+:root[data-theme="dark"] pre{background:#04101C}
+pre code{background:none;color:inherit;padding:0}
+.note{display:flex;gap:11px;border-radius:12px;padding:14px 16px;margin:0 0 14px;
+  font-size:14.5px;line-height:1.85}
+.note b{display:block;margin-bottom:3px}
+.note.ok{background:var(--ok-bg);color:var(--ok)}
+.note.warn{background:var(--warn-bg);border:1px solid var(--warn-line);color:var(--warn)}
+.note.stop{background:var(--dn-bg);color:var(--dn)}
+.note .ic{flex:0 0 auto;font-weight:900}
+table{width:100%;border-collapse:collapse;font-size:14.5px;margin:0 0 14px}
+th,td{text-align:start;padding:10px 12px;border-bottom:1px solid var(--line);
+  vertical-align:top}
+th{font-weight:700;color:var(--fg);font-size:13.5px}
+td{color:var(--fg-2)}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.chk{list-style:none;padding:0}
+.chk li{display:flex;gap:10px;align-items:flex-start;margin-bottom:11px}
+.chk li::before{content:'';flex:0 0 auto;width:18px;height:18px;border-radius:5px;
+  border:2px solid var(--line);margin-top:5px}
+footer{color:var(--fg-3);font-size:13.5px;text-align:center;margin-top:28px;line-height:1.9}
+@media (max-width:560px){ pre{font-size:12.5px} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <span class="kicker">NORTH — نورث للمسار المالي</span>
+  <h1>ما يحتاجه مبرمج قاعدة البيانات</h1>
+  <p class="lede">قائمة مرتّبة بما يجب تنفيذه على مشروع Supabase.
+    الترتيب مقصود: كل خطوة تبني على ما قبلها. الكود كلّه في المستودع
+    <code>ADA888777/north-financial-path</code>.</p>
+</header>
+
+<section>
+  <h2><span class="n">١</span> تشغيل ملفات SQL بالترتيب</h2>
+  <p>في المستودع مجلد <code>supabase/</code> فيه <b>٣٠ ملف SQL</b> مرقّمة.
+    تُشغَّل واحداً واحداً بالترتيب من <b>Supabase ← SQL Editor ← New query</b>.</p>
+  <ul>
+    <li>الترتيب لازم: كل ملف يبني على ما قبله.</li>
+    <li>ملفان يحملان الرقم <code>05</code> — شغّلهما كليهما بأي ترتيب بينهما. لا يوجد ملف <code>06</code>.</li>
+    <li>كل الملفات آمنة لإعادة التشغيل (<code>if not exists</code> و<code>or replace</code>)،
+      فتشغيل ملف مرتين لا يكسر شيئاً ولا يحذف بيانات.</li>
+  </ul>
+  <p>التفاصيل كاملة — ماذا ينشئ كل ملف وما يتعطّل بدونه — في
+    <code>supabase/RUN-ORDER.md</code>.</p>
+  <div class="note ok"><span class="ic">✓</span><span>
+    <b>كيف تتأكد أنها اشتغلت</b>
+    شغّل <code>notify pgrst, 'reload schema';</code> ثم افتح المنصة.
+    خطأ <code>Could not find the function public.&lt;name&gt;</code> معناه أن
+    الهجرة التي تنشئ تلك الدالة لم تُشغَّل بعد.</span></div>
+</section>
+
+<section>
+  <h2><span class="n">٢</span> تفعيل pg_cron وجدولة تذكير الحصص</h2>
+  <p>تذكير الحصة المباشرة قبل ٢٤ ساعة يُرسَل من الخادم، لا من صفحة مفتوحة
+    في متصفح أحد. الدالة موجودة بعد الهجرة ٢٦، لكنها تحتاج من يناديها.</p>
+  <ol>
+    <li><b>Database ← Extensions</b> ← فعّل <code>pg_cron</code>.</li>
+    <li>ثم شغّل في SQL Editor:</li>
+  </ol>
+<pre><code>select cron.schedule(
+  'north-live-reminders',
+  '*/15 * * * *',
+  $$select public.send_live_reminders();$$
+);</code></pre>
+  <p>للتأكد: <code>select * from cron.job;</code> — يجب أن يظهر السطر.
+    وبدون هذه الخطوة لن يصل أي تذكير.</p>
+</section>
+
+<section>
+  <h2><span class="n">٣</span> نشر دوال الخادم الأربع</h2>
+  <p>هذه عمليات تحتاج مفتاحاً سرياً، فلا يجوز أن تقع في المتصفح.</p>
+<pre><code>supabase login
+supabase link --project-ref ukdcdbbbzeqztoqctnxb
+
+supabase functions deploy create-member
+supabase functions deploy notify-booking
+supabase functions deploy update-member-email
+supabase functions deploy admin-account-action</code></pre>
+  <h3>الأسرار المطلوبة</h3>
+  <div class="tw"><table>
+    <tr><th>المفتاح</th><th>من أين</th><th>لماذا</th></tr>
+    <tr><td><code>SUPABASE_URL</code></td><td>يُحقن تلقائياً</td><td>—</td></tr>
+    <tr><td><code>SUPABASE_ANON_KEY</code></td><td>يُحقن تلقائياً</td><td>قراءة جلسة المنادي</td></tr>
+    <tr><td><code>SUPABASE_SERVICE_ROLE_KEY</code></td><td>يُحقن تلقائياً</td><td>عمليات الإدارة</td></tr>
+    <tr><td><code>RESEND_API_KEY</code></td><td>حساب Resend</td><td>إرسال البريد</td></tr>
+    <tr><td><code>MAIL_FROM</code></td><td>نطاق مُوثَّق في Resend</td><td>عنوان المُرسِل</td></tr>
+  </table></div>
+  <p>تُضاف من <b>Edge Functions ← Secrets</b>. بدون مفتاحَي البريد تعمل
+    الدوال لكن لا يصل بريد.</p>
+</section>
+
+<section>
+  <h2><span class="n">٤</span> إعدادات المصادقة</h2>
+  <ul class="chk">
+    <li><b>Authentication ← Providers ← Email</b>: أوقف
+      <b>Allow new users to sign up</b>. العضوية مغلقة والحسابات تُنشأ من اللوحة.</li>
+    <li><b>Authentication ← URL Configuration</b>: أضف
+      <code>https://north-sa.onrender.com</code> إلى <b>Redirect URLs</b>،
+      وإلا لن يعمل رابط تعيين كلمة المرور.</li>
+  </ul>
+</section>
+
+<section>
+  <h2><span class="n">٥</span> فحص إعداد الباقات — قبل أي شيء آخر</h2>
+  <div class="note warn"><span class="ic">!</span><span>
+    <b>هذا سبب عطل حقيقي حدث فعلاً</b>
+    مشتركة في الباقة الماسية كانت تُعامَل كبرونزية. السبب أن
+    <code>plans.tier</code> هو ما يفتح المحتوى، وكان لباقتين نافذتين نفس
+    الرتبة — فإحداهما تفتح ما تفتحه الأخرى بلا أن يقصد أحد ذلك.</span></div>
+  <p>افتح <b>لوحة الإدارة ← تبويب «الباقات»</b>. أعلى الصفحة تقرير يكشف:
+    رتباً متقاسَمة، وأسماء باقات في حسابات الأعضاء بلا صفّ في جدول الباقات،
+    وباقات بلا مميزات مسجّلة. أو من SQL:</p>
+<pre><code>select jsonb_pretty(public.admin_plan_health());</code></pre>
+  <p>إن ظهر تضارب رتبة واسمان لباقة واحدة كُتبت بصيغتين، فزرّ <b>«ادمجي»</b>
+    في التقرير ينقل العضويات ويُسجّل كل نقل. لا تُعدَّل الصفوف يدوياً.</p>
+</section>
+
+<section>
+  <h2><span class="n">٦</span> ضبط المحتوى من اللوحة — لا من SQL</h2>
+  <p>كل ما يلي يُدار من لوحة الإدارة. ذكرتُه هنا لأن المنصة لن تعمل كما
+    يُتوقَّع قبل ضبطه، لا لأنه يحتاج كتابة SQL.</p>
+  <div class="tw"><table>
+    <tr><th>ما يُضبط</th><th>أين</th><th>إن تُرك</th></tr>
+    <tr><td>رتبة كل باقة ومدّتها ورصيد جلساتها</td><td>تبويب الباقات</td>
+        <td>الترقية لا تفتح محتوى، ورصيد الجلسات صفر</td></tr>
+    <tr><td>مميزات كل باقة وروابط القنوات والقروبات</td><td>الباقات ← المميزات والروابط</td>
+        <td>صفحة المشتركة تظهر فارغة</td></tr>
+    <tr><td>أدنى باقة لكل مستوى ولكل درس</td><td>المستويات / الدروس</td>
+        <td>كل مشترك يرى كل شيء</td></tr>
+    <tr><td>لون كل مستوى</td><td>تبويب المستويات</td>
+        <td>المستويات بلا تمييز في الخارطة والصفحة الرئيسية</td></tr>
+    <tr><td>الكوتشات وأوقات توفّرهم</td><td>تبويب الكوتشات</td>
+        <td>لا تظهر مواعيد للحجز إطلاقاً</td></tr>
+    <tr><td>اختبار لكل درس بنسبة نجاح ١٠٠٪</td><td>تبويب الاختبارات</td>
+        <td>الدرس التالي يُفتح بإنهاء السابق بلا اختبار</td></tr>
+  </table></div>
+  <p>أوقات الكوتشات محصورة بالقاعدة: <b>الأحد إلى الخميس، ٦ إلى ١١ مساءً
+    بتوقيت الرياض</b>. محاولة إدخال وقت خارجها تُرفض من القاعدة نفسها.</p>
+</section>
+
+<section>
+  <h2><span class="n">٧</span> فحوص بعد التشغيل</h2>
+<pre><code>-- ١) الباقات ورتبها: لكل باقة نافذة رتبة خاصة بها
+select name, tier, duration_days, private_quota, active
+from public.plans order by tier;
+
+-- ٢) نسبة النجاح: يجب أن تكون ١٠٠
+select title, pass_score from public.quizzes where published;
+
+-- ٣) المفردات الجاهزة للتحدي وتوزيعها
+select jsonb_pretty(public.admin_vocab_health());
+
+-- ٤) الحصص المباشرة القادمة
+select title, starts_at from public.class_slots
+where kind = 'live' and status = 'scheduled' and starts_at > now()
+order by starts_at;</code></pre>
+</section>
+
+<section>
+  <h2><span class="n">٨</span> ممنوع</h2>
+  <div class="note stop"><span class="ic">✕</span><span>
+    <b>لا تعطّل RLS على أي جدول</b>
+    الحماية كلها مبنية عليها. تعطيلها «لتسهيل التنفيذ» يفتح بيانات كل
+    المشتركات لأي حساب.</span></div>
+  <div class="note stop"><span class="ic">✕</span><span>
+    <b>لا تضع <code>service_role</code> في كود الواجهة ولا في المستودع</b>
+    المفتاح الموجود في <code>assets/supabase.js</code> هو المفتاح العلني
+    وهذا موضعه الصحيح. السرّي يبقى في أسرار دوال الخادم وحدها.</span></div>
+  <div class="note stop"><span class="ic">✕</span><span>
+    <b>لا تعدّل نتائج الاختبارات ولا التقييمات يدوياً</b>
+    متوسط تقييم الكوتش محسوب من تقييمات مرتبطة بجلسات حضرها أصحابها.
+    كتابة رقم فيه تفصل المعروض عن الحقيقة.</span></div>
+  <div class="note stop"><span class="ic">✕</span><span>
+    <b>لا تحذف حسابات للتجربة</b>
+    الحذف يمحو معه الاشتراكات والحجوزات والتقدّم والنتائج — كلها مرتبطة
+    بالحساب بـ<code>on delete cascade</code>. للاختبار استعمل التعطيل.</span></div>
+</section>
+
+<footer>
+  التفاصيل الكاملة في المستودع: <code>supabase/RUN-ORDER.md</code>
+  و<code>docs/BACKEND-SPEC.md</code> و<code>docs/DESIGN-SYSTEM.md</code>.
+</footer>
+
+</div>
+</body>
+</html>
