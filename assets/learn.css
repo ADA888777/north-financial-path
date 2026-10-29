@@ -342,43 +342,57 @@ a.dt-i:hover{border-color:color-mix(in srgb,var(--accent) 45%,var(--line));backg
 .mp-lock{font-size:12.5px;color:var(--fg-2);line-height:1.7}
 
 /* ============================================================
-   التحدي
+   التحدي — كتابة التعريف
    ============================================================ */
-.ch-head{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:14px}
+.ch-head{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:18px}
 .chh-n{flex:1;min-width:120px;background:var(--surface);border:1px solid var(--line);
   border-radius:var(--rp);padding:16px 18px;text-align:center}
 .chh-n b{display:block;font-size:clamp(24px,3.4vw,32px);font-family:var(--display);
   color:var(--accent);letter-spacing:-.03em;line-height:1.2}
 .chh-n b i{font-size:.55em;font-style:normal;color:var(--fg-3)}
 .chh-n span{font-size:12px;color:var(--fg-2);display:block;margin-top:5px}
-.ch-hist{display:flex;align-items:center;gap:4px;margin-bottom:18px;flex-wrap:wrap}
-.ch-hist i{width:13px;height:13px;border-radius:3px;background:var(--surface-2)}
-.ch-hist i.full{background:var(--up)}
-.ch-hist i.part{background:color-mix(in srgb,var(--up) 45%,var(--surface-2))}
-.ch-hist span{font-size:11.5px;color:var(--fg-3);margin-inline-start:6px}
-.chq + .chq{margin-top:14px}
-.chq-h{display:flex;align-items:flex-start;gap:12px;margin-bottom:14px}
-.chq-h i{flex-shrink:0;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;
-  background:var(--accent-wash);color:var(--accent);font-style:normal;font-size:12.5px;
-  font-weight:600;font-family:var(--mono)}
-.chq-h div{flex:1;min-width:0}
-.chq-h b{font-size:15.5px;line-height:1.7;display:block}
-.chq-src{font-size:11.5px;color:var(--fg-3);display:block;margin-top:5px}
-.chq-r{font-size:11.5px;font-weight:600;border-radius:999px;padding:3px 10px;flex-shrink:0}
-.chq-r.ok{background:color-mix(in srgb,var(--up) 14%,transparent);color:var(--up)}
-.chq-r.no{background:color-mix(in srgb,var(--dn) 13%,transparent);color:var(--dn)}
-.qa-list{display:grid;gap:9px}
-.qa{font:inherit;font-size:14.5px;text-align:start;padding:13px 15px;border-radius:var(--rb);
-  border:1px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer;
-  display:flex;align-items:center;justify-content:space-between;gap:10px;
-  transition:border-color .18s,background .18s}
-.qa:not([disabled]):hover{border-color:color-mix(in srgb,var(--accent) 48%,var(--line));
-  background:var(--accent-wash)}
-.qa[disabled]{cursor:default}
-.qa .ms{font-size:19px}
-.qa.right{border-color:var(--up);background:color-mix(in srgb,var(--up) 10%,transparent);color:var(--up)}
-.qa.wrong{border-color:var(--dn);background:color-mix(in srgb,var(--dn) 9%,transparent);color:var(--dn)}
-.chq-err{margin-top:10px;font-size:12.5px;color:var(--dn)}
+
+.vq-h{display:flex;align-items:center;justify-content:space-between;gap:12px;
+  flex-wrap:wrap;margin-bottom:22px}
+.vq-n{font-size:12.5px;color:var(--fg-3);font-family:var(--mono)}
+.vq-lesson{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--accent)}
+.vq-lesson .ms{font-size:16px}
+.vq-lesson:hover{text-decoration:underline;text-underline-offset:3px}
+.vq-lbl{font-size:12.5px;color:var(--fg-2);text-align:center}
+/* .lbox h2 تجعل العنوان flex، فيبطل التوسيط ويلتصق بحافة البداية. */
+.vq-term{display:block;font-size:clamp(26px,4.4vw,40px);font-family:var(--display);text-align:center;
+  letter-spacing:-.02em;margin:10px 0 26px;line-height:1.4;overflow-wrap:anywhere}
+.vq-f textarea{width:100%;font:inherit;font-size:15px;line-height:1.9;padding:14px 16px;
+  border-radius:var(--rb);border:1px solid var(--line-2);background:var(--surface);
+  color:var(--fg);resize:vertical;min-height:92px}
+.vq-f textarea:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:transparent}
+.vq-acts{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+.vq-rule{font-size:12px;color:var(--fg-3);line-height:1.8;margin-top:14px;
+  border-inline-start:2px solid var(--line);padding-inline-start:11px}
+.vq-err{margin-top:14px;font-size:13px;color:var(--dn)}
+
+.vq-res{margin-top:20px;border-radius:var(--rb);padding:16px 18px;border:1px solid var(--line)}
+.vq-res.ok{border-color:var(--up);background:color-mix(in srgb,var(--up) 9%,transparent)}
+.vq-res.mid{border-color:var(--warn-line,#F0CDB9);background:color-mix(in srgb,var(--warn-line,#F0CDB9) 16%,transparent)}
+.vq-res.no{border-color:var(--dn);background:color-mix(in srgb,var(--dn) 8%,transparent)}
+.vr-h{display:flex;align-items:center;gap:9px;margin-bottom:12px;flex-wrap:wrap}
+.vr-h .ms{font-size:21px}
+.vq-res.ok .vr-h{color:var(--up)}
+.vq-res.mid .vr-h{color:var(--warn-title,#9A4A24)}
+.vq-res.no .vr-h{color:var(--dn)}
+.vr-h b{font-size:15.5px}
+.vr-p{font-size:11.5px;color:var(--fg-3);font-family:var(--mono);margin-inline-start:auto}
+.vq-res p{font-size:14px;color:var(--fg);line-height:1.9}
+.vr-l{display:block;font-size:11.5px;color:var(--fg-3);margin-bottom:3px}
+.vr-n{font-size:12.5px;color:var(--fg-2)!important;margin-top:8px}
+.vr-f{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+.vr-sent{font-size:12.5px;color:var(--up);align-self:center}
+
+.ch-done{text-align:center;padding-block:clamp(30px,6vw,56px)}
+.ch-done .ms{font-size:46px;color:var(--accent);display:block;margin-bottom:14px}
+.ch-done h2{display:block;font-size:clamp(20px,3vw,26px);margin-bottom:10px}
+.ch-done p{font-size:14px;color:var(--fg-2);line-height:1.9}
+.ch-acts{display:flex;gap:10px;justify-content:center;margin-top:22px;flex-wrap:wrap}
 
 /* ============================================================
    الحصص

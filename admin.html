@@ -39,6 +39,7 @@
     <button class="tab" type="button" data-tab="lessons">الدروس والاستراتيجيات</button>
     <button class="tab" type="button" data-tab="quizzes">الاختبارات</button>
     <button class="tab" type="button" data-tab="classes">الحصص</button>
+    <button class="tab" type="button" data-tab="vocab">المفردات</button>
     <button class="tab" type="button" data-tab="plans">الباقات</button>
     <button class="tab" type="button" data-tab="stories">قصص النجاح</button>
   </nav>
@@ -174,6 +175,38 @@
   </section>
 
   <!-- ===================== قصص النجاح ===================== -->
+  <!-- ===================== المفردات ===================== -->
+  <section data-panel="vocab" hidden>
+    <div class="kpis" id="vc-kpis">
+      <div class="kpi"><span>مفردات</span><b>—</b></div>
+      <div class="kpi"><span>دروس فيها مفردات</span><b>—</b></div>
+      <div class="kpi"><span>طلبات مراجعة</span><b>—</b></div>
+    </div>
+
+    <div class="panel-box" id="vc-dispute-box" hidden>
+      <h2 style="margin:0 0 6px">إجابات بانتظار مراجعتك</h2>
+      <p class="sub" style="margin-top:0">التحقق يقارن كلمات جواب المتعلم بكلمات التعريف المعتمد،
+        وهو لا يعرف المرادفات. هذه إجابات رآها المتعلم صحيحة ورفضتها القاعدة.</p>
+      <div id="vc-disputes"></div>
+    </div>
+
+    <div class="panel-box">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:16px">
+        <h2 style="margin:0">المفردات والتعريفات</h2>
+        <button class="bt bt-main" id="vc-add" type="button"><span class="ms sm">add</span> إضافة مفردة</button>
+      </div>
+      <p class="sub" style="margin-top:-8px">هذه المفردات هي مادة صفحة «التحدي»: يظهر المصطلح للمتعلم ويكتب تعريفه.
+        مفردة بلا تعريف لا تدخل التحدي.</p>
+      <div class="grid2" style="margin-bottom:16px">
+        <div class="fld"><label for="vc-q">بحث</label>
+          <input id="vc-q" type="search" placeholder="مصطلح أو كلمة في التعريف"></div>
+        <div class="fld"><label for="vc-lesson-f">تصفية حسب الدرس</label>
+          <select id="vc-lesson-f"><option value="">كل الدروس</option></select></div>
+      </div>
+      <div id="vc-list"></div>
+    </div>
+  </section>
+
   <!-- ===================== الباقات ===================== -->
   <section data-panel="plans" hidden>
     <div class="kpis" id="pl-kpis">
@@ -635,6 +668,7 @@
 <script src="assets/admin-members.js"></script>
 <script src="assets/admin-subscription.js"></script>
 <script src="assets/admin-plans.js"></script>
+<script src="assets/admin-vocab.js"></script>
 <script src="assets/admin-stories.js"></script>
 <script src="assets/admin-tracks.js"></script>
 <script src="assets/admin-levels.js"></script>
