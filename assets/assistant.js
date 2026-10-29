@@ -11,22 +11,51 @@
 
   L.guard().then(function (s) {
     if (!s) return;
-    history();
+    // الاسم للترحيب فقط؛ إن تعذّر فالترحيب بلا اسم
+    db.rpc('my_dashboard').then(function (r) {
+      var d = (r && r.data) || {};
+      window.northLearnName = d.name || '';
+    }).catch(function () {}).then(function () { history(); });
   });
+
+  /* اقتراحات جاهزة: تملأ الحقل ثم تُرسل */
+  var chips = el('as-chips');
+  if (chips) {
+    chips.addEventListener('click', function (e) {
+      var b = e.target.closest('[data-q]');
+      if (!b || busy) return;
+      el('q').value = b.getAttribute('data-q');
+      el('chat-form').dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+    });
+  }
 
   function bubble(role, text, opts) {
     opts = opts || {};
+    var me = role === 'user';
+
     var d = document.createElement('div');
     // التحية ليست جواباً فاشلاً: grounded = null، فلا تُوسَم بوسم الامتناع.
-    d.className = 'msg ' + (role === 'user' ? 'me' : (opts.error ? 'err' : 'bot')) +
+    d.className = 'msg ' + (me ? 'me' : (opts.error ? 'err' : 'bot')) +
       (opts.grounded === false && !opts.error ? ' ungrounded' : '') +
       (opts.kind === 'loose' ? ' loose' : '');
-    d.textContent = text;
+
+    if (!me) {
+      var av = document.createElement('span');
+      av.className = 'msg-av';
+      av.innerHTML = '<span class="ms">smart_toy</span>';
+      d.appendChild(av);
+    }
+
+    var tx = document.createElement('span');
+    tx.className = 'msg-tx';
+    tx.textContent = text;
+    d.appendChild(tx);
+
     if (opts.kind === 'loose') {
       var w = document.createElement('span');
       w.className = 'msg-note';
       w.textContent = 'تطابق تقريبي — راجع الدرس للتأكد.';
-      d.appendChild(w);
+      tx.appendChild(w);
     }
     if (opts.suggestions && opts.suggestions.length) {
       var g = document.createElement('span');
@@ -34,24 +63,32 @@
       g.innerHTML = 'دروس قد تفيد: ' + opts.suggestions.map(function (x) {
         return '<a href="lesson.html?id=' + esc(x.id) + '">' + esc(x.title) + '</a>';
       }).join(' · ');
-      d.appendChild(g);
+      tx.appendChild(g);
     }
     if (opts.sources && opts.sources.length) {
-      var s = document.createElement('span');
-      s.className = 'msg-src';
-      s.innerHTML = 'من الدروس: ' + opts.sources.map(function (x) {
+      var sc = document.createElement('span');
+      sc.className = 'msg-src';
+      sc.innerHTML = 'من الدروس: ' + opts.sources.map(function (x) {
         return '<a href="lesson.html?id=' + esc(x.id) + '">' + esc(x.title) + '</a>';
       }).join(' · ');
-      d.appendChild(s);
+      tx.appendChild(sc);
     }
+
     log.appendChild(d);
     log.scrollTop = log.scrollHeight;
     return d;
   }
 
   function emptyState() {
-    log.innerHTML = '<div class="chat-empty"><span class="ms">forum</span>' +
-      'اسألني عن أي مفهوم ورد في دروسك.<br>مثال: ما الفرق بين أمر السوق والأمر المحدد؟</div>';
+    /* فقاعة ترحيب باسم المتعلمة، كما في المرجع. ليست جواباً ولا تُحسب
+       محادثةً: تُستبدل بأول سؤال. */
+    var name = (window.northLearnName || '').trim();
+    log.innerHTML =
+      '<div class="msg bot greet">' +
+        '<span class="msg-av"><span class="ms">smart_toy</span></span>' +
+        '<span class="msg-tx">أهلاً' + (name ? '، ' + esc(name) : '') +
+          '، كيف أساعدك في المذاكرة اليوم؟</span>' +
+      '</div>';
   }
 
   function history() {
@@ -75,7 +112,7 @@
     var q = input.value.trim();
     if (!q) return;
 
-    if (log.querySelector('.chat-empty')) log.innerHTML = '';
+    if (log.querySelector('.greet')) log.innerHTML = '';
 
     bubble('user', q);
     input.value = '';
@@ -83,6 +120,7 @@
     busy = true;
     var btn = el('send');
     btn.setAttribute('aria-busy', 'true'); btn.disabled = true;
+    if (el('as-chips')) el('as-chips').hidden = true;
 
     var dots = document.createElement('div');
     dots.className = 'typing';

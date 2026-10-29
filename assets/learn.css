@@ -137,11 +137,21 @@
 /* ---- المساعد ---- */
 .chat{display:flex;flex-direction:column;height:min(560px,68vh);min-height:340px}
 .chat-log{flex:1;overflow-y:auto;padding:4px 2px 14px;display:flex;flex-direction:column;gap:12px}
-.msg{max-width:88%;border-radius:14px;padding:13px 16px;font-size:14.5px;line-height:1.95;white-space:pre-wrap;overflow-wrap:anywhere}
-.msg.me{align-self:flex-start;background:var(--accent);color:var(--on-accent);border-bottom-left-radius:5px}
-.msg.bot{align-self:flex-end;background:var(--surface-2);border-bottom-right-radius:5px}
-.msg.bot.ungrounded{background:color-mix(in srgb,var(--dn) 9%,var(--surface-2))}
-.msg.err{align-self:flex-end;background:color-mix(in srgb,var(--dn) 12%,transparent);color:var(--dn)}
+/* الفقاعة: صورة المرسِل خارجها والنص داخلها، كما في المرجع */
+.msg{display:flex;align-items:flex-start;gap:10px;max-width:88%}
+.msg-tx{border-radius:14px;padding:13px 16px;font-size:14.5px;line-height:1.95;
+  white-space:pre-wrap;overflow-wrap:anywhere;min-width:0}
+.msg-av{flex:0 0 auto;width:38px;height:38px;border-radius:12px;display:grid;
+  place-items:center;background:var(--tile-bg);color:var(--accent)}
+.msg-av .ms{font-size:20px}
+.msg.me{align-self:flex-start}
+.msg.me .msg-tx{background:var(--accent);color:var(--on-accent);border-bottom-left-radius:5px}
+.msg.bot{align-self:flex-end;flex-direction:row-reverse}
+.msg.bot .msg-tx{background:var(--surface-2);border-bottom-right-radius:5px}
+.msg.bot.ungrounded .msg-tx{background:color-mix(in srgb,var(--dn) 9%,var(--surface-2))}
+.msg.err{align-self:flex-end;flex-direction:row-reverse}
+.msg.err .msg-tx{background:color-mix(in srgb,var(--dn) 12%,transparent);color:var(--dn)}
+.msg.err .msg-av{background:color-mix(in srgb,var(--dn) 12%,transparent);color:var(--dn)}
 .msg-src{display:block;margin-top:9px;font-size:12px;color:var(--fg-2);border-top:1px solid var(--line);padding-top:8px}
 .msg-src a{color:var(--accent)}
 .typing{align-self:flex-end;display:flex;gap:4px;padding:14px 18px;background:var(--surface-2);border-radius:14px}
@@ -360,7 +370,7 @@
 .cd-act{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
 
 /* تطابق تقريبي في المساعد: يُعرض احتمالاً لا جواباً مؤكداً */
-.msg.loose{border-inline-start:3px solid var(--warn-line,#F0CDB9)}
+.msg.loose .msg-tx{border-inline-start:3px solid var(--warn-line,#F0CDB9)}
 .msg-note{display:block;margin-top:9px;font-size:11.5px;color:var(--fg-3)}
 
 /* ============================================================
@@ -405,3 +415,55 @@
    الأدنى، فيتجاوز الصفُّ الشاشة على العروض الضيقة جداً. */
 .lgrid > *{min-width:0}
 .sum > *,.ch,.week,.dt,.st-grid,.cd-grid{min-width:0}
+
+
+/* ============================================================
+   بطاقة المعلم الذكي — صورة المرجع ١
+   ============================================================ */
+.as-card{padding:0!important;overflow:hidden;display:flex;flex-direction:column;
+  min-height:clamp(440px,66vh,720px)}
+.as-h{display:flex;align-items:center;gap:12px;padding:clamp(14px,2.2vw,18px);
+  background:var(--tile-bg);border-bottom:1px solid var(--card-line)}
+.as-ico{flex:0 0 auto;width:44px;height:44px;border-radius:14px;display:grid;
+  place-items:center;background:var(--accent);color:var(--on-accent)}
+.as-ico .ms{font-size:23px}
+.as-t{min-width:0;flex:1}
+.as-t b{display:block;font-family:var(--display);font-weight:800;
+  font-size:clamp(16px,2vw,19px);line-height:1.35}
+.as-t span{display:block;font-size:12.5px;color:var(--fg-3);line-height:1.7;margin-top:2px}
+.as-live{flex:0 0 auto;display:inline-flex;align-items:center;gap:7px;font-size:12px;
+  font-weight:700;color:var(--accent);border:1px solid color-mix(in srgb,var(--accent) 40%,transparent);
+  border-radius:999px;padding:6px 13px}
+.as-live i{width:7px;height:7px;border-radius:50%;background:var(--accent);
+  animation:as-pulse 2s ease-in-out infinite}
+@keyframes as-pulse{0%,100%{opacity:1}50%{opacity:.35}}
+@media (prefers-reduced-motion:reduce){.as-live i{animation:none}}
+
+.as-card .chat-log{flex:1;padding:clamp(14px,2.2vw,20px);min-height:0}
+
+.as-foot{border-top:1px solid var(--card-line);padding:clamp(12px,2vw,16px)}
+.as-chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.as-chip{font:inherit;font-size:12.5px;font-weight:600;cursor:pointer;
+  border-radius:999px;padding:9px 15px;min-height:36px;
+  background:var(--surface);color:var(--fg-2);border:1px solid var(--line-2)}
+.as-chip:hover{border-color:var(--accent);color:var(--accent)}
+
+.as-form{display:flex;gap:9px;align-items:center}
+.as-form input{flex:1;min-width:0;font:inherit;font-size:15px;padding:13px 18px;
+  border-radius:999px;border:1px solid var(--line-2);background:var(--surface);color:var(--fg)}
+.as-form input:focus{outline:none;border-color:var(--accent);
+  box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 18%,transparent)}
+.as-send{flex:0 0 auto;width:46px;height:46px;border-radius:14px;border:0;cursor:pointer;
+  display:grid;place-items:center;background:var(--accent);color:var(--on-accent)}
+.as-send:hover{background:var(--accent-2)}
+.as-send[disabled]{opacity:.6;cursor:default}
+.as-send .ms{font-size:21px}
+.as-send[aria-busy="true"] .ms{display:none}
+.as-send .spin{display:none}
+.as-send[aria-busy="true"] .spin{display:block}
+
+.as-note{display:flex;gap:9px;align-items:flex-start;margin-top:var(--gap);
+  font-size:12.5px;line-height:1.85;color:var(--fg-3)}
+.as-note .ms{font-size:17px;flex:0 0 auto;margin-top:1px}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
+  clip:rect(0,0,0,0);white-space:nowrap;border:0}

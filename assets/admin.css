@@ -335,3 +335,15 @@ tr.sb-soon td:first-child{box-shadow:inset 2px 0 0 #C98A3C}
 .ph-b span{display:block;font-size:12.5px;line-height:1.8;margin-top:5px;
   color:var(--a-fg-2,#9FB6CE)}
 .ph-a{display:flex;gap:8px;flex-wrap:wrap;flex:0 0 auto}
+
+/* لون المستوى في قائمة اللوحة */
+.lv-sw{position:relative}
+.lv-sw::after{content:'';position:absolute;inset-block-end:-2px;inset-inline-start:-2px;
+  width:12px;height:12px;border-radius:50%;border:2px solid var(--a-bg,#071320)}
+.lv-sw.green::after{background:#22C55E}
+.lv-sw.blue::after{background:#3B82F6}
+.lv-sw.violet::after{background:#8B5CF6}
+.lv-sw.amber::after{background:#F59E0B}
+.lv-sw.rose::after{background:#F43F5E}
+.lv-sw.teal::after{background:#14B8A6}
+.lv-sw.slate::after{background:#64748B}

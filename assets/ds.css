@@ -355,21 +355,64 @@ a.pip:hover{transform:translateY(-1px)}
 .lv-o-n{text-align:center;flex-shrink:0}
 .lv-o-n b{display:block;font-family:var(--display);font-weight:900;font-size:28px;line-height:1}
 .lv-o-n span{display:block;font-size:11.5px;color:var(--fg-3);margin-top:5px}
-.lv-o.hb{background:linear-gradient(255deg,var(--accent-wash),var(--surface) 62%);
-  border-inline-start-color:var(--accent)}
-.lv-o.hb .lv-o-n b{color:var(--accent)}
-.lv-o.hp{background:linear-gradient(255deg,color-mix(in srgb,#8B5CF6 10%,var(--surface)),var(--surface) 62%);
-  border-inline-start-color:#8B5CF6}
-.lv-o.hp .lv-o-n b{color:#8B5CF6}
-.lv-o.ho{background:linear-gradient(255deg,var(--flame-bg),var(--surface) 62%);
-  border-inline-start-color:var(--flame)}
-.lv-o.ho .lv-o-n b{color:var(--flame)}
-.lv-o.hr{background:linear-gradient(255deg,color-mix(in srgb,var(--dn) 10%,var(--surface)),var(--surface) 62%);
-  border-inline-start-color:var(--dn)}
-.lv-o.hr .lv-o-n b{color:var(--dn)}
-.lv-o.hg{background:linear-gradient(255deg,color-mix(in srgb,var(--up) 10%,var(--surface)),var(--surface) 62%);
-  border-inline-start-color:var(--up)}
-.lv-o.hg .lv-o-n b{color:var(--up)}
+/* ---------- ألوان المستويات ----------
+   كل مستوى يحمل صنف lvc-<اللون> يأتي من levels.color في القاعدة.
+   اللون يُعرَّف مرة واحدة في --lv، وكل ما في البطاقة يقرأ منه:
+   الشريط الجانبي والخلفية والرقم والشارة. */
+.lvc-green  { --lv:#16A34A; }
+.lvc-blue   { --lv:#2563EB; }
+.lvc-violet { --lv:#7C3AED; }
+.lvc-amber  { --lv:#D97706; }
+.lvc-rose   { --lv:#E11D48; }
+.lvc-teal   { --lv:#0D9488; }
+.lvc-slate  { --lv:#475569; }
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .lvc-green { --lv:#4ADE80; }
+  :root:not([data-theme="light"]) .lvc-blue  { --lv:#60A5FA; }
+  :root:not([data-theme="light"]) .lvc-violet{ --lv:#A78BFA; }
+  :root:not([data-theme="light"]) .lvc-amber { --lv:#FBBF24; }
+  :root:not([data-theme="light"]) .lvc-rose  { --lv:#FB7185; }
+  :root:not([data-theme="light"]) .lvc-teal  { --lv:#2DD4BF; }
+  :root:not([data-theme="light"]) .lvc-slate { --lv:#94A3B8; }
+}
+:root[data-theme="dark"] .lvc-green { --lv:#4ADE80; }
+:root[data-theme="dark"] .lvc-blue  { --lv:#60A5FA; }
+:root[data-theme="dark"] .lvc-violet{ --lv:#A78BFA; }
+:root[data-theme="dark"] .lvc-amber { --lv:#FBBF24; }
+:root[data-theme="dark"] .lvc-rose  { --lv:#FB7185; }
+:root[data-theme="dark"] .lvc-teal  { --lv:#2DD4BF; }
+:root[data-theme="dark"] .lvc-slate { --lv:#94A3B8; }
+
+.lv-o{background:linear-gradient(255deg,
+       color-mix(in srgb,var(--lv,var(--accent)) 10%,var(--surface)),
+       var(--surface) 62%);
+  border-color:color-mix(in srgb,var(--lv,var(--accent)) 26%,var(--card-line))}
+.lv-o::before{background:var(--lv,var(--accent))}
+.lv-o .lv-o-n b{color:var(--lv,var(--accent))}
+.lv-cur::before{background:var(--lv,var(--up))}
+
+/* مستوى تقفله الباقة: يُعرض اسمه وعدد دروسه ويُمنع محتواه */
+.lv-o.tier-locked{opacity:1}
+.lv-o.tier-locked .lv-o-t{min-width:0}
+.lv-lock{display:flex;align-items:flex-start;gap:7px;font-size:12.5px;line-height:1.75;
+  color:var(--fg-2);margin-top:8px}
+.lv-lock .ms{font-size:16px;color:var(--lv,var(--fg-3));flex:0 0 auto;margin-top:1px}
+.up-badge{display:inline-flex;align-items:center;gap:6px;margin-top:10px;
+  font-size:12px;font-weight:700;border-radius:999px;padding:6px 12px;
+  background:color-mix(in srgb,var(--lv,var(--flame)) 15%,transparent);
+  color:var(--lv,var(--flame));
+  border:1px solid color-mix(in srgb,var(--lv,var(--flame)) 36%,transparent)}
+.up-badge .ms{font-size:15px}
+
+/* درس تقفله الباقة: اسمه ظاهر، ومحتواه ممنوع في القاعدة */
+.ls.tier_locked > div{background:color-mix(in srgb,var(--flame) 7%,transparent);
+  border-color:color-mix(in srgb,var(--flame) 26%,var(--card-line))}
+.ls.tier_locked .ls-n{background:var(--flame-bg);color:var(--flame)}
+.ls.tier_locked .ls-s{color:var(--flame)}
+.ls.tier_locked .up-badge{margin-top:0;flex:0 0 auto;
+  background:var(--flame-bg);color:var(--flame);border-color:var(--flame-line)}
+.ls.is-strategy .ls-b b::before{content:'◆';font-size:.7em;margin-inline-end:6px;
+  color:var(--accent);vertical-align:middle}
 
 /* خطوتك التالية */
 .next-card{display:flex;align-items:center;gap:16px;flex-wrap:wrap}

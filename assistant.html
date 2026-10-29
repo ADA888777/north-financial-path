@@ -42,30 +42,49 @@
 <div class="rail gate" id="gate" hidden></div>
 
 <main class="rail lrn" id="shell" hidden>
-  <div class="lesson-head">
-    <p class="crumb"><a href="learn.html">لوحتي</a><span class="ms sm">chevron_left</span><span>المساعد</span></p>
-    <h1 class="n-h1">المساعد التعليمي</h1>
-    <p class="n-sub">يبحث في دروس المنصة ويعرض لك ما ورد فيها.
-      اسأل عن أي مصطلح أو مفهوم درسته.</p>
+  <div class="pg-head">
+    <span class="pg-eyebrow">يبحث في دروس المنصة</span>
+    <h1 class="n-h1">المعلم الذكي</h1>
+    <p class="n-sub">اسأل عن أي مصطلح أو مفهوم ورد في دروسك، ويعرض لك ما ورد في الدرس
+      نفسه مع اسم مصدره.</p>
   </div>
 
-  <div class="note-strip" style="margin-bottom:18px">
-    <span class="ms">info</span>
-    <span>المساعد أداة بحث داخل دروس المنصة، وليس مستشاراً مالياً. لا يقدّم توصية بشراء أو بيع، ولا توقّعاً لسعر، ولا ضماناً لأي ربح.</span>
-  </div>
+  <section class="ncard as-card">
+    <header class="as-h">
+      <span class="as-ico"><span class="ms">auto_awesome</span></span>
+      <div class="as-t">
+        <b>المعلم الذكي</b>
+        <span>يجيب من محتوى الدروس المنشورة في المنصة</span>
+      </div>
+      <span class="as-live"><i></i>مباشر</span>
+    </header>
 
-  <section class="lbox">
-    <div class="chat">
-      <div class="chat-log" id="log"></div>
-      <form class="chat-form" id="chat-form">
-        <input type="text" id="q" placeholder="اسأل عن درس أو مفهوم…" autocomplete="off" maxlength="600">
-        <button class="btn btn-primary" type="submit" id="send">
-          <span class="spin" aria-hidden="true"></span><span data-label>إرسال</span>
+    <div class="chat-log" id="log"></div>
+
+    <div class="as-foot">
+      <div class="as-chips" id="as-chips">
+        <button type="button" class="as-chip" data-q="اشرح لي الدرس بطريقة أبسط">اشرح لي الدرس بطريقة أبسط</button>
+        <button type="button" class="as-chip" data-q="ما معنى الدعم والمقاومة؟">ما معنى الدعم والمقاومة؟</button>
+        <button type="button" class="as-chip" data-q="ما الفرق بين أمر السوق والأمر المحدد؟">ما الفرق بين أمر السوق والأمر المحدد؟</button>
+      </div>
+
+      <form class="as-form" id="chat-form">
+        <label for="q" class="sr-only">سؤالك</label>
+        <input type="text" id="q" placeholder="اكتب سؤالك هنا…" autocomplete="off" maxlength="600">
+        <button class="as-send" type="submit" id="send" aria-label="إرسال">
+          <span class="spin" aria-hidden="true"></span>
+          <span class="ms" data-label>send</span>
         </button>
       </form>
-      <p class="chat-note">يبحث المساعد في دروس المنصة المنشورة ويعرض لك ما ورد فيها مع اسم الدرس. لا يجيب عن شيء خارجها، ولا يقدّم توصية أو توقّع سعر.</p>
     </div>
   </section>
+
+  <p class="as-note">
+    <span class="ms">info</span>
+    <span>المساعد أداة بحث داخل دروس المنصة، وليس مستشاراً مالياً ولا نموذج ذكاء
+      اصطناعي خارجياً. لا يقدّم توصية بشراء أو بيع، ولا توقّعاً لسعر، ولا ضماناً لأي ربح.
+      إن لم يجد الإجابة في الدروس قال ذلك صراحة.</span>
+  </p>
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js"></script>

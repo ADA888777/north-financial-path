@@ -81,7 +81,8 @@
     }
     list.innerHTML = rows.map(function (lv) {
       return '<div class="srow" data-id="' + esc(lv.id) + '">' +
-        '<div class="sthumb"><span class="ms">stairs</span></div>' +
+        '<div class="sthumb lv-sw ' + esc(lv.color || 'slate') + '">' +
+          '<span class="ms">stairs</span></div>' +
         '<div class="smeta">' +
           '<h3>' + esc(lv.title) + '</h3>' +
           '<div class="line">' +
@@ -91,6 +92,9 @@
               ? '<span>' + esc(trackName(lv.track_id) || 'مسار') + '</span>'
               : '<span style="color:var(--a-warn)">بلا مسار</span>') +
             (lv.subtitle ? '<span>' + esc(lv.subtitle) + '</span>' : '') +
+            ((lv.min_tier || 1) > 1
+              ? '<span class="tag tag-warn">باقة أعلى (رتبة ' + esc(lv.min_tier) + ')</span>'
+              : '') +
             '<span>آخر تعديل ' + esc(A.fmtDate(lv.updated_at)) + '</span>' +
           '</div>' +
         '</div>' +
@@ -139,6 +143,7 @@
     el('lv-order').value = lv.sort_order;
     if (el('lv-code')) el('lv-code').value = lv.code || '';
     if (el('lv-tier')) el('lv-tier').value = lv.min_tier == null ? '1' : String(lv.min_tier);
+    if (el('lv-color')) el('lv-color').value = lv.color || 'slate';
     el('lv-pub').checked = !!lv.published;
     resetBtn.hidden = false;
     F.clearErrs(form);
@@ -151,6 +156,7 @@
     form.reset();
     el('lv-order').value = '0';
     if (el('lv-code')) el('lv-code').value = '';
+    if (el('lv-color')) el('lv-color').value = 'slate';
     if (el('lv-tier')) el('lv-tier').value = '1';
     if (trackSel) trackSel.value = '';
     resetBtn.hidden = true;
@@ -178,6 +184,7 @@
       description: el('lv-desc').value.trim(),
       code: el('lv-code') ? (el('lv-code').value.trim() || null) : null,
       min_tier: el('lv-tier') ? (parseInt(el('lv-tier').value, 10) || 1) : 1,
+      color: el('lv-color') ? el('lv-color').value : null,
       sort_order: F.int(el('lv-order').value, 0),
       published: el('lv-pub').checked
     };
