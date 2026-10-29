@@ -9,6 +9,10 @@
   var SUPABASE_URL = 'https://ukdcdbbbzeqztoqctnxb.supabase.co';
   var SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_aT5b7Shrltis9cKExuosjw_DKlfF9x1';
 
+  /* يُصدَّران ليستعملهما فحص الاتصال عند فشل الدخول. كلاهما علني
+     بالتصميم ويظهر في كل طلب يرسله المتصفح أصلاً. */
+  window.northConfig = { url: SUPABASE_URL, key: SUPABASE_PUBLISHABLE_KEY };
+
   /* نحفظ العنوان كما وصل قبل أن تنظّفه المكتبة، لتعرف صفحة الاستعادة مصدر الزيارة */
   window.northEntryURL = { hash: window.location.hash || '', search: window.location.search || '' };
 

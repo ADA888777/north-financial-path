@@ -136,14 +136,101 @@
     if (code === 'signup_disabled' || text.indexOf('signups not allowed') !== -1) {
       return { ok: false, message: 'الحسابات تُنشأ من إدارة المنصة. تواصل معنا بعد إتمام اشتراكك.' };
     }
-    return { ok: false, message: 'تعذّر إتمام الطلب الآن. تأكد من اتصالك بالإنترنت وحاول مرة أخرى.' };
+    /* ما لم يُعرف: الرسالة العامة تخفي السبب، فيضيع الوقت في البحث عنه.
+       نميّز هنا بين انقطاع الشبكة ورفض المفتاح وخطأ الخادم، ونرفق
+       رمزاً مختصراً يمكن نقله للمبرمج. */
+    var status = (error && (error.status || error.statusCode)) || 0;
+    var name   = (error && error.name) || '';
+
+    var offline = (typeof navigator !== 'undefined' && navigator.onLine === false);
+    var netFail = offline || status === 0 || name === 'TypeError' ||
+                  name === 'AuthRetryableFetchError' ||
+                  text.indexOf('failed to fetch') !== -1 ||
+                  text.indexOf('load failed') !== -1 ||
+                  text.indexOf('networkerror') !== -1 ||
+                  text.indexOf('fetch failed') !== -1;
+
+    if (offline) {
+      return { ok: false, code: 'OFFLINE',
+               message: 'جهازك غير متصل بالإنترنت. تحقق من الاتصال ثم أعد المحاولة.' };
+    }
+
+    if (status === 401 || status === 403 ||
+        text.indexOf('api key') !== -1 || text.indexOf('apikey') !== -1 ||
+        code === 'invalid_api_key') {
+      return { ok: false, code: 'KEY-' + (status || '401'), diag: true,
+               message: 'الخادم رفض مفتاح اتصال الموقع. هذه مسألة إعداد لا علاقة لها ' +
+                        'ببريدك أو كلمة مرورك — أبلغ إدارة المنصة.' };
+    }
+
+    /* خطأ محدّد ومعروف: دالة أو مُحفِّز في القاعدة فشل أثناء الدخول.
+       مزجه مع «الخادم لا يستجيب» يوجّه البحث إلى المكان الخطأ. */
+    if (text.indexOf('database error') !== -1 || code === 'unexpected_failure') {
+      return { ok: false, code: 'DB-' + (status || '500'), diag: true,
+               message: 'خطأ في قاعدة البيانات أثناء الدخول. المشكلة في إعداد المنصة ' +
+                        'لا في بياناتك — أبلغ إدارة المنصة.' };
+    }
+
+    if (status >= 500 || status === 503 || status === 540) {
+      return { ok: false, code: 'SRV-' + status, diag: true,
+               message: 'خادم المنصة لا يستجيب حالياً. غالباً توقف مؤقت في قاعدة ' +
+                        'البيانات — أبلغ إدارة المنصة.' };
+    }
+
+    if (netFail) {
+      return { ok: false, code: 'NET', diag: true, probe: true,
+               message: 'تعذّر الوصول إلى خادم المنصة.' };
+    }
+
+    return { ok: false, code: 'ERR' + (status ? '-' + status : ''), diag: true,
+             message: 'تعذّر إتمام الطلب: ' +
+                      ((error && error.message) || 'سبب غير معروف') };
+  }
+
+  /* حين يتعذّر الوصول، نسأل الخادم سؤالاً بسيطاً لنعرف أهو نائم أم أن
+     المشكلة في شبكة الزائر. الفرق يغيّر ما يفعله المستخدم. */
+  function probeServer() {
+    var cfg = window.northConfig || {};
+    var base = cfg.url;
+    if (!base || typeof fetch !== 'function') {
+      return Promise.resolve('تعذّر الوصول إلى خادم المنصة. أعد المحاولة بعد قليل.');
+    }
+    var ctl = typeof AbortController === 'function' ? new AbortController() : null;
+    var t = setTimeout(function () { if (ctl) ctl.abort(); }, 8000);
+
+    return fetch(base + '/auth/v1/health', {
+      headers: { apikey: cfg.key || '' },
+      signal: ctl ? ctl.signal : undefined
+    }).then(function (r) {
+      clearTimeout(t);
+      if (r.ok) {
+        return 'الخادم يعمل لكن الطلب لم يصل. أعد المحاولة، وإن تكرر أبلغ الإدارة. [NET-1]';
+      }
+      if (r.status === 401 || r.status === 403) {
+        return 'الخادم رفض مفتاح اتصال الموقع. مسألة إعداد لا علاقة لها ببياناتك — ' +
+               'أبلغ إدارة المنصة. [KEY-' + r.status + ']';
+      }
+      return 'خادم المنصة لا يستجيب (رمز ' + r.status + '). غالباً توقف مؤقت في ' +
+             'قاعدة البيانات — أبلغ إدارة المنصة. [SRV-' + r.status + ']';
+    }).catch(function () {
+      clearTimeout(t);
+      return 'لا يمكن الوصول إلى خادم المنصة إطلاقاً. إن كان اتصالك يعمل فالخادم ' +
+             'متوقف أو محجوب عنك — أبلغ إدارة المنصة. [NET-2]';
+    });
   }
 
   /* الطلب الفعلي إلى Supabase Auth.
      يُرجع دائماً { ok } أو { ok:false, field?, message } كما تتوقع بقية الملف. */
   function submitToApi(payload) {
     if (!db) {
-      return Promise.resolve({ ok: false, message: 'تعذّر الاتصال بالخادم. حدّث الصفحة وحاول مرة أخرى.' });
+      /* المكتبة لم تُحمَّل: غالباً حُجب CDN عن الزائر أو انقطع التحميل. */
+      return Promise.resolve({
+        ok: false, code: 'LIB',
+        message: window.supabase
+          ? 'تعذّر تهيئة الاتصال بالخادم. حدّث الصفحة وحاول مرة أخرى.'
+          : 'لم تُحمَّل مكتبة الاتصال. حدّث الصفحة، وإن تكرر فقد تكون شبكتك ' +
+            'تحجب cdn.jsdelivr.net — جرّب شبكة أخرى أو أبلغ الإدارة.'
+      });
     }
 
     if (payload.kind === 'login') {
@@ -207,8 +294,19 @@
         label.textContent = original;
 
         if (result.ok) { onSuccess(form); return; }
-        if (result.field) setError(result.field, result.message);
-        else showBanner(formId + '-banner', result.message);
+        if (result.field) { setError(result.field, result.message); return; }
+
+        /* رمز مختصر يُرفق بالرسالة ليُنقل للمبرمج بدل وصف الشاشة. */
+        var msg = result.message + (result.code ? '  [' + result.code + ']' : '');
+        showBanner(formId + '-banner', msg);
+
+        /* فشل الوصول: نسأل الخادم لنعرف أنائم هو أم المشكلة في الشبكة،
+           ونستبدل الرسالة بما يفيد فعلاً. */
+        if (result.probe) {
+          probeServer().then(function (detail) {
+            showBanner(formId + '-banner', detail);
+          });
+        }
       });
     });
   }
