@@ -42,10 +42,25 @@
 <main class="rail lrn" id="shell" hidden>
   <div class="hello"><div>
     <h1>الحصص المباشرة</h1>
-    <p class="sub">جلسات جماعية في مواعيد معلنة. المقاعد محدودة بسعة الحصة.</p>
+    <p class="sub">جلسات جماعية في مواعيد معلنة بتوقيت السعودية.</p>
   </div></div>
-  <section class="lbox"><h2><span class="ms">event_upcoming</span> المواعيد المتاحة</h2>
-    <div id="slots"></div></section>
+
+  <div class="lgrid lgrid-live">
+    <div>
+      <section class="lbox">
+        <h2><span class="ms">event_upcoming</span> الحصص القادمة</h2>
+        <div id="slots"></div>
+      </section>
+    </div>
+    <div>
+      <section class="lbox">
+        <h2><span class="ms">calendar_month</span> التقويم
+          <span class="cal-nav" id="cal-nav"></span>
+        </h2>
+        <div id="cal"></div>
+      </section>
+    </div>
+  </div>
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js"></script>

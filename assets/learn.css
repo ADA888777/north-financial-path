@@ -513,3 +513,83 @@ a.dt-i:hover{border-color:color-mix(in srgb,var(--accent) 45%,var(--line));backg
   background:var(--surface-2);color:var(--fg-2)}
 .ln-q:hover{background:var(--accent-wash);color:var(--accent)}
 .ln-q .ms{font-size:17px}
+
+/* ============================================================
+   الكلاسات الخاصة
+   ============================================================ */
+.pc-flash{background:color-mix(in srgb,var(--up) 12%,transparent);border:1px solid var(--up);
+  color:var(--up);border-radius:var(--rb);padding:12px 15px;font-size:13.5px;margin-bottom:16px}
+.co-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.co{display:flex;align-items:center;gap:12px;font:inherit;text-align:start;cursor:pointer;
+  padding:14px 15px;border-radius:var(--rb);border:1px solid var(--line);
+  background:var(--surface);color:var(--fg);transition:border-color .2s,background .2s}
+.co:hover{border-color:color-mix(in srgb,var(--accent) 48%,var(--line))}
+.co.on{border-color:var(--accent);background:var(--accent-wash)}
+.co-av{flex-shrink:0;width:42px;height:42px;border-radius:50%;display:grid;place-items:center;
+  background:var(--accent);color:var(--on-accent);font-size:18px;font-family:var(--display)}
+.co-b{flex:1;min-width:0}
+.co-b b{font-size:14.5px;display:block;line-height:1.5}
+.co-t,.co-d{font-size:11.5px;color:var(--fg-3);display:block;margin-top:3px;line-height:1.6}
+.sl-day + .sl-day{margin-top:18px;padding-top:16px;border-top:1px solid var(--line)}
+.sl-day h4{font-size:13px;color:var(--fg-2);margin-bottom:10px;font-weight:600}
+.sl-times{display:flex;gap:8px;flex-wrap:wrap}
+.sl-t{font:inherit;font-size:13.5px;font-family:var(--mono);padding:9px 14px;cursor:pointer;
+  border-radius:999px;border:1px solid var(--line-2);background:var(--surface);color:var(--fg);
+  transition:border-color .18s,background .18s}
+.sl-t:hover{border-color:var(--accent);background:var(--accent-wash);color:var(--accent)}
+.bk{border:1px solid var(--accent);border-radius:var(--rb);padding:18px;margin-bottom:18px;
+  background:var(--accent-wash)}
+.bk h4{font-size:15px;margin-bottom:10px}
+.bk-when{display:flex;align-items:center;gap:7px;font-size:13.5px;color:var(--fg);margin-bottom:14px}
+.bk-when .ms{font-size:17px;color:var(--accent)}
+.bk .fld{margin-bottom:12px}
+.bk input{width:100%;font:inherit;font-size:14px;padding:11px 13px;border-radius:var(--rb);
+  border:1px solid var(--line-2);background:var(--surface);color:var(--fg)}
+.bk .hint{font-size:11.5px;color:var(--fg-3);display:block;margin-top:5px;line-height:1.6}
+.bk label{font-size:12.5px;font-weight:600;display:block;margin-bottom:6px}
+.bk-pol{font-size:12px;color:var(--fg-2);line-height:1.7;margin-bottom:14px}
+.bk-f{display:flex;gap:10px;flex-wrap:wrap}
+.bk-err{margin-top:10px;font-size:12.5px;color:var(--dn)}
+.pol{list-style:none;margin:0;padding:0}
+.pol li{position:relative;padding-inline-start:18px;font-size:13.5px;color:var(--fg-2);
+  line-height:1.9;margin-bottom:8px}
+.pol li::before{content:'';position:absolute;inset-inline-start:0;inset-block-start:11px;
+  width:6px;height:6px;border-radius:50%;background:var(--accent)}
+.pol b{color:var(--fg)}
+.ms-row{display:flex;align-items:center;gap:12px;padding:13px 0;flex-wrap:wrap}
+.ms-row + .ms-row{border-top:1px solid var(--line)}
+.ms-row.past{opacity:.6}
+.ms-b{flex:1;min-width:180px}
+.ms-b b{font-size:14px;display:block;line-height:1.5}
+.ms-m{font-size:11.5px;color:var(--fg-3);display:block;margin-top:3px}
+
+/* ============================================================
+   الحصص المباشرة: تقويم وعدّاد
+   ============================================================ */
+.lgrid-live{grid-template-columns:1.25fr .75fr}
+.cd{display:inline-flex;align-items:center;gap:5px;margin-top:9px;font-size:12px;
+  font-family:var(--mono);color:var(--dn);background:color-mix(in srgb,var(--dn) 10%,transparent);
+  border-radius:999px;padding:4px 10px}
+.cd .ms{font-size:15px}
+.cal-nav{display:inline-flex;align-items:center;gap:6px;margin-inline-start:auto;font-size:13px}
+.cal-nav b{font-weight:600;min-width:7.5em;text-align:center}
+.cal-nav button{font:inherit;border:0;background:transparent;color:var(--fg-2);cursor:pointer;
+  width:28px;height:28px;border-radius:7px;display:grid;place-items:center}
+.cal-nav button:hover{background:var(--surface-2);color:var(--fg)}
+.cal-nav .ms{font-size:18px}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.cal-hd{font-size:11px;color:var(--fg-3);text-align:center;padding-bottom:6px}
+.cal-c{position:relative;aspect-ratio:1;display:grid;place-items:center;font-size:12.5px;
+  font-family:var(--mono);color:var(--fg-2);border-radius:8px}
+.cal-c.out{visibility:hidden}
+.cal-c.today{outline:1.5px solid var(--accent);color:var(--accent);font-weight:600}
+.cal-c.has{background:var(--accent-wash);color:var(--accent);cursor:pointer;font-weight:600}
+.cal-c.has:hover{background:color-mix(in srgb,var(--accent) 22%,transparent)}
+.cal-c i{position:absolute;inset-block-end:5px;width:4px;height:4px;border-radius:50%;
+  background:var(--accent)}
+.cal-k{display:flex;align-items:center;gap:7px;margin-top:12px;font-size:11.5px;color:var(--fg-3)}
+.cal-k i{width:6px;height:6px;border-radius:50%;background:var(--accent);display:inline-block}
+.slot.hit{animation:hit 1.5s ease}
+@keyframes hit{0%,100%{border-color:var(--line)}25%{border-color:var(--accent)}}
+@media (prefers-reduced-motion:reduce){.slot.hit{animation:none;border-color:var(--accent)}}
+@media (max-width:900px){.lgrid-live{grid-template-columns:1fr}}

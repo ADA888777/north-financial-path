@@ -39,6 +39,7 @@
     <button class="tab" type="button" data-tab="lessons">الدروس والاستراتيجيات</button>
     <button class="tab" type="button" data-tab="quizzes">الاختبارات</button>
     <button class="tab" type="button" data-tab="classes">الحصص</button>
+    <button class="tab" type="button" data-tab="coaches">الكوتشات</button>
     <button class="tab" type="button" data-tab="vocab">المفردات</button>
     <button class="tab" type="button" data-tab="plans">الباقات</button>
     <button class="tab" type="button" data-tab="stories">قصص النجاح</button>
@@ -175,6 +176,24 @@
   </section>
 
   <!-- ===================== قصص النجاح ===================== -->
+  <!-- ===================== الكوتشات ===================== -->
+  <section data-panel="coaches" hidden>
+    <div class="kpis" id="co-kpis">
+      <div class="kpi"><span>كوتشات مفعّلون</span><b>—</b></div>
+      <div class="kpi"><span>أوقات توفّر</span><b>—</b></div>
+      <div class="kpi"><span>جلسات خاصة قادمة</span><b>—</b></div>
+    </div>
+    <div class="panel-box">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:16px">
+        <h2 style="margin:0">الكوتشات وجداول التوفّر</h2>
+        <button class="bt bt-main" id="co-add" type="button"><span class="ms sm">add</span> إضافة كوتش</button>
+      </div>
+      <p class="sub" style="margin-top:-8px">المواعيد المتاحة للحجز تُولَّد من جدول التوفّر الأسبوعي،
+        فلا تحتاجين إدخال كل موعد يدوياً. الأوقات بتوقيت الرياض.</p>
+      <div id="co-list"></div>
+    </div>
+  </section>
+
   <!-- ===================== المفردات ===================== -->
   <section data-panel="vocab" hidden>
     <div class="kpis" id="vc-kpis">
@@ -692,6 +711,7 @@
 <script src="assets/admin-subscription.js"></script>
 <script src="assets/admin-plans.js"></script>
 <script src="assets/admin-vocab.js"></script>
+<script src="assets/admin-coaches.js"></script>
 <script src="assets/admin-stories.js"></script>
 <script src="assets/admin-tracks.js"></script>
 <script src="assets/admin-levels.js"></script>

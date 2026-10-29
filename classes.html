@@ -42,23 +42,35 @@
 <div class="rail gate" id="gate" hidden></div>
 
 <main class="rail lrn" id="shell" hidden>
-  <div class="lesson-head">
-    <p class="crumb"><a href="learn.html">لوحتي</a><span class="ms sm">chevron_left</span><span>الكلاسات الخاصة</span></p>
+  <div class="hello"><div>
     <h1>الكلاسات الخاصة</h1>
-    <p class="sub" style="color:var(--fg-2);font-size:15px;margin-top:8px">
-      جلسة فردية مع المدرّب. احجز الموعد المناسب، ويصلك رابط الحضور قبل الحصة.</p>
-  </div>
+    <p class="sub">جلسات فردية مدّتها <span id="pc-min">٦٠</span> دقيقة بتوقيت الرياض.</p>
+  </div></div>
 
-  <div id="notice"></div>
+  <section class="sum" id="pc-top" aria-label="رصيدك وجلستك القادمة"></section>
 
   <section class="lbox">
+    <h2><span class="ms">groups</span> اختاري الكوتش</h2>
+    <div id="pc-coaches"></div>
+  </section>
+
+  <section class="lbox" id="pc-slots-box" hidden>
     <h2><span class="ms">event_available</span> المواعيد المتاحة</h2>
-    <div id="slots"></div>
+    <div id="pc-slots"></div>
   </section>
 
   <section class="lbox">
-    <h2><span class="ms">history</span> حجوزاتي</h2>
-    <div id="mine"></div>
+    <h2><span class="ms">policy</span> سياسة الإلغاء وإعادة الجدولة</h2>
+    <ul class="pol">
+      <li>الإلغاء أو إعادة الجدولة قبل الموعد بـ<b>١٢ ساعة أو أكثر</b> لا يُحتسب من رصيدك.</li>
+      <li>الإلغاء المتأخر أو عدم الحضور <b>يُحتسب من رصيد الشهر</b>.</li>
+      <li>الرصيد يتجدّد مع بداية كل شهر ميلادي بتوقيت الرياض.</li>
+    </ul>
+  </section>
+
+  <section class="lbox">
+    <h2><span class="ms">event_note</span> مواعيدي</h2>
+    <div id="pc-mine"></div>
   </section>
 </main>
 
@@ -68,6 +80,6 @@
 <script src="assets/bell.js"></script>
 <script src="assets/learn-core.js"></script>
 <script src="assets/learn-nav.js"></script>
-<script src="assets/classes.js"></script>
+<script src="assets/private-classes.js"></script>
 </body>
 </html>
