@@ -11,6 +11,17 @@
 
   var rows = [], busy = false, sheet = null, editing = null;
 
+  var AR = (function () {
+    try { return new Intl.NumberFormat('ar-SA'); } catch (e) { return null; }
+  })();
+  function ar(n) { return AR ? AR.format(Number(n || 0)) : String(n); }
+  function plural(n, one, two, many) {
+    n = Number(n || 0);
+    if (n === 1) return one;
+    if (n === 2) return two;
+    return ar(n) + ' ' + many;
+  }
+
   function money(v) {
     if (v == null || v === '') return '—';
     try { return new Intl.NumberFormat('ar-SA').format(v) + ' ر.س'; }
@@ -55,8 +66,101 @@
     kpis();
   }
 
+  /* ---------- فحص إعداد الباقات ----------
+     يُقرأ من admin_plan_health(): لا يستنتج شيئاً من الواجهة. */
+  function health() {
+    var boxw = el('pl-health-box'), box = el('pl-health');
+    if (!box) return;
+
+    return db.rpc('admin_plan_health').then(function (r) {
+      var d = (r && r.data) || {};
+      if (r.error || d.error) { boxw.hidden = true; return; }
+
+      var out = '';
+
+      (d.tier_clashes || []).forEach(function (c) {
+        var names = (c.plans || []);
+        out += '<div class="ph bad">' +
+          '<div class="ph-b"><b>الرتبة ' + ar(c.tier) + ' مستعملة في ' +
+            plural(names.length, 'باقة نافذة', 'باقتين نافذتين', 'باقات نافذة') + ': ' +
+            names.map(esc).join('، ') + '</b>' +
+          '<span>هذه الباقات تفتح المحتوى نفسه، وعليها ' +
+            plural(c.members, 'عضوية واحدة', 'عضويتان', 'عضوية') +
+            '. إن كانت الأسماء لباقة واحدة كُتبت بصيغ مختلفة فادمجيها، ' +
+            'وإن كانت باقات مختلفة فأعطي كلاً منها رتبة خاصة بها.</span></div>' +
+          '<div class="ph-a">' +
+            names.slice(1).map(function (n) {
+              return '<button class="bt bt-ghost bt-sm" type="button" data-merge="' +
+                esc(n) + '">ادمجي «' + esc(n) + '» في أخرى</button>';
+            }).join('') +
+          '</div></div>';
+      });
+
+      (d.orphan_plans || []).forEach(function (o) {
+        out += '<div class="ph bad"><div class="ph-b">' +
+          '<b>' + plural(o.members, 'عضوية واحدة', 'عضويتان', 'عضوية') +
+            ' على باقة «' + esc(o.plan) + '» لا صفّ لها في جدول الباقات</b>' +
+          '<span>صلاحياتهن لا تُحتسب إطلاقاً. أضيفي الباقة بهذا الاسم، ' +
+            'أو انقليهن إلى باقة قائمة.</span></div>' +
+          '<div class="ph-a"><button class="bt bt-ghost bt-sm" type="button" data-merge="' +
+            esc(o.plan) + '">انقلي العضويات</button></div></div>';
+      });
+
+      (d.inactive_plans || []).forEach(function (o) {
+        out += '<div class="ph warn"><div class="ph-b">' +
+          '<b>' + plural(o.members, 'عضوية واحدة', 'عضويتان', 'عضوية') +
+            ' على باقة موقوفة «' + esc(o.plan) + '»</b>' +
+          '<span>الباقة الموقوفة لا تظهر للمشتركات. فعّليها أو انقلي العضويات.</span>' +
+          '</div><div class="ph-a"><button class="bt bt-ghost bt-sm" type="button" data-merge="' +
+            esc(o.plan) + '">انقلي العضويات</button></div></div>';
+      });
+
+      (d.no_features || []).forEach(function (n) {
+        out += '<div class="ph warn"><div class="ph-b">' +
+          '<b>باقة «' + esc(n) + '» بلا مميزات مسجّلة</b>' +
+          '<span>تظهر صفحة المشتركة فارغة. أضيفي مميزاتها وروابطها من ' +
+            '«المميزات والروابط».</span></div></div>';
+      });
+
+      boxw.hidden = !out;
+      box.innerHTML = out;
+    }).catch(function () { boxw.hidden = true; });
+  }
+
+  /* نقل عضويات باقة إلى أخرى — قرار إداري يُسجَّل، لا تخمين */
+  function merge(from) {
+    var others = rows
+      .filter(function (p) { return p.active && p.name !== from; })
+      .map(function (p) { return p.name; });
+
+    if (!others.length) {
+      A.toast('لا توجد باقة نافذة أخرى تُنقل إليها.', 'bad');
+      return;
+    }
+
+    var to = window.prompt(
+      'نقل كل عضويات «' + from + '» إلى باقة أخرى.\n' +
+      'لن تتغيّر مدّة اشتراك أحد ولا حالته، الاسم وحده ينتقل، ' +
+      'ويُسجَّل لكل عضوية حدثٌ في سجلّ الاشتراكات.\n\n' +
+      'اكتبي اسم الباقة الهدف بالضبط:\n' + others.join('\n'),
+      others[0]);
+    if (!to) return;
+
+    db.rpc('admin_merge_plan', { p_from: from, p_to: to.trim(), p_note: null })
+      .then(function (r) {
+        var d = (r && r.data) || {};
+        if (r.error || d.error) {
+          A.toast(d.error || r.error.message, 'bad');
+          return;
+        }
+        A.toast(d.message || 'تم النقل', 'ok');
+        load();
+      }).catch(function (e) { A.toast((e && e.message) || 'تعذّر النقل', 'bad'); });
+  }
+
   function load() {
     el('pl-list').innerHTML = '<div class="state"><span class="ms">hourglass_top</span>جارٍ التحميل…</div>';
+    health();
     return db.rpc('admin_plans').then(function (r) {
       if (r.error) {
         el('pl-list').innerHTML = '<div class="state"><span class="ms">error</span>' +
@@ -203,6 +307,10 @@
   }
 
   el('pl-add').addEventListener('click', function () { open(null); });
+  el('pl-health').addEventListener('click', function (e) {
+    var m = e.target.closest('[data-merge]');
+    if (m) merge(m.getAttribute('data-merge'));
+  });
   el('pl-list').addEventListener('click', function (e) {
     var ed = e.target.closest('[data-pl]');
     if (ed) {

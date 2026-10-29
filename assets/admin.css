@@ -322,3 +322,16 @@ body.adm-body::after{opacity:.35}
 .tag-warn{background:color-mix(in srgb,#C98A3C 24%,transparent);color:#E8B872}
 tr.sb-expired td:first-child{box-shadow:inset 2px 0 0 var(--a-bad,#BE5F3F)}
 tr.sb-soon td:first-child{box-shadow:inset 2px 0 0 #C98A3C}
+
+/* فحص إعداد الباقات */
+.ph{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;
+  flex-wrap:wrap;border-radius:10px;padding:14px 16px;margin-bottom:10px;
+  border:1px solid var(--a-line,#1E3A57)}
+.ph.bad{border-color:var(--a-bad,#E08B6A);
+  background:color-mix(in srgb,var(--a-bad,#E08B6A) 10%,transparent)}
+.ph.warn{border-color:#C9A227;background:color-mix(in srgb,#C9A227 10%,transparent)}
+.ph-b{flex:1;min-width:220px}
+.ph-b b{display:block;font-size:14px;line-height:1.6;color:var(--a-fg,#EAF2FA)}
+.ph-b span{display:block;font-size:12.5px;line-height:1.8;margin-top:5px;
+  color:var(--a-fg-2,#9FB6CE)}
+.ph-a{display:flex;gap:8px;flex-wrap:wrap;flex:0 0 auto}

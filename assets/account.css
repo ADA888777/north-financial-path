@@ -148,10 +148,58 @@ a.ent-r:hover .ent-b b{color:var(--accent)}
 .ent-r.off{opacity:.6}
 .ent-lock{font-size:11px;color:var(--fg-3);flex-shrink:0}
 .ent-empty{font-size:13px;color:var(--fg-2);padding:10px 0;line-height:1.8}
-.ent-up{margin-top:20px;padding-top:16px;border-top:1px dashed var(--line-2)}
-.ent-up h3{font-size:14.5px;margin-bottom:10px}
-.ent-up ul{list-style:none;margin:0 0 14px;padding:0}
-.ent-up li{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--fg-2);
+
+/* باقتك أنت — مميّزة بصرياً عن قسم المقارنة تحتها */
+.ent-mine{display:flex;align-items:center;justify-content:space-between;gap:16px;
+  flex-wrap:wrap;background:var(--tile-bg);border:1px solid var(--card-line);
+  border-radius:var(--rt);padding:16px 18px;margin-bottom:16px}
+.ent-cur{min-width:0}
+.ent-cur-l{display:block;font-size:12px;color:var(--fg-3);margin-bottom:4px}
+.ent-cur-v{font-size:clamp(20px,2.6vw,26px);font-family:var(--display);font-weight:800;
+  letter-spacing:-.02em;line-height:1.25;display:inline-block;
+  margin-inline-end:8px;overflow-wrap:anywhere}
+.ent-meta{display:flex;gap:18px;flex-wrap:wrap}
+.ent-meta>div{min-width:84px}
+.ent-meta span{font-size:12px;color:var(--fg-3);display:block}
+.ent-meta b{font-size:14.5px;display:block;margin-top:5px;font-weight:700}
+
+.ent-warn{display:flex;gap:9px;align-items:flex-start;font-size:13px;line-height:1.85;
+  border-radius:var(--rt);padding:12px 14px;margin-bottom:16px;
+  background:var(--flame-bg);border:1px solid var(--flame-line);
+  color:var(--warn-title,#9A4A24)}
+.ent-warn .ms{font-size:18px;color:var(--flame);flex:0 0 auto;margin-top:1px}
+
+/* فاصل صريح: ما تحته استعراضٌ لا ملكية */
+.ent-sep{margin-top:24px;padding-top:18px;border-top:1px dashed var(--line-2)}
+.ent-sep h3{font-size:15.5px;font-weight:700;margin-bottom:5px}
+.ent-sep p{font-size:12.5px;color:var(--fg-3);line-height:1.8}
+
+.cmp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));
+  gap:12px;margin-top:14px}
+.cmp{border:1px solid var(--card-line);border-radius:var(--rt);padding:16px;min-width:0}
+.cmp.is-mine{border-color:var(--accent);
+  background:color-mix(in srgb,var(--accent) 6%,transparent)}
+.cmp-h{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.cmp-h b{font-size:16px;font-family:var(--display);font-weight:800;overflow-wrap:anywhere}
+.cmp-p{font-size:19px;font-family:var(--display);font-weight:800;color:var(--accent);
+  line-height:1.3;margin-bottom:6px}
+.cmp-p i{font-size:.6em;font-style:normal;font-weight:700}
+.cmp-p span{font-size:.55em;font-weight:400;color:var(--fg-3)}
+.cmp-d{font-size:12.5px;color:var(--fg-2);line-height:1.8;margin-bottom:10px}
+.cmp-f{list-style:none;margin:0 0 14px;padding:0}
+.cmp-f li{display:flex;align-items:flex-start;gap:8px;font-size:13px;color:var(--fg-2);
   padding:6px 0;line-height:1.7}
-.ent-up li .ms{font-size:16px;color:var(--fg-3);flex-shrink:0}
-.ent-up li i{font-style:normal;color:var(--fg-3);font-size:12px}
+.cmp-f li .ms{font-size:16px;color:var(--fg-3);flex:0 0 auto;margin-top:1px}
+.cmp-f li .ms.dot{font-size:8px;margin-top:7px}
+.cmp.is-mine .cmp-f li .ms{color:var(--up)}
+.cmp-f li i{font-style:normal;color:var(--fg-3);font-size:12px}
+.cmp .nbtn{width:100%}
+
+/* ملاحظة «للعرض فقط» في بطاقة بيانات الحساب */
+.ro-note{display:flex;gap:9px;align-items:flex-start;margin-top:18px;
+  font-size:13px;line-height:1.85;color:var(--fg-2);
+  background:var(--tile-bg);border:1px solid var(--card-line);
+  border-radius:var(--rt);padding:13px 15px}
+.ro-note .ms{font-size:18px;color:var(--accent);flex:0 0 auto;margin-top:1px}
+.ro-note a{color:var(--accent);font-weight:700}
+.ro-note a:hover{text-decoration:underline;text-underline-offset:3px}

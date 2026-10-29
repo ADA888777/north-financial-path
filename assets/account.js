@@ -123,7 +123,7 @@
     }
 
     /* ---------- المحتوى: البوابة من قاعدة البيانات لا من الواجهة ---------- */
-    wireEdit(p);
+    wireEdit();
 
     db.rpc('has_active_subscription').then(function (r) {
       var ok = !r.error && r.data === true;
@@ -136,94 +136,12 @@
     });
   }
 
-  /* ---------- تعديل الحقول المسموحة ---------- */
-  function wireEdit(p) {
-    var open = el('edit-open'), form = el('edit-form'), rows = el('view-rows');
-    if (!open || !form) return;
-
-    function fieldErr(id, msg) {
-      var f = document.querySelector('[data-field="' + id + '"]');
-      if (!f) return;
-      f.classList.toggle('bad', !!msg);
-      if (msg) f.querySelector('.err span:last-child').textContent = msg;
-    }
-
-    function show(editing) {
-      form.hidden = !editing;
-      open.hidden = editing;
-      rows.style.opacity = editing ? '.45' : '';
-      if (editing) {
-        el('f-name').value = p.full_name || '';
-        el('f-phone').value = p.phone || '';
-        el('f-name').focus();
-      }
-      fieldErr('fname', ''); fieldErr('fphone', '');
-    }
-
-    open.addEventListener('click', function () { show(true); });
-    el('edit-cancel').addEventListener('click', function () { show(false); });
-
-    var busy = false;
-    form.addEventListener('submit', function (e) {
-      e.preventDefault();
-      if (busy) return;
-
-      var name = el('f-name').value.trim();
-      var phone = el('f-phone').value.trim();
-      fieldErr('fname', ''); fieldErr('fphone', '');
-
-      if (!name) { fieldErr('fname', 'الاسم مطلوب.'); el('f-name').focus(); return; }
-      if (name.length < 3) { fieldErr('fname', 'الاسم قصير جداً.'); el('f-name').focus(); return; }
-      if (phone && !/^[0-9+\s-]{7,20}$/.test(phone)) {
-        fieldErr('fphone', 'رقم جوال غير صالح.'); el('f-phone').focus(); return;
-      }
-
-      busy = true;
-      var btn = form.querySelector('[type=submit]');
-      var label = btn.querySelector('[data-label]');
-      btn.setAttribute('aria-busy', 'true'); btn.disabled = true;
-      label.textContent = 'جارٍ الحفظ';
-
-      /* الدالة تتحقق وتسجّل التغيير. الكتابة المباشرة في الجدول تبقى
-         ممكنة بصلاحية العمودين، لكنها تتخطّى التحقق والسجل. */
-      db.rpc('update_my_profile', { p_full_name: name, p_phone: phone || null })
-        .then(function (r) {
-          busy = false;
-          btn.removeAttribute('aria-busy'); btn.disabled = false;
-          label.textContent = 'حفظ';
-
-          var d = (r && r.data) || {};
-          if (r.error) { fieldErr('fname', 'تعذّر الحفظ: ' + r.error.message); return; }
-          if (d.error) { fieldErr('fname', d.error); return; }
-
-          var saved = d.full_name || name;
-          p.full_name = saved; p.phone = d.phone || null;
-
-          /* الاسم يُحدَّث في كل موضع يظهر فيه فوراً، فلا يحتاج تحديث
-             الصفحة ليستوي ما تراه العميلة. */
-          put('d-name', saved); put('d-phone', p.phone);
-          put('hdr-name', saved); put('menu-name', saved);
-          put('hero-name', 'أهلاً، ' + saved);
-          put('ava', (saved || '؟').trim().charAt(0));
-          document.title = saved + ' — نورث للمسار المالي';
-
-          var ok = document.getElementById('save-ok');
-          if (ok) {
-            ok.hidden = false;
-            ok.querySelector('span:last-child').textContent =
-              d.message || 'حُفظت بياناتك.';
-            clearTimeout(ok._t);
-            ok._t = setTimeout(function () { ok.hidden = true; }, 6000);
-          }
-          show(false);
-        }).catch(function (e) {
-          busy = false;
-          btn.removeAttribute('aria-busy'); btn.disabled = false;
-          label.textContent = 'حفظ';
-          fieldErr('fname', (e && e.message) || 'تعذّر الحفظ');
-        });
-    });
-  }
+  /* ---------- الحساب للعرض فقط ----------
+     لا تعديل من واجهة المشتركة: الحقول تُعدَّل من لوحة الإدارة.
+     المنع الحقيقي في القاعدة — صلاحية UPDATE على profiles مسحوبة من
+     دور authenticated، وحارس على الجدول يرفض تغيير حقول الهوية ولو
+     جاء الطلب مباشرة إلى الـAPI. ما هنا عرضٌ صادق لذلك المنع. */
+  function wireEdit() { /* لا شيء يُربط: لا أزرار تعديل في الصفحة */ }
 
   /* ---------- القائمة الشخصية ---------- */
   var btn = el('acct-btn'), menu = el('acct-menu');
