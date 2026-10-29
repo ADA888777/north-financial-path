@@ -317,6 +317,11 @@
             <select id="lv-track"><option value="">بلا مسار</option></select>
             <p class="hint">المستوى بلا مسار لا يظهر في خارطة التقدم ولا في دليل المبتدئين.</p>
           </div>
+          <div class="fld">
+            <label for="lv-code">رمز المستوى</label>
+            <input type="text" id="lv-code" maxlength="10" placeholder="A1">
+            <p class="hint">يظهر للمتعلم في الخارطة بجانب اسم المستوى.</p>
+          </div>
         </div>
         <div class="fld" style="margin-top:16px">
           <label for="lv-subtitle">عنوان فرعي</label>
@@ -405,8 +410,21 @@
             <input type="text" inputmode="numeric" id="ls-dur" placeholder="اختياري">
           </div>
           <div class="fld">
-            <label for="ls-order">ترتيب العرض</label>
+            <label for="ls-order">ترتيب العرض داخل الأسبوع</label>
             <input type="text" inputmode="numeric" id="ls-order" value="0">
+          </div>
+          <div class="fld">
+            <label for="ls-week">الأسبوع</label>
+            <input type="text" inputmode="numeric" id="ls-week" value="0" placeholder="0">
+            <p class="hint">صفر يعني بلا تقسيم أسابيع. الخارطة تجمع الدروس تحت رقم الأسبوع.</p>
+          </div>
+          <div class="fld">
+            <label for="ls-access">الإتاحة</label>
+            <select id="ls-access">
+              <option value="auto">حسب القاعدة: يُفتح بإنهاء الدرس السابق واجتياز اختباره</option>
+              <option value="open">مفتوح دائماً</option>
+              <option value="locked">مقفل دائماً</option>
+            </select>
           </div>
         </div>
 
@@ -456,6 +474,11 @@
           <div class="fld">
             <label for="qz-level">المستوى</label>
             <select id="qz-level"><option value="">بلا مستوى</option></select>
+          </div>
+          <div class="fld">
+            <label for="qz-lesson">اختبار درس بعينه</label>
+            <select id="qz-lesson"><option value="">اختبار مرحلة (لا يخصّ درساً)</option></select>
+            <p class="hint">اختبار الدرس هو شرط فتح الدرس الذي يليه. اتركه فارغاً ليكون اختبار مرحلة.</p>
           </div>
         </div>
         <div class="fld" style="margin-top:16px">

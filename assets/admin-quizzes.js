@@ -42,6 +42,24 @@
     db.from('levels').select('id, title').order('sort_order').then(function (r) {
       if (!r.error) paintLevels(r.data || []);
     });
+    fillLessons();
+  }
+
+  /* اختبار الدرس شرطٌ لفتح الدرس الذي يليه، فلا بد من ربطه به. */
+  function fillLessons() {
+    var sel = el('qz-lesson');
+    if (!sel) return;
+    db.from('lessons').select('id, title, level_id, week_no, sort_order')
+      .order('sort_order').then(function (r) {
+        if (r.error) return;
+        var keep = sel.value;
+        sel.innerHTML = '<option value="">اختبار مرحلة (لا يخصّ درساً)</option>' +
+          (r.data || []).map(function (l) {
+            return '<option value="' + esc(l.id) + '" data-level="' + esc(l.level_id || '') +
+              '">' + esc(l.title) + '</option>';
+          }).join('');
+        if (keep) sel.value = keep;
+      });
   }
 
   function paintLevels(data) {
@@ -159,6 +177,7 @@
     el('qz-desc').value = q.description || '';
     el('qz-pass').value = q.pass_score;
     el('qz-order').value = q.sort_order;
+    if (el('qz-lesson')) el('qz-lesson').value = q.lesson_id || '';
     el('qz-pub').checked = !!q.published;
     resetBtn.hidden = false;
     F.clearErrs(form);
@@ -171,6 +190,7 @@
     form.reset();
     el('qz-pass').value = '60';
     el('qz-order').value = '0';
+    if (el('qz-lesson')) el('qz-lesson').value = '';
     levelSel.value = '';
     resetBtn.hidden = true;
     F.clearErrs(form);
@@ -199,6 +219,7 @@
     var payload = {
       title: title,
       level_id: levelSel.value || null,
+      lesson_id: el('qz-lesson') ? (el('qz-lesson').value || null) : null,
       description: el('qz-desc').value.trim(),
       pass_score: pass,
       sort_order: F.int(el('qz-order').value, 0),

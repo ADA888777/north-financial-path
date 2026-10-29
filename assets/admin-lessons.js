@@ -161,6 +161,8 @@
     el('ls-content').value = l.content || '';
     el('ls-dur').value = l.duration_min == null ? '' : l.duration_min;
     el('ls-order').value = l.sort_order;
+    if (el('ls-week')) el('ls-week').value = l.week_no == null ? '0' : l.week_no;
+    if (el('ls-access')) el('ls-access').value = l.access || 'auto';
     el('ls-pub').checked = !!l.published;
     el('ls-free').checked = !!l.free_preview;
     resetBtn.hidden = false;
@@ -173,6 +175,8 @@
     titleBox.textContent = 'إضافة درس';
     form.reset();
     el('ls-order').value = '0';
+    if (el('ls-week')) el('ls-week').value = '0';
+    if (el('ls-access')) el('ls-access').value = 'auto';
     levelSel.value = '';
     resetBtn.hidden = true;
     F.clearErrs(form);
@@ -201,6 +205,8 @@
       summary: el('ls-summary').value.trim(),
       content: el('ls-content').value.trim(),
       duration_min: dur ? F.int(dur, null) : null,
+      week_no: el('ls-week') ? F.int(el('ls-week').value, 0) : 0,
+      access: el('ls-access') ? el('ls-access').value : 'auto',
       sort_order: F.int(el('ls-order').value, 0),
       published: el('ls-pub').checked,
       free_preview: el('ls-free').checked

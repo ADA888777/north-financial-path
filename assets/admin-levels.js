@@ -137,6 +137,7 @@
     if (trackSel) trackSel.value = lv.track_id || '';
     el('lv-desc').value = lv.description || '';
     el('lv-order').value = lv.sort_order;
+    if (el('lv-code')) el('lv-code').value = lv.code || '';
     el('lv-pub').checked = !!lv.published;
     resetBtn.hidden = false;
     F.clearErrs(form);
@@ -148,6 +149,7 @@
     titleBox.textContent = 'إضافة مستوى';
     form.reset();
     el('lv-order').value = '0';
+    if (el('lv-code')) el('lv-code').value = '';
     if (trackSel) trackSel.value = '';
     resetBtn.hidden = true;
     F.clearErrs(form);
@@ -172,6 +174,7 @@
       subtitle: el('lv-subtitle').value.trim() || null,
       track_id: trackSel && trackSel.value ? trackSel.value : null,
       description: el('lv-desc').value.trim(),
+      code: el('lv-code') ? (el('lv-code').value.trim() || null) : null,
       sort_order: F.int(el('lv-order').value, 0),
       published: el('lv-pub').checked
     };
