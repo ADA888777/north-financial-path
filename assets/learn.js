@@ -308,7 +308,9 @@
   L.guard().then(function (s) {
     if (!s) return;
 
-    db.rpc('touch_activity').catch(function () {});
+    /* PostgrestBuilder كائن thenable لا Promise، فلا يملك catch.
+       معالج الخطأ يمرَّر كوسيط ثانٍ لـ then. */
+    db.rpc('touch_activity').then(function () {}, function () {});
 
     return Promise.all([
       db.rpc('my_dashboard'),

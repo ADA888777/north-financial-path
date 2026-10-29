@@ -129,7 +129,9 @@
     var p = scrollPct();
     if (Math.abs(p - lastSent) < 5) return;
     lastSent = p;
-    db.rpc('save_lesson_spot', { p_lesson: id, p_pos: p }).catch(function () {});
+    /* thenable لا Promise: لا catch عليه، والخطأ يُلتقط كوسيط ثانٍ لـ then. */
+    db.rpc('save_lesson_spot', { p_lesson: id, p_pos: p })
+      .then(function () {}, function () {});
   }
 
   window.addEventListener('scroll', function () {
