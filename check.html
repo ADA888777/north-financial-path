@@ -89,16 +89,59 @@
   }
   row('عنوان هذه الصفحة', window.location.origin + '/');
 
+  /* أهمّ سؤال: هل مشروع القاعدة مستيقظ أصلاً؟
+     نسأله بـfetch مباشر بمهلة، لا عبر المكتبة، حتى نفصل عطل الخادم
+     عن عطل المكتبة. مشروع موقوف يعلّق الطلب بلا ردّ، ولذلك المهلة. */
+  (function () {
+    var cfg = window.northConfig || {};
+    if (!cfg.url || typeof fetch !== 'function') {
+      row('خادم القاعدة', 'تعذّر الفحص (لا إعداد أو لا fetch)', false);
+      return;
+    }
+    var ctl = typeof AbortController === 'function' ? new AbortController() : null;
+    var late = setTimeout(function () { if (ctl) ctl.abort(); }, 12000);
+    var t0 = Date.now();
+
+    fetch(cfg.url + '/auth/v1/health', {
+      headers: { apikey: cfg.key || '' },
+      signal: ctl ? ctl.signal : undefined
+    }).then(function (r) {
+      clearTimeout(late);
+      var ms = Date.now() - t0;
+      if (r.ok) {
+        row('خادم القاعدة', 'يعمل ويقبل المفتاح (' + ms + ' مللي ثانية)', true);
+      } else if (r.status === 401 || r.status === 403) {
+        row('خادم القاعدة', 'يعمل لكنه رفض المفتاح — رمز ' + r.status +
+            ' [KEY-' + r.status + ']', false);
+      } else {
+        row('خادم القاعدة', 'لا يستجيب — رمز ' + r.status + ' [SRV-' + r.status + ']', false);
+      }
+    }).catch(function (e) {
+      clearTimeout(late);
+      var aborted = e && e.name === 'AbortError';
+      row('خادم القاعدة', aborted
+        ? 'لم يردّ خلال ١٢ ثانية — غالباً المشروع موقوف (paused) [SRV-TIMEOUT]'
+        : 'لا يمكن الوصول إليه إطلاقاً [NET-2]', false);
+    });
+  })();
+
   /* هل المشروع مستيقظ ويقبل المفتاح؟ */
   if (dbOK) {
+    var sessLate = setTimeout(function () {
+      row('جلسة حالية', 'لم يردّ الخادم خلال ١٢ ثانية', false);
+    }, 12000);
     window.northDB.auth.getSession().then(function (r) {
+      clearTimeout(sessLate);
       var s = r && r.data && r.data.session;
       row('جلسة حالية', s ? ('مسجّل الدخول: ' + s.user.email) : 'لا توجد جلسة', !!s);
       if (s) {
         row('تأكيد البريد', s.user.email_confirmed_at || s.user.confirmed_at || 'غير مؤكَّد',
             !!(s.user.email_confirmed_at || s.user.confirmed_at));
       }
-    }).catch(function (e) { row('جلسة حالية', 'خطأ: ' + e.message, false); });
+    }).catch(function (e) {
+      clearTimeout(sessLate);
+      row('جلسة حالية', 'خطأ: ' + e.message, false);
+    });
   }
 
   document.getElementById('f').addEventListener('submit', function (ev) {
@@ -108,10 +151,17 @@
     btn.setAttribute('aria-busy', 'true'); btn.disabled = true;
     out.textContent = 'جارٍ الفحص…';
 
+    var hung = setTimeout(function () {
+      btn.removeAttribute('aria-busy'); btn.disabled = false;
+      out.textContent = 'لم يردّ الخادم خلال ٢٠ ثانية. [SIGNIN-TIMEOUT]\n' +
+        'هذا يطابق مشروع قاعدة موقوفاً أو شبكة تحجب الاتصال.';
+    }, 20000);
+
     window.northDB.auth.signInWithPassword({
       email: document.getElementById('e').value.trim(),
       password: document.getElementById('p').value
     }).then(function (res) {
+      clearTimeout(hung);
       btn.removeAttribute('aria-busy'); btn.disabled = false;
       if (res.error) {
         out.textContent = JSON.stringify({
@@ -131,6 +181,7 @@
         }, null, 2);
       }
     }).catch(function (e) {
+      clearTimeout(hung);
       btn.removeAttribute('aria-busy'); btn.disabled = false;
       out.textContent = 'استثناء: ' + (e && e.message ? e.message : String(e));
     });

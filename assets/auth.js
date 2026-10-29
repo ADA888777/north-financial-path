@@ -219,6 +219,32 @@
     });
   }
 
+  /* مهلة قصوى للطلب.
+     إن كان مشروع القاعدة موقوفاً أو الشبكة معلّقة، فطلب supabase-js قد لا
+     يرجع أبداً، فيبقى الزر على «جاري الإرسال» بلا نهاية ويبدو أن الصفحة
+     لا تحمّل. نحسم الانتظار بأنفسنا ونحوّله إلى سبب مكتوب. */
+  var REQ_MS = 15000;
+
+  function withTimeout(promise) {
+    var done = false;
+    return new Promise(function (resolve) {
+      var t = setTimeout(function () {
+        if (done) return;
+        done = true;
+        resolve({ ok: false, code: 'TIMEOUT', diag: true, probe: true,
+                  message: 'لم يردّ خادم المنصة خلال ١٥ ثانية.' });
+      }, REQ_MS);
+
+      promise.then(function (r) {
+        if (done) return;
+        done = true; clearTimeout(t); resolve(r);
+      }, function (e) {
+        if (done) return;
+        done = true; clearTimeout(t); resolve(authError(e));
+      });
+    });
+  }
+
   /* الطلب الفعلي إلى Supabase Auth.
      يُرجع دائماً { ok } أو { ok:false, field?, message } كما تتوقع بقية الملف. */
   function submitToApi(payload) {
@@ -234,21 +260,19 @@
     }
 
     if (payload.kind === 'login') {
-      return db.auth
+      return withTimeout(db.auth
         .signInWithPassword({ email: payload.email, password: payload.password })
-        .then(function (res) { return res.error ? authError(res.error) : { ok: true }; })
-        .catch(authError);
+        .then(function (res) { return res.error ? authError(res.error) : { ok: true }; }));
     }
 
     if (payload.kind === 'newpass') {
-      return db.auth
+      return withTimeout(db.auth
         .updateUser({ password: payload.password })
-        .then(function (res) { return res.error ? authError(res.error) : { ok: true }; })
-        .catch(authError);
+        .then(function (res) { return res.error ? authError(res.error) : { ok: true }; }));
     }
 
     /* استعادة كلمة المرور: لا نكشف إن كان البريد مسجّلاً أم لا */
-    return db.auth
+    return withTimeout(db.auth
       .resetPasswordForEmail(payload.email, { redirectTo: SITE + 'reset.html' })
       .then(function (res) {
         var err = res && res.error;
@@ -257,7 +281,7 @@
         }
         return { ok: true };
       })
-      .catch(function () { return { ok: true }; });
+      .catch(function () { return { ok: true }; }));
   }
 
   /* ---------- إرسال النموذج مع منع النقر المتكرر ---------- */

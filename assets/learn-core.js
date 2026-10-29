@@ -64,17 +64,56 @@
         : '<a class="btn btn-ghost" href="index.html">العودة إلى الموقع</a>') + '</div>';
   }
 
+  /* مهلة قصوى لأي طلب في بوابة الدخول.
+     لو توقّف مشروع القاعدة، فطلب supabase-js قد لا يرجع أبداً: لا then
+     ولا catch، فتبقى #shell مخفيّة و#gate مخفيّة والصفحة بيضاء بلا
+     أي تفسير. نحسم الانتظار ونعرض سبباً مكتوباً. */
+  function within(promise, ms, onLate) {
+    var done = false;
+    return new Promise(function (resolve, reject) {
+      var t = setTimeout(function () {
+        if (done) return;
+        done = true;
+        resolve(onLate());
+      }, ms || 12000);
+      promise.then(function (v) {
+        if (done) return;
+        done = true; clearTimeout(t); resolve(v);
+      }, function (e) {
+        if (done) return;
+        done = true; clearTimeout(t); reject(e);
+      });
+    });
+  }
+
+  var LATE = {};   // علامة «لم يردّ الخادم»
+
   function guard() {
     if (!db) {
       deny('تعذّر الاتصال', 'حدّث الصفحة وحاول مرة أخرى.', false);
       return Promise.resolve(null);
     }
-    return db.auth.getSession().then(function (r) {
+    return within(db.auth.getSession(), 12000, function () { return LATE; })
+    .then(function (r) {
+      if (r === LATE) {
+        deny('خادم المنصة لا يستجيب',
+             'لم يردّ الخادم خلال ١٢ ثانية. تحقّق من اتصالك وحدّث الصفحة، ' +
+             'وإن تكرّر فأبلغ إدارة المنصة. [GATE-TIMEOUT]', false);
+        return null;
+      }
       var s = r && r.data && r.data.session;
       if (!s) { deny('تحتاج تسجيل الدخول', 'هذه الصفحة لحسابك الخاص.', true); return null; }
       /* جلسة صدرت قبل التعطيل تبقى صالحة حتى تنتهي. نسأل القاعدة عن
          حالة الحساب عند كل فتح صفحة، فلا يبقى معطَّل يتصفّح بجلسته. */
-      return db.rpc('account_state').then(function (r) {
+      /* تأخّر هذا السؤال لا يُخرج أحداً: الدوال نفسها ترفض المعطَّل،
+         فالمحتوى محميّ في القاعدة على كل حال. */
+      return within(db.rpc('account_state'), 10000, function () { return LATE; })
+      .then(function (r) {
+        if (r === LATE) {
+          var shl = el('shell'); if (shl) shl.hidden = false;
+          var gl = el('gate'); if (gl) gl.hidden = true;
+          return s;
+        }
         var st = (r && r.data) || {};
         if (st.signed_in && st.active === false) {
           deny('حسابك معطَّل', st.reason || 'تواصل مع إدارة المنصة.', false);
