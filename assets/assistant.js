@@ -17,9 +17,25 @@
   function bubble(role, text, opts) {
     opts = opts || {};
     var d = document.createElement('div');
+    // التحية ليست جواباً فاشلاً: grounded = null، فلا تُوسَم بوسم الامتناع.
     d.className = 'msg ' + (role === 'user' ? 'me' : (opts.error ? 'err' : 'bot')) +
-      (opts.grounded === false && !opts.error ? ' ungrounded' : '');
+      (opts.grounded === false && !opts.error ? ' ungrounded' : '') +
+      (opts.kind === 'loose' ? ' loose' : '');
     d.textContent = text;
+    if (opts.kind === 'loose') {
+      var w = document.createElement('span');
+      w.className = 'msg-note';
+      w.textContent = 'تطابق تقريبي — راجع الدرس للتأكد.';
+      d.appendChild(w);
+    }
+    if (opts.suggestions && opts.suggestions.length) {
+      var g = document.createElement('span');
+      g.className = 'msg-src';
+      g.innerHTML = 'دروس قد تفيد: ' + opts.suggestions.map(function (x) {
+        return '<a href="lesson.html?id=' + esc(x.id) + '">' + esc(x.title) + '</a>';
+      }).join(' · ');
+      d.appendChild(g);
+    }
     if (opts.sources && opts.sources.length) {
       var s = document.createElement('span');
       s.className = 'msg-src';
@@ -90,7 +106,12 @@
         return;
       }
 
-      bubble('bot', d.answer, { grounded: d.grounded, sources: d.sources || [] });
+      bubble('bot', d.answer, {
+        grounded: d.grounded,
+        kind: d.kind,
+        sources: d.sources || [],
+        suggestions: d.suggestions || []
+      });
     }).catch(function (err) {
       busy = false;
       btn.removeAttribute('aria-busy'); btn.disabled = false;
