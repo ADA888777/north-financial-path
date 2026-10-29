@@ -115,6 +115,19 @@
             esc(o.plan) + '">انقلي العضويات</button></div></div>';
       });
 
+      /* تناقض موضوعي: الباقة تَعِد بتدريب فردي ورصيد جلساتها صفر.
+         هذا بالضبط ما جعل حساباً ماسياً نشطاً يرى «لا تتضمّن جلسات». */
+      (d.training_without_quota || []).forEach(function (t) {
+        out += '<div class="ph bad"><div class="ph-b">' +
+          '<b>باقة «' + esc(t.plan) + '» مسجَّل لها «تدريب مباشر فردي» ' +
+            'ورصيد جلساتها صفر</b>' +
+          '<span>' + plural(t.members, 'عضوية واحدة', 'عضويتان', 'عضوية') +
+            ' عليها ترى وعداً بالجلسات ولا تستطيع حجز واحدة. ' +
+            'اضبطي «رصيد الجلسات الشهري» للباقة من «تعديل».</span></div>' +
+          '<div class="ph-a"><button class="bt bt-ghost bt-sm" type="button" ' +
+            'data-fixq="' + esc(t.plan) + '">اضبطي الرصيد</button></div></div>';
+      });
+
       (d.no_features || []).forEach(function (n) {
         out += '<div class="ph warn"><div class="ph-b">' +
           '<b>باقة «' + esc(n) + '» بلا مميزات مسجّلة</b>' +
@@ -309,7 +322,16 @@
   el('pl-add').addEventListener('click', function () { open(null); });
   el('pl-health').addEventListener('click', function (e) {
     var m = e.target.closest('[data-merge]');
-    if (m) merge(m.getAttribute('data-merge'));
+    if (m) { merge(m.getAttribute('data-merge')); return; }
+
+    var q = e.target.closest('[data-fixq]');
+    if (q) {
+      var name = q.getAttribute('data-fixq');
+      var row = rows.filter(function (x) { return x.name === name; })[0];
+      if (row) { open(row); setTimeout(function () {
+        var f = el('pl-quota'); if (f) { f.focus(); f.select(); }
+      }, 300); }
+    }
   });
   el('pl-list').addEventListener('click', function (e) {
     var ed = e.target.closest('[data-pl]');

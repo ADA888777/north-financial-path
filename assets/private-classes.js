@@ -7,6 +7,15 @@
   var DAYS = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
   var coaches = [], quota = {}, mine = [], picked = null, slots = [], busy = false;
 
+  /* '18:00:00' → '٦ مساءً' */
+  function hour12(t) {
+    var h = parseInt(String(t).slice(0, 2), 10);
+    if (isNaN(h)) return String(t);
+    var am = h < 12;
+    var h12 = h % 12 || 12;
+    return num(h12) + (am ? ' صباحاً' : ' مساءً');
+  }
+
   function riyadh(iso, opts) {
     try {
       return new Intl.DateTimeFormat('ar-SA', Object.assign(
@@ -21,6 +30,28 @@
   }
 
   /* ---------- الرصيد والجلسة القادمة ---------- */
+  /* حالة واحدة صريحة من القاعدة.
+     كان الصفر يُقرأ مرّتين فيُستنتج منه حكمان متناقضان: «باقتك لا
+     تتضمّن جلسات» في بطاقة الرصيد، و«استنفدتِ رصيدك» في لوحة الحجز.
+     الآن state واحدة تحكم الرسالتين، فلا يجتمع نقيضان. */
+  function quotaLine() {
+    switch (quota.state) {
+      case 'no_plan':
+        return 'باقتك «' + (quota.plan || '—') + '» غير مُعدّة في المنصة. ' +
+               'أبلغي الإدارة لتصحيح الإعداد.';
+      case 'inactive':
+        return 'اشتراكك غير نافذ الآن. جدّديه لتستأنفي الحجز.';
+      case 'not_included':
+        return 'باقة ' + (quota.plan || '') + ' لا تتضمّن جلسات خاصة.';
+      case 'exhausted':
+        return 'باقة ' + (quota.plan || '') + ' · استخدمتِ ' + num(quota.used || 0) +
+               ' من ' + num(quota.quota || 0) + ' هذا الشهر';
+      default:
+        return 'باقة ' + (quota.plan || '') + ' · استخدمتِ ' + num(quota.used || 0) +
+               ' من ' + num(quota.quota || 0);
+    }
+  }
+
   function top() {
     var next = mine.filter(function (m) {
       return m.upcoming && m.status === 'booked';
@@ -32,10 +63,10 @@
       '<section class="ncard quo-card">' +
         '<span class="ntile"><span class="ms">confirmation_number</span></span>' +
         '<span class="q-b"><span>رصيد الشهر</span>' +
-          '<b dir="ltr">' + num(quota.left || 0) + '<i>/' + num(quota.quota || 0) + '</i></b>' +
-          '<p>' + (quota.quota
-            ? 'باقة ' + esc(quota.plan || '') + ' · استخدمت ' + num(quota.used || 0)
-            : 'باقتك لا تتضمّن جلسات خاصة') + '</p>' +
+          (quota.entitled
+            ? '<b dir="ltr">' + num(quota.left || 0) + '<i>/' + num(quota.quota || 0) + '</i></b>'
+            : '<b style="font-size:clamp(16px,2vw,19px);color:var(--fg-2)">—</b>') +
+          '<p>' + esc(quotaLine()) + '</p>' +
         '</span>' +
       '</section>' +
       '<section class="ncard quo-card">' +
@@ -123,14 +154,33 @@
   }
 
   function drawBook() {
-    if (!picked) {
-      bookPanel(hint('touch_app', 'اختاري كوتشاً من القائمة لتظهر مواعيده المتاحة.'));
+    /* ترتيب الفحوص مقصود: الاستحقاق قبل الرصيد.
+       من لا تمنحها باقتها الميزة لا يُقال لها «استنفدتِ رصيدك». */
+    if (quota.state === 'no_plan') {
+      bookPanel(hint('report',
+        'باقتك «' + esc(quota.plan || '—') + '» غير مُعدّة في المنصة، ' +
+        'فلا يمكن احتساب رصيد جلساتك. أبلغي إدارة المنصة.'));
       return;
     }
-    if ((quota.left || 0) <= 0) {
-      bookPanel(hint('block', 'استنفدت رصيد جلساتك لهذا الشهر' +
-        (quota.quota ? ' (' + num(quota.quota) + ')' : '') +
-        '. يتجدّد الرصيد مع بداية الشهر القادم.'));
+    if (quota.state === 'inactive') {
+      bookPanel(hint('lock_clock',
+        'اشتراكك غير نافذ الآن. جدّديه لتستأنفي حجز جلساتك الخاصة.'));
+      return;
+    }
+    if (quota.state === 'not_included') {
+      bookPanel(hint('workspace_premium',
+        'باقة ' + esc(quota.plan || '') + ' لا تتضمّن جلسات خاصة. ' +
+        'للاطّلاع على الباقات التي تتضمّنها راجعي صفحة حسابك.'));
+      return;
+    }
+    if (quota.state === 'exhausted') {
+      bookPanel(hint('block',
+        'استخدمتِ ' + num(quota.quota || 0) + ' من ' + num(quota.quota || 0) +
+        ' جلسات هذا الشهر. يتجدّد الرصيد مع بداية الشهر القادم بتوقيت الرياض.'));
+      return;
+    }
+    if (!picked) {
+      bookPanel(hint('touch_app', 'اختاري كوتشاً من القائمة لتظهر مواعيده المتاحة.'));
       return;
     }
     if (!slots.length) {
@@ -400,8 +450,16 @@
       quota = (r[1] && r[1].data) || {};
       mine = (r[2] && r[2].data) || [];
       drawRate((r[3] && r[3].data) || []);
-      if (coaches.length && coaches[0].slot_min) {
-        el('pc-min').textContent = num(coaches[0].slot_min);
+      // المدّة والنافذة من القاعدة: الصفحة لا تعلن ساعاتٍ لا تطبّقها
+      var mins = quota.slot_min || (coaches[0] && coaches[0].slot_min);
+      if (mins) el('pc-min').textContent = num(mins);
+      var w = el('pc-window');
+      if (w && quota.open_from && quota.open_to) {
+        var days = (quota.open_weekdays || []).map(function (d) { return DAYS[d]; });
+        w.textContent = (days.length
+            ? 'من ' + days[0] + ' إلى ' + days[days.length - 1]
+            : '') +
+          ' ' + hour12(quota.open_from) + ' إلى ' + hour12(quota.open_to);
       }
       top(); drawCoaches(); drawMine();
       // أول كوتش مختار تلقائياً حتى تظهر المواعيد فوراً بلا نقرة إضافية
