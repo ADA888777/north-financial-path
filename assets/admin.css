@@ -30,7 +30,7 @@ body.adm-body::after{opacity:.35}
 /* تبويبات */
 .tabs{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:26px}
 .tab{
-  font-family:var(--body);font-size:14px;font-weight:500;cursor:pointer;white-space:nowrap;
+  font-family:var(--body);font-size:14px;font-weight:400;cursor:pointer;white-space:nowrap;
   background:var(--a-card);border:1px solid var(--a-line);color:var(--a-fg-2);
   border-radius:999px;padding:10px 20px;transition:background .18s,color .18s,border-color .18s;
 }
@@ -45,7 +45,7 @@ body.adm-body::after{opacity:.35}
 }
 .kpi span{font-size:13px;color:var(--a-fg-2);order:-1}
 .kpi b{font-family:var(--display);font-size:30px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
-.kpi.err b{font-size:14px;color:var(--a-bad);font-family:var(--body);font-weight:500}
+.kpi.err b{font-size:14px;color:var(--a-bad);font-family:var(--body);font-weight:400}
 
 /* صندوق */
 .panel-box{

@@ -99,6 +99,32 @@
     '</section>';
   }
 
+  /* ما ينتظرها بعد هذا كله.
+     رقمان منفصلان: ما تفتحه باقتها ويأتي بتقدّمها، وما يتطلّب باقة
+     أعلى. جمعهما في رقم واحد يَعِدها بمحتوى لا تملكه. */
+  function ahead(m) {
+    var inPlan = Number(m.upcoming_in_plan || 0);
+    var higher = Number(m.upcoming_higher_plan || 0);
+    if (!inPlan && !higher) return '';
+
+    var lines = '';
+    if (inPlan) {
+      lines += '<p class="ah-l"><span class="ms">auto_awesome</span>' +
+        (inPlan === 1
+          ? 'هناك درس واحد في المستويات القادمة يظهر لك مع تقدّمك في المسار.'
+          : 'هناك ' + num(inPlan) + ' درساً في المستويات القادمة تظهر لك مع تقدّمك في المسار.') +
+        '</p>';
+    }
+    if (higher) {
+      lines += '<p class="ah-l mut"><span class="ms">workspace_premium</span>' +
+        'و' + num(higher) + ' درساً ضمن باقة أعلى.</p>';
+    }
+    return '<section class="ncard ahead">' +
+      '<span class="ntile"><span class="ms">explore</span></span>' +
+      '<div class="ah-b"><b>باقي لك محتوى أكثر تكتشفه مع تقدّمك</b>' + lines + '</div>' +
+    '</section>';
+  }
+
   function other(levels) {
     if (!levels.length) return '';
     return '<h2 class="n-h2 sec-t">المستويات الأخرى</h2>' +
@@ -133,17 +159,39 @@
     function t(cls, v, lbl) {
       return '<div class="mt ' + cls + '"><b>' + num(v) + '</b><span>' + esc(lbl) + '</span></div>';
     }
-    // ترتيب المرجع: ما ينتظرها أولاً ثم ما أنجزته ثم ما هو متاح
+
+    /* المربّع الثالث كان «N درس مغلق لك» — رقمٌ يقول لها ما لا تملك.
+       صار ما بقي في مستواها حتى تُتمّه: العدد نفسه مصدره القاعدة،
+       والصياغة تدفع بدل أن تُثبّط. */
+    var left = m.level_remaining;
+    var third = left == null
+      ? t('warn', m.lessons_locked || 0, 'ينتظر تقدّمك')
+      : (left === 0
+          ? '<div class="mt ok done"><span class="ms">task_alt</span>' +
+            '<span>أكملت هذا الجزء، أحسنت!</span></div>'
+          : t('warn', left,
+              left === 1 ? 'درس واحد ويكتمل هذا المستوى'
+                         : 'درس ويكتمل هذا المستوى'));
+
     el('m-tiles').innerHTML =
-      t('warn', m.lessons_locked || 0, 'درس مغلق لك') +
+      third +
       t('blue', m.lessons_done || 0, 'مكتمل') +
       t('ok', m.lessons_open || 0, 'متاح الآن');
   }
 
   L.guard().then(function (s) {
     if (!s) return;
-    return db.rpc('my_map').then(function (r) {
+    // الأعداد بنداء موازٍ: دالة لكل غرض، والنداءان يمضيان معاً
+    return Promise.all([db.rpc('my_map'), db.rpc('my_map_counts')])
+      .then(function (rr) {
+      var r = rr[0];
       var m = (r && r.data) || {};
+      var cnt = (rr[1] && !rr[1].error && rr[1].data) || {};
+      if (cnt && !cnt.error) {
+        m.level_remaining      = cnt.level_remaining;
+        m.upcoming_in_plan     = cnt.upcoming_in_plan;
+        m.upcoming_higher_plan = cnt.upcoming_higher_plan;
+      }
       if (r.error || m.error) {
         el('map').innerHTML = '<section class="ncard"><p class="n-sub">' +
           esc(m.error || r.error.message || 'تعذّر تحميل الخارطة.') + '</p></section>';
@@ -186,6 +234,8 @@
       el('m-other').innerHTML = other(levels.filter(function (l) {
         return !cur || l.id !== cur.id;
       }));
+
+      el('m-ahead').innerHTML = ahead(m);
 
       if (m.next_lesson) {
         el('m-next').hidden = false;

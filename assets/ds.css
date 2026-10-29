@@ -1,4 +1,21 @@
 /* ============================================================
+   خط Cairo — الاحتياطي أولاً كي لا يقفز النص أثناء التحميل
+   ============================================================
+
+   «Cairo Fallback» ليس خطاً مستقلاً: هو Arial بمقاس معدَّل إلى
+   94.66% ليقارب مقاييس Cairo. بدونه يُرسم النص بـArial ثم يُعاد
+   رسمه بـCairo فتتغيّر الأحجام وتتحرّك العناصر أمام القارئ.
+   الترتيب في كل متغيّر خطّ: Cairo، ثم هذا الاحتياطي، ثم عامّ. */
+@font-face{
+  font-family:'Cairo Fallback';
+  src:local('Arial'), local('Helvetica'), local('Segoe UI');
+  size-adjust:94.66%;
+  ascent-override:normal;
+  descent-override:normal;
+  line-gap-override:normal;
+}
+
+/* ============================================================
    نورث — نظام التصميم
    مرجع بصري موحّد لكل الصفحات: خط واحد، ومقاس عناوين واحد، وحواف
    وظلال ومسافات واحدة، ومكوّنات تُعاد في كل صفحة بدل تصميم كل صفحة
@@ -9,11 +26,15 @@
    ============================================================ */
 
 :root{
-  /* خط واحد للعناوين والنصوص والأرقام. Tajawal هندسي واضح ويدعم
-     RTL تماماً، وأوزانه تكفي للتسلسل البصري دون خط ثانٍ. */
-  --display:'Tajawal','Segoe UI',system-ui,sans-serif;
-  --body:'Tajawal','Segoe UI',system-ui,sans-serif;
-  --num:'Tajawal','Segoe UI',system-ui,sans-serif;
+  /* خط واحد للعناوين والنصوص والأرقام: Cairo.
+     الأوزان المعتمدة: ٤٠٠ للنص، ٦٠٠ لإبراز خفيف، ٧٠٠ للعناوين
+     الفرعية والأزرار، ٩٠٠ للعناوين الرئيسية. لا وزن خامس. */
+  --display:'Cairo','Cairo Fallback',system-ui,sans-serif;
+  --body:'Cairo','Cairo Fallback',system-ui,sans-serif;
+  --num:'Cairo','Cairo Fallback',system-ui,sans-serif;
+
+  /* أسماء الأوزان، كي لا يُكتب الرقم في عشرين موضعاً */
+  --w-reg:400; --w-semi:600; --w-bold:700; --w-black:900;
 
   --rc:16px;   /* البطاقة */
   --rt:12px;   /* المربّع والشريحة */
@@ -56,7 +77,7 @@
 /* ---------- تسلسل العناوين ---------- */
 body{font-family:var(--body);letter-spacing:0}
 h1,h2,h3,h4{font-family:var(--display);letter-spacing:-.01em}
-.n-h1{font-size:clamp(24px,3.4vw,34px);font-weight:800;line-height:1.3}
+.n-h1{font-size:clamp(24px,3.4vw,34px);font-weight:900;line-height:1.3}
 .n-h2{font-size:clamp(17px,2vw,20px);font-weight:700;line-height:1.4}
 .n-h3{font-size:15px;font-weight:700}
 .n-sub{font-size:14px;color:var(--fg-2);line-height:1.85}
@@ -106,7 +127,7 @@ a.nstat{transition:border-color .18s,transform .18s}
 a.nstat:hover{border-color:color-mix(in srgb,var(--accent) 40%,var(--card-line))}
 .nstat-b{flex:1;min-width:0}
 .nstat-l{font-size:12px;color:var(--fg-3);display:block;line-height:1.5}
-.nstat-v{font-size:clamp(18px,2.2vw,23px);font-weight:800;display:block;margin-top:4px;
+.nstat-v{font-size:clamp(18px,2.2vw,23px);font-weight:900;display:block;margin-top:4px;
   line-height:1.35;overflow-wrap:anywhere;font-family:var(--display)}
 .nstat-v i{font-size:.62em;font-style:normal;color:var(--fg-3);margin-inline-start:1px}
 .nstat-n{font-size:11.5px;color:var(--fg-3);display:block;margin-top:4px;line-height:1.6;
@@ -290,7 +311,7 @@ a.pip:hover{transform:translateY(-1px)}
 
 .map-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px}
 .mt{border-radius:var(--rt);padding:16px;text-align:center;border:1px solid transparent}
-.mt b{display:block;font-family:var(--display);font-weight:800;font-size:26px;line-height:1.1}
+.mt b{display:block;font-family:var(--display);font-weight:900;font-size:26px;line-height:1.1}
 .mt span{display:block;font-size:12px;margin-top:6px;opacity:.85}
 .mt.ok{background:color-mix(in srgb,var(--up) 11%,transparent);
   border-color:color-mix(in srgb,var(--up) 26%,transparent);color:var(--up)}
@@ -429,7 +450,7 @@ a.pip:hover{transform:translateY(-1px)}
   border-bottom:1px solid var(--card-line)}
 .cal-ht{min-width:0}
 .cal-ht span{display:block;font-size:12px;font-weight:700;color:var(--accent);margin-bottom:4px}
-.cal-ht b{font-size:clamp(17px,2.2vw,21px);font-family:var(--display);font-weight:800}
+.cal-ht b{font-size:clamp(17px,2.2vw,21px);font-family:var(--display);font-weight:900}
 .cal-nav{display:flex;align-items:center;gap:6px}
 .cal-nav button{width:36px;height:36px;display:grid;place-items:center;border-radius:var(--rbtn);
   border:1px solid var(--card-line);background:var(--surface);color:var(--fg-2);cursor:pointer}
@@ -469,7 +490,7 @@ a.pip:hover{transform:translateY(-1px)}
 .quo-card{display:flex;align-items:center;gap:14px}
 .q-b{min-width:0}
 .q-b span{display:block;font-size:12.5px;color:var(--fg-3);margin-bottom:3px}
-.q-b b{font-size:clamp(26px,3.6vw,34px);font-family:var(--display);font-weight:800;
+.q-b b{font-size:clamp(26px,3.6vw,34px);font-family:var(--display);font-weight:900;
   color:var(--accent);letter-spacing:-.03em;line-height:1.15}
 .q-b b i{font-size:.5em;font-style:normal;color:var(--fg-3);font-weight:700}
 .q-b p{font-size:12.5px;color:var(--fg-2);line-height:1.7;margin-top:4px}
@@ -482,7 +503,7 @@ a.pip:hover{transform:translateY(-1px)}
 .co[aria-pressed="true"]{border-color:var(--accent);
   background:color-mix(in srgb,var(--accent) 7%,transparent)}
 .co-av{flex:0 0 auto;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;
-  background:var(--tile-bg);color:var(--accent);font-family:var(--display);font-weight:800;
+  background:var(--tile-bg);color:var(--accent);font-family:var(--display);font-weight:900;
   font-size:15px;overflow:hidden}
 .co-av img{width:100%;height:100%;object-fit:cover}
 .co-b{min-width:0;flex:1}
@@ -508,7 +529,7 @@ a.pip:hover{transform:translateY(-1px)}
   border-radius:var(--rt);padding:12px 14px;min-width:0}
 .ss-d{flex:0 0 auto;text-align:center;border-radius:10px;background:var(--tile-bg);
   padding:7px 10px;min-width:54px}
-.ss-d b{display:block;font-size:17px;font-family:var(--display);font-weight:800;line-height:1.1}
+.ss-d b{display:block;font-size:17px;font-family:var(--display);font-weight:900;line-height:1.1}
 .ss-d span{display:block;font-size:10.5px;color:var(--fg-3);margin-top:2px}
 .ss{flex-wrap:wrap}
 .ss-b{min-width:0;flex:1;display:block}
@@ -541,7 +562,7 @@ a.pip:hover{transform:translateY(-1px)}
 .gd-h{display:flex;align-items:center;gap:10px;width:100%;font:inherit;text-align:start;
   cursor:pointer;border:0;background:var(--tile-bg);color:var(--fg);
   padding:clamp(14px,2.2vw,18px);border-bottom:1px solid var(--card-line)}
-.gd-h h2{flex:1;min-width:0;font-size:clamp(17px,2vw,20px);font-weight:800;margin:0}
+.gd-h h2{flex:1;min-width:0;font-size:clamp(17px,2vw,20px);font-weight:900;margin:0}
 .gd-c{color:var(--fg-3);font-size:22px;flex:0 0 auto}
 .gd-body{display:grid;gap:10px;padding:clamp(14px,2.2vw,18px)}
 
@@ -553,7 +574,7 @@ a.pip:hover{transform:translateY(-1px)}
   color:var(--gc,var(--accent))}
 .gd-i .ms{font-size:21px}
 .gd-t{min-width:0;flex:1}
-.gd-t b{display:block;font-size:15px;font-weight:800;line-height:1.5;margin-bottom:5px}
+.gd-t b{display:block;font-size:15px;font-weight:900;line-height:1.5;margin-bottom:5px}
 .gd-t p{font-size:13px;color:var(--fg-2);line-height:1.9;margin:0;overflow-wrap:anywhere}
 
 .gd.blue  {--gc:var(--accent)}
@@ -597,3 +618,22 @@ a.pip:hover{transform:translateY(-1px)}
 .nfld .req{color:var(--dn)}
 .nfld .nerr{display:block;margin-top:6px}
 .nfld .hint b{color:var(--fg-2)}
+
+/* ما ينتظر المتعلمة بعد المستويات المعروضة */
+.ahead{display:flex;align-items:flex-start;gap:13px;margin-top:var(--gap);
+  background:linear-gradient(255deg,var(--accent-wash),var(--surface) 62%);
+  border-color:color-mix(in srgb,var(--accent) 24%,var(--card-line))}
+.ah-b{min-width:0;flex:1}
+.ah-b b{display:block;font-size:15.5px;font-weight:var(--w-bold);line-height:1.5;
+  margin-bottom:7px}
+.ah-l{display:flex;align-items:flex-start;gap:8px;font-size:13px;line-height:1.85;
+  color:var(--fg-2)}
+.ah-l + .ah-l{margin-top:5px}
+.ah-l .ms{font-size:17px;color:var(--accent);flex:0 0 auto;margin-top:2px}
+.ah-l.mut{color:var(--fg-3)}
+.ah-l.mut .ms{color:var(--flame)}
+
+/* «أكملت هذا الجزء» — مربّع بلا رقم */
+.mt.done{display:flex;align-items:center;justify-content:center;gap:8px;
+  font-size:13.5px;font-weight:var(--w-bold);line-height:1.5;text-align:center}
+.mt.done .ms{font-size:20px;flex:0 0 auto}

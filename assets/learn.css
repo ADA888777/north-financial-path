@@ -5,7 +5,7 @@
 .hello{display:flex;align-items:flex-start;justify-content:space-between;gap:22px;
   flex-wrap:wrap;margin-bottom:clamp(16px,2.6vw,22px)}
 .hello > *{min-width:0}
-.hello h1{font-size:clamp(24px,3.4vw,34px);font-weight:800;line-height:1.3;letter-spacing:-.01em}
+.hello h1{font-size:clamp(24px,3.4vw,34px);font-weight:900;line-height:1.3;letter-spacing:-.01em}
 .hello .sub{color:var(--fg-2);font-size:14px;line-height:1.85;margin-top:8px;max-width:62ch}
 .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
 .chip-i{
@@ -90,7 +90,7 @@
 .crumb{font-size:13px;color:var(--fg-2);margin-bottom:10px;display:flex;align-items:center;gap:7px}
 .crumb a{color:var(--accent)}
 .crumb a:hover{text-decoration:underline;text-underline-offset:3px}
-.lesson-head h1{font-size:clamp(24px,3.4vw,34px);font-weight:800;line-height:1.3;
+.lesson-head h1{font-size:clamp(24px,3.4vw,34px);font-weight:900;line-height:1.3;
   letter-spacing:-.01em}
 .lesson-head .crumb a{font-weight:700}
 .lesson-head .n-sub,.lesson-head .sub{max-width:62ch;margin-top:8px}
@@ -206,7 +206,7 @@
 .lnav-scroll{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none}
 .lnav-scroll::-webkit-scrollbar{display:none}
 .lnav-item{position:relative;display:flex;align-items:center;gap:7px;flex:0 0 auto;
-  padding:13px 13px;font-size:13.5px;font-weight:500;color:var(--fg-2);
+  padding:13px 13px;font-size:13.5px;font-weight:400;color:var(--fg-2);
   border-bottom:2px solid transparent;white-space:nowrap;transition:color .18s,border-color .18s}
 .lnav-item .ms{font-size:19px}
 .lnav-item:hover{color:var(--fg)}
@@ -256,7 +256,7 @@
 .vq-n{display:block;font-size:12.5px;color:var(--fg-3);font-family:var(--mono);
   margin-bottom:8px}
 .vq-term{display:block;font-size:clamp(26px,4.2vw,38px);font-family:var(--display);
-  font-weight:800;letter-spacing:-.02em;line-height:1.35;margin:0 0 8px;
+  font-weight:900;letter-spacing:-.02em;line-height:1.35;margin:0 0 8px;
   overflow-wrap:anywhere;text-align:start}
 .vq-lesson{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;
   color:var(--accent);min-height:34px;padding-inline-end:4px}
@@ -268,7 +268,7 @@
 .vq-score{flex:0 0 auto;text-align:center;background:var(--surface);
   border:1px solid var(--card-line);border-radius:var(--rt);padding:10px 16px;min-width:104px}
 .vq-score span{display:block;font-size:11.5px;color:var(--fg-3);margin-bottom:3px}
-.vq-score b{font-size:22px;font-family:var(--display);font-weight:800;
+.vq-score b{font-size:22px;font-family:var(--display);font-weight:900;
   color:var(--accent);letter-spacing:-.02em;line-height:1.2}
 
 .vq-body{padding:clamp(18px,3vw,24px)}
@@ -432,7 +432,7 @@
   place-items:center;background:var(--accent);color:var(--on-accent)}
 .as-ico .ms{font-size:23px}
 .as-t{min-width:0;flex:1}
-.as-t b{display:block;font-family:var(--display);font-weight:800;
+.as-t b{display:block;font-family:var(--display);font-weight:900;
   font-size:clamp(16px,2vw,19px);line-height:1.35}
 .as-t span{display:block;font-size:12.5px;color:var(--fg-3);line-height:1.7;margin-top:2px}
 .as-live{flex:0 0 auto;display:inline-flex;align-items:center;gap:7px;font-size:12px;

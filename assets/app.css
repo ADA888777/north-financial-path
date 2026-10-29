@@ -1,3 +1,14 @@
+/* «Cairo Fallback» ليس خطاً مستقلاً: Arial بمقاس معدَّل إلى 94.66%
+   ليقارب مقاييس Cairo، فلا يقفز النص حين ينتهي تحميل Cairo. */
+@font-face{
+  font-family:'Cairo Fallback';
+  src:local('Arial'), local('Helvetica'), local('Segoe UI');
+  size-adjust:94.66%;
+  ascent-override:normal;
+  descent-override:normal;
+  line-gap-override:normal;
+}
+
 /* Layout: RTL. One locked theme per mode (no section inversions). Asymmetric split hero,
    full-bleed figure band, bento features, numbered track rows, step rail, plan comparison.
    Shape rule: panels/cards 14px, buttons/inputs 10px, chips pill. One accent (steel blue
@@ -19,10 +30,12 @@
   --story-bg:#0C2340; --story-line:rgba(147,169,193,.18); --story-fg:#FFFFFF;
   --story-dim:#A8BED4; --story-accent:#8FBFEE; --story-chip:rgba(143,191,238,.14); --story-ph:#143254;
   --tier-edge:rgba(10,28,48,.08); --tier-cta:#2A6AA8; --tier-cta-h:#1E5287; --tier-cta-ink:#FFFFFF;
-  --display:'Readex Pro','Segoe UI',system-ui,sans-serif;
-  --body:'IBM Plex Sans Arabic','Segoe UI',system-ui,sans-serif;
+  /* Cairo لكل النصوص. ds.css يعيد تعريفها أيضاً، وتُكتب هنا كي لا
+     تبقى قيمة قديمة تظهر على صفحة لم تُحمَّل فيها نظام التصميم. */
+  --display:'Cairo','Cairo Fallback',system-ui,sans-serif;
+  --body:'Cairo','Cairo Fallback',system-ui,sans-serif;
   --mono:'IBM Plex Mono',ui-monospace,monospace;
-  --serif:'Cormorant Garamond',Georgia,serif;
+  --serif:'Cairo','Cairo Fallback',system-ui,sans-serif;
   --rp:14px; --rb:10px;
   color-scheme:light;
 }
@@ -85,6 +98,7 @@ img{max-width:100%;display:block}
 :focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px}
 
 .ms{
+  /* ٣٠٠ هنا سماكة خطّ الأيقونة لا وزن نصّ Cairo — لا تُوحَّد معه */
   font-family:'Material Symbols Rounded';font-weight:300;font-style:normal;
   font-size:22px;line-height:1;letter-spacing:normal;direction:ltr;display:inline-block;
   white-space:nowrap;font-feature-settings:'liga';font-variation-settings:'FILL' 0,'wght' 300;
@@ -194,7 +208,7 @@ img{max-width:100%;display:block}
 .chart .lvl{stroke-width:1.2;stroke-dasharray:5 5}
 .chart .lvl.res{stroke:var(--dn);opacity:.75}
 .chart .lvl.sup{stroke:var(--up);opacity:.75}
-.chart .lvlT{font-family:var(--body);font-size:11px;font-weight:500}
+.chart .lvlT{font-family:var(--body);font-size:11px;font-weight:400}
 .chart .lvlT.res{fill:var(--dn)}
 .chart .lvlT.sup{fill:var(--up)}
 .chart .ema{fill:none;stroke:var(--accent);stroke-width:2.2;stroke-linejoin:round;stroke-linecap:round}
@@ -262,7 +276,7 @@ img{max-width:100%;display:block}
 }
 .row:hover{background:var(--surface)}
 .row-n{
-  font-family:var(--mono);font-size:clamp(28px,3.4vw,42px);font-weight:500;
+  font-family:var(--mono);font-size:clamp(28px,3.4vw,42px);font-weight:400;
   color:var(--accent);opacity:.55;line-height:1;letter-spacing:-.04em;
 }
 .row-main h3{font-size:clamp(19px,2.1vw,25px);letter-spacing:-.01em}
@@ -277,7 +291,7 @@ img{max-width:100%;display:block}
   border:1px solid var(--line);border-radius:var(--rb);padding:5px 10px;
 }
 .tag .ms{font-size:15px;color:var(--accent)}
-.tag b{font-family:var(--mono);font-weight:500}
+.tag b{font-family:var(--mono);font-weight:400}
 
 /* step rail */
 .rail-steps{display:grid;grid-template-columns:repeat(5,1fr);position:relative}
