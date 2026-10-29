@@ -28,40 +28,54 @@
       return new Date(a.starts_at) - new Date(b.starts_at);
     })[0];
 
-    function card(ico, label, value, note) {
-      return '<div class="s-card"><span class="ms">' + ico + '</span>' +
-        '<span class="s-l">' + esc(label) + '</span>' +
-        '<b class="s-v">' + value + '</b>' +
-        (note ? '<span class="s-n">' + esc(note) + '</span>' : '') + '</div>';
-    }
-
     el('pc-top').innerHTML =
-      card('confirmation_number', 'رصيد الشهر',
-           '<span dir="ltr">' + num(quota.left || 0) + '/' + num(quota.quota || 0) + '</span>',
-           quota.quota ? 'باقة ' + (quota.plan || '') :
-             'باقتك بلا جلسات خاصة') +
-      card('event', 'الجلسة القادمة',
-           next ? esc(timeLabel(next.starts_at)) : 'ما عندك جلسة قادمة',
-           next ? dayLabel(next.starts_at) + (next.coach ? ' · ' + next.coach : '') : '') +
-      card('history', 'جلسات هذا الشهر', num(quota.used || 0),
-           'من ' + num(quota.quota || 0));
+      '<section class="ncard quo-card">' +
+        '<span class="ntile"><span class="ms">confirmation_number</span></span>' +
+        '<span class="q-b"><span>رصيد الشهر</span>' +
+          '<b dir="ltr">' + num(quota.left || 0) + '<i>/' + num(quota.quota || 0) + '</i></b>' +
+          '<p>' + (quota.quota
+            ? 'باقة ' + esc(quota.plan || '') + ' · استخدمت ' + num(quota.used || 0)
+            : 'باقتك لا تتضمّن جلسات خاصة') + '</p>' +
+        '</span>' +
+      '</section>' +
+      '<section class="ncard quo-card">' +
+        '<span class="ntile' + (next ? ' ok' : '') + '"><span class="ms">event</span></span>' +
+        '<span class="q-b"><span>الجلسة القادمة</span>' +
+          (next
+            ? '<b style="font-size:clamp(17px,2.2vw,21px)">' + esc(timeLabel(next.starts_at)) + '</b>' +
+              '<p>' + esc(dayLabel(next.starts_at)) +
+                (next.coach ? ' · مع ' + esc(next.coach) : '') + '</p>'
+            : '<b style="font-size:clamp(16px,2vw,19px);color:var(--fg-2)">ما عندك جلسة قادمة</b>' +
+              '<p>اختاري كوتشاً وموعداً من الأسفل.</p>') +
+        '</span>' +
+      '</section>';
   }
 
   /* ---------- الكوتشات ---------- */
   function drawCoaches() {
     if (!coaches.length) {
-      el('pc-coaches').innerHTML = '<p class="empty">لم تُضَف كوتشات بعد.</p>';
+      el('pc-coaches').innerHTML =
+        '<div class="nempty"><span class="ms">person_off</span>' +
+        '<p>لم تُضَف كوتشات بعد. تظهر هنا فور إضافتهم من لوحة الإدارة.</p></div>';
       return;
     }
-    el('pc-coaches').innerHTML = '<div class="co-grid">' + coaches.map(function (c) {
+    el('pc-coaches').innerHTML = '<div class="co-list">' + coaches.map(function (c) {
       var days = (c.days || []).map(function (d) { return DAYS[d]; }).join('، ');
-      return '<button type="button" class="co' + (picked === c.id ? ' on' : '') +
-        '" data-coach="' + esc(c.id) + '">' +
-        '<span class="co-av">' + esc((c.name || '؟').trim().charAt(0)) + '</span>' +
+      return '<button type="button" class="co" aria-pressed="' +
+        (picked === c.id ? 'true' : 'false') + '" data-coach="' + esc(c.id) + '">' +
+        '<span class="co-av">' +
+          (c.photo_url
+            ? '<img src="' + esc(c.photo_url) + '" alt="">'
+            : esc((c.name || '؟').trim().charAt(0))) +
+        '</span>' +
         '<span class="co-b"><b>' + esc(c.name) + '</b>' +
-          (c.title ? '<span class="co-t">' + esc(c.title) + '</span>' : '') +
-          (days ? '<span class="co-d">' + esc(days) + '</span>' : '') +
-        '</span></button>';
+          '<span>' +
+            (c.title ? esc(c.title) : '<span class="ms">star</span>كوتش') +
+            (days ? ' · ' + esc(days) : '') +
+          '</span>' +
+        '</span>' +
+        '<span class="ms ck">check_circle</span>' +
+      '</button>';
     }).join('') + '</div>';
 
     el('pc-coaches').querySelectorAll('[data-coach]').forEach(function (b) {
@@ -69,96 +83,118 @@
     });
   }
 
-  /* ---------- المواعيد ---------- */
+  /* ---------- لوحة الحجز ----------
+     لوحة واحدة ثابتة: اختيار اليوم ثم الوقت ثم التأكيد.
+     لا يُرسل شيء إلا بموعد اختارته المتعلمة فعلاً. */
+  function bookPanel(html) { el('pc-book').innerHTML = html; }
+
+  function hint(ico, text) {
+    return '<div class="nempty"><span class="ms">' + ico + '</span><p>' + text + '</p></div>';
+  }
+
   function pick(id) {
     picked = id;
+    slots = [];
     drawCoaches();
-    el('pc-slots-box').hidden = false;
-    el('pc-slots').innerHTML = '<p class="empty">جارٍ تحميل المواعيد…</p>';
+    bookPanel(hint('hourglass_top', 'جارٍ تحميل المواعيد المتاحة…'));
 
     db.rpc('coach_slots', { p_coach: id, p_days: 21 }).then(function (r) {
       var d = (r && r.data) || {};
       if (r.error || d.error) {
-        el('pc-slots').innerHTML = '<p class="empty">' +
-          esc(d.error || r.error.message) + '</p>';
+        bookPanel('<p class="nerr">' + esc(d.error || r.error.message) + '</p>');
         return;
       }
       slots = d.slots || [];
-      drawSlots();
+      drawBook();
     }).catch(function (e) {
-      el('pc-slots').innerHTML = '<p class="empty">' +
-        esc((e && e.message) || 'تعذّر التحميل') + '</p>';
+      bookPanel('<p class="nerr">' + esc((e && e.message) || 'تعذّر التحميل') + '</p>');
     });
   }
 
-  function drawSlots() {
-    if (!slots.length) {
-      el('pc-slots').innerHTML = '<p class="empty">لا توجد مواعيد متاحة لهذا الكوتش خلال الأسابيع القادمة.</p>';
+  function byDay() {
+    var m = {};
+    slots.forEach(function (x) {
+      var k = String(x.starts_at).slice(0, 10);
+      (m[k] = m[k] || []).push(x);
+    });
+    return m;
+  }
+
+  function drawBook() {
+    if (!picked) {
+      bookPanel(hint('touch_app', 'اختاري كوتشاً من القائمة لتظهر مواعيده المتاحة.'));
       return;
     }
     if ((quota.left || 0) <= 0) {
-      el('pc-slots').innerHTML = '<p class="empty">استنفدت رصيد جلساتك لهذا الشهر' +
+      bookPanel(hint('block', 'استنفدت رصيد جلساتك لهذا الشهر' +
         (quota.quota ? ' (' + num(quota.quota) + ')' : '') +
-        '. يتجدّد الرصيد مع بداية الشهر القادم.</p>';
+        '. يتجدّد الرصيد مع بداية الشهر القادم.'));
+      return;
+    }
+    if (!slots.length) {
+      bookPanel(hint('event_busy',
+        'لا توجد مواعيد متاحة لهذا الكوتش خلال الأسابيع الثلاثة القادمة.'));
       return;
     }
 
-    var byDay = {};
-    slots.forEach(function (s) {
-      var k = String(s.starts_at).slice(0, 10);
-      (byDay[k] = byDay[k] || []).push(s);
-    });
-
-    el('pc-slots').innerHTML = Object.keys(byDay).sort().map(function (k) {
-      return '<div class="sl-day"><h4>' + esc(dayLabel(byDay[k][0].starts_at)) + '</h4>' +
-        '<div class="sl-times">' + byDay[k].map(function (s) {
-          return '<button type="button" class="sl-t" data-at="' + esc(s.starts_at) + '">' +
-            esc(timeLabel(s.starts_at)) + '</button>';
-        }).join('') + '</div></div>';
-    }).join('');
-
-    el('pc-slots').querySelectorAll('[data-at]').forEach(function (b) {
-      b.addEventListener('click', function () { confirm(b.getAttribute('data-at')); });
-    });
-  }
-
-  /* ---------- تأكيد الحجز ---------- */
-  function confirm(at) {
+    var m = byDay(), days = Object.keys(m).sort();
     var c = coaches.filter(function (x) { return x.id === picked; })[0] || {};
-    var box = el('pc-slots');
-    var old = document.getElementById('bk-form');
-    if (old) old.remove();
 
-    box.insertAdjacentHTML('afterbegin',
-      '<div class="bk" id="bk-form">' +
-        '<h4>تأكيد الحجز</h4>' +
-        '<p class="bk-when"><span class="ms">event</span>' +
-          esc(dayLabel(at)) + ' · ' + esc(timeLabel(at)) +
-          ' بتوقيت الرياض · مع ' + esc(c.name || '') + '</p>' +
-        '<div class="fld"><label for="bk-tg">معرّف تيليجرام</label>' +
-          '<input id="bk-tg" type="text" dir="ltr" placeholder="@username" maxlength="60">' +
-          '<span class="hint">يُستخدم لتنسيق الجلسة معك. اتركه فارغاً إن لم يكن لديك.</span></div>' +
-        '<div class="fld"><label for="bk-note">ما الذي تريد تغطيته؟ (اختياري)</label>' +
+    bookPanel(
+      '<div class="bk-form">' +
+        '<div class="nfld"><label for="bk-coach">الكوتش</label>' +
+          '<select id="bk-coach">' + coaches.map(function (x) {
+            return '<option value="' + esc(x.id) + '"' +
+              (x.id === picked ? ' selected' : '') + '>' + esc(x.name) + '</option>';
+          }).join('') + '</select></div>' +
+
+        '<div class="nfld"><label for="bk-date">اليوم</label>' +
+          '<select id="bk-date">' + days.map(function (k) {
+            return '<option value="' + esc(k) + '">' + esc(dayLabel(m[k][0].starts_at)) +
+              ' — ' + num(m[k].length) + ' موعد</option>';
+          }).join('') + '</select></div>' +
+
+        '<div class="nfld"><label for="bk-time">الوقت بتوقيت الرياض</label>' +
+          '<select id="bk-time"></select></div>' +
+
+        '<div class="nfld"><label for="bk-tg">معرّف تيليجرام</label>' +
+          '<input id="bk-tg" type="text" dir="ltr" placeholder="@username" maxlength="60"' +
+            ' value="' + esc(quota.telegram || '') + '">' +
+          '<span class="hint">يُستخدم لتنسيق الجلسة معك. اتركيه فارغاً إن لم يكن لديك.</span></div>' +
+
+        '<div class="nfld"><label for="bk-note">ما الذي تريدين تغطيته؟ (اختياري)</label>' +
           '<input id="bk-note" type="text" maxlength="200"></div>' +
-        '<p class="bk-pol">الإلغاء قبل ١٢ ساعة فأكثر لا يُحتسب من رصيدك. الإلغاء المتأخر يُحتسب.</p>' +
-        '<div class="bk-f">' +
-          '<button class="btn btn-primary" type="button" id="bk-go">أكّد الحجز</button>' +
-          '<button class="btn btn-ghost" type="button" id="bk-x">إلغاء</button>' +
-        '</div>' +
-        '<p class="bk-err" id="bk-err" hidden></p>' +
+
+        '<p class="bk-note"><span class="ms">schedule</span>' +
+          'الإلغاء قبل ١٢ ساعة فأكثر لا يُحتسب من رصيدك. الإلغاء المتأخر أو عدم الحضور يُحتسب.</p>' +
+
+        '<button class="nbtn nbtn-p nbtn-wide" type="button" id="bk-go">' +
+          'أكّدي الحجز مع ' + esc(c.name || 'الكوتش') + '</button>' +
+        '<p class="nerr" id="bk-err" hidden></p>' +
       '</div>');
 
-    el('bk-x').addEventListener('click', function () { el('bk-form').remove(); });
-    el('bk-go').addEventListener('click', function () { book(at); });
-    el('bk-tg').focus();
-    el('bk-form').scrollIntoView({ block: 'nearest' });
+    function fillTimes() {
+      var k = el('bk-date').value;
+      el('bk-time').innerHTML = (m[k] || []).map(function (x) {
+        return '<option value="' + esc(x.starts_at) + '">' +
+          esc(timeLabel(x.starts_at)) + '</option>';
+      }).join('');
+    }
+    fillTimes();
+
+    el('bk-date').addEventListener('change', fillTimes);
+    el('bk-coach').addEventListener('change', function () {
+      pick(el('bk-coach').value);
+    });
+    el('bk-go').addEventListener('click', function () { book(el('bk-time').value); });
   }
 
   function book(at) {
-    if (busy) return;
+    if (busy || !at) return;
     busy = true;
-    var b = el('bk-go');
+    var b = el('bk-go'), label = b.textContent;
     b.disabled = true; b.textContent = 'جارٍ الحجز…';
+    el('bk-err').hidden = true;
 
     db.rpc('book_private', {
       p_coach: picked,
@@ -166,7 +202,7 @@
       p_telegram: el('bk-tg').value || null,
       p_note: el('bk-note').value || null
     }).then(function (r) {
-      busy = false; b.disabled = false; b.textContent = 'أكّد الحجز';
+      busy = false; b.disabled = false; b.textContent = label;
       var d = (r && r.data) || {};
       if (r.error || d.error) {
         var e = el('bk-err');
@@ -174,10 +210,9 @@
         e.textContent = d.error || r.error.message;
         return;
       }
-      el('bk-form').remove();
       reload(d.message);
     }).catch(function (err) {
-      busy = false; b.disabled = false; b.textContent = 'أكّد الحجز';
+      busy = false; b.disabled = false; b.textContent = label;
       var e = el('bk-err'); e.hidden = false;
       e.textContent = (err && err.message) || 'تعذّر الحجز';
     });
@@ -187,29 +222,36 @@
   function drawMine() {
     var rows = mine.filter(function (m) { return m.kind === 'private'; });
     if (!rows.length) {
-      el('pc-mine').innerHTML = '<p class="empty">لا توجد جلسات خاصة بعد.</p>';
+      el('pc-mine').innerHTML =
+        '<div class="nempty dash"><span class="ms">event_note</span>' +
+        '<p>لا توجد جلسات خاصة بعد. تظهر هنا بعد أول حجز.</p></div>';
       return;
     }
     var ST = { booked: 'محجوزة', attended: 'حضرتها', no_show: 'لم تحضر',
                cancelled: 'ملغاة', late_cancel: 'ملغاة متأخراً' };
-    el('pc-mine').innerHTML = rows.map(function (m) {
-      var past = !m.upcoming;
-      return '<div class="ms-row' + (past ? ' past' : '') + '">' +
-        '<div class="ms-b"><b>' + esc(dayLabel(m.starts_at)) + ' · ' +
-          esc(timeLabel(m.starts_at)) + '</b>' +
-          '<span class="ms-m">' + esc(m.coach || 'بلا كوتش') +
-            ' · ' + num(m.duration_min || 60) + ' دقيقة</span></div>' +
-        '<span class="tag ' + (m.status === 'booked' && !past ? 'tag-ok' : 'tag-off') + '">' +
-          esc(ST[m.status] || m.status) + '</span>' +
-        (m.meeting_url
-          ? '<a class="btn btn-primary btn-sm" href="' + esc(m.meeting_url) +
-            '" target="_blank" rel="noopener">دخول</a>' : '') +
-        (m.can_cancel
-          ? '<button class="btn btn-ghost btn-sm" type="button" data-cancel="' +
-            esc(m.booking_id) + '" data-late="' + (m.late_if_cancel ? '1' : '0') +
-            '">إلغاء</button>' : '') +
+    el('pc-mine').innerHTML = '<div class="ss-list">' + rows.map(function (m) {
+      var past = !m.upcoming, live = m.status === 'booked' && !past;
+      return '<div class="ss' + (past ? ' past' : '') + '">' +
+        '<span class="ss-d"><b>' +
+          esc(riyadh(m.starts_at, { day: 'numeric' })) + '</b><span>' +
+          esc(riyadh(m.starts_at, { month: 'short' })) + '</span></span>' +
+        '<span class="ss-b"><b>' + esc(timeLabel(m.starts_at)) + ' · ' +
+          esc(m.coach || 'بلا كوتش') + '</b>' +
+          '<span>' + esc(dayLabel(m.starts_at)) + ' · ' +
+            num(m.duration_min || 60) + ' دقيقة</span></span>' +
+        '<span class="ss-a">' +
+          '<span class="nchip' + (live ? ' ok' : '') + '">' +
+            esc(ST[m.status] || m.status) + '</span>' +
+          (m.meeting_url
+            ? '<a class="nbtn nbtn-p nbtn-sm" href="' + esc(m.meeting_url) +
+              '" target="_blank" rel="noopener">دخول</a>' : '') +
+          (m.can_cancel
+            ? '<button class="nbtn nbtn-g nbtn-sm" type="button" data-cancel="' +
+              esc(m.booking_id) + '" data-late="' + (m.late_if_cancel ? '1' : '0') +
+              '">إلغاء</button>' : '') +
+        '</span>' +
       '</div>';
-    }).join('');
+    }).join('') + '</div>';
 
     el('pc-mine').querySelectorAll('[data-cancel]').forEach(function (b) {
       b.addEventListener('click', function () {
@@ -264,6 +306,8 @@
         el('pc-min').textContent = num(coaches[0].slot_min);
       }
       top(); drawCoaches(); drawMine();
+      // أول كوتش مختار تلقائياً حتى تظهر المواعيد فوراً بلا نقرة إضافية
+      if (coaches.length) pick(coaches[0].id); else drawBook();
     });
   }).catch(function (e) {
     L.deny('تعذّر تحميل الكلاسات', (e && e.message) || '', false);

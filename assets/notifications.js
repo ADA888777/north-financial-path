@@ -36,12 +36,12 @@
         (n.body ? '<p>' + esc(n.body) + '</p>' : '') +
         '<span class="when">' + esc(when(n.created_at)) + '</span></div>' +
         (n.read_at ? '' : '<i class="n-dot" aria-label="غير مقروء"></i>');
-      return '<div class="nrow' + (n.read_at ? '' : ' new') + '" data-id="' + esc(n.id) + '">' +
+      return '<div class="nf-row' + (n.read_at ? '' : ' new') + '" data-id="' + esc(n.id) + '">' +
         (n.link ? '<a href="' + esc(n.link) + '">' + body + '</a>' : '<div>' + body + '</div>') +
         '</div>';
     }).join('') + '</div></section>';
 
-    el('notes').querySelectorAll('.nrow.new').forEach(function (row) {
+    el('notes').querySelectorAll('.nf-row.new').forEach(function (row) {
       row.addEventListener('click', function () {
         db.rpc('mark_notifications_read', { p_ids: [row.getAttribute('data-id')] })
           .then(function () {

@@ -8,9 +8,10 @@
 <link rel="icon" href="assets/north-mark.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Cormorant+Garamond:wght@600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,300..400,0..1,0&display=block">
 <link rel="stylesheet" href="assets/app.css">
+<link rel="stylesheet" href="assets/ds.css">
 <link rel="stylesheet" href="assets/auth.css">
 <link rel="stylesheet" href="assets/account.css">
 <link rel="stylesheet" href="assets/learn.css">
@@ -41,64 +42,63 @@
 
 <main class="rail lrn" id="shell" hidden>
 
-  <div class="hello">
-    <div>
-      <h1 id="hi">—</h1>
-      <p class="sub" id="hi-sub">—</p>
-      <div class="chips" id="chips"></div>
+  <!-- ١) سلسلة التعلم -->
+  <section class="streak-card nsec">
+    <div class="streak-in">
+      <div class="streak-fire"><span class="ms">local_fire_department</span></div>
+      <div class="streak-txt">
+        <b id="st-n">—</b>
+        <span id="st-lbl">يوم متتالٍ</span>
+        <p id="st-msg">—</p>
+      </div>
+      <div class="week" id="week" role="list"></div>
     </div>
-  </div>
-
-  <!-- 1) سلسلة التعلم اليومية -->
-  <section class="lbox streak-box">
-    <h2><span class="ms">local_fire_department</span> سلسلة التعلم</h2>
-    <div id="streak"></div>
   </section>
 
-  <!-- 2) ملخص مستوى المتعلم -->
-  <section class="sum" id="summary" aria-label="ملخص مستواك"></section>
+  <!-- ٢) ملخص المستوى -->
+  <section class="nstats nsec" id="summary" aria-label="ملخص مستواك"></section>
 
-  <!-- 6) تابع التعلم -->
-  <div id="resume-box"></div>
+  <!-- ٣) دليل المبتدئين -->
+  <section class="ncard nsec" id="guide-box" hidden>
+    <div class="nhead"><span class="ms">lightbulb</span><h2>دليل المبتدئين</h2></div>
+    <div id="guide"></div>
+  </section>
 
-  <div class="lgrid">
+  <div class="ngrid nsec">
     <div>
-      <!-- 4) مهام اليوم -->
-      <section class="lbox">
-        <h2><span class="ms">checklist</span> مهام اليوم</h2>
+      <!-- ٤) مهام اليوم -->
+      <section class="ncard">
+        <div class="nhead"><span class="ms">assignment</span><h2>مهام اليوم</h2></div>
         <div id="tasks"></div>
       </section>
 
-      <!-- 5) نشاط المتعلم -->
-      <section class="lbox">
-        <h2><span class="ms">insights</span> نشاطك
-          <span class="seg" id="act-range" role="group" aria-label="مدى العرض"></span>
-        </h2>
-        <div id="activity"></div>
-      </section>
+      <!-- ٦) تابع التعلم -->
+      <section class="ncard" id="resume-box"></section>
 
-      <!-- 8) خارطة التقدم -->
-      <section class="lbox">
-        <h2><span class="ms">map</span> خارطة التقدم</h2>
+      <!-- ٨) خارطة التقدم -->
+      <section class="ncard">
+        <div class="nhead"><span class="ms">map</span><h2>خارطة التقدم</h2>
+          <span class="n-right"><a class="n-link" href="map.html">عرض الخارطة</a></span>
+        </div>
         <div id="map-mini"></div>
       </section>
     </div>
 
     <div>
-      <!-- 7) آخر إشعار -->
-      <section class="lbox">
-        <h2><span class="ms">notifications</span> آخر إشعار</h2>
+      <!-- ٥) نشاط المتعلم -->
+      <section class="ncard">
+        <div class="nhead"><span class="ms">calendar_month</span><h2>نشاطك</h2></div>
+        <div id="activity"></div>
+      </section>
+
+      <!-- ٧) آخر إشعار -->
+      <section class="ncard">
+        <div class="nhead"><span class="ms">notifications</span><h2>آخر إشعار</h2></div>
         <div id="last-note"></div>
       </section>
 
-      <!-- 3) دليل المبتدئين -->
-      <section class="lbox" id="guide-box" hidden>
-        <h2><span class="ms">explore</span> دليل المبتدئين</h2>
-        <div id="guide"></div>
-      </section>
-
-      <section class="lbox">
-        <h2><span class="ms">quiz</span> الاختبارات</h2>
+      <section class="ncard">
+        <div class="nhead"><span class="ms">quiz</span><h2>الاختبارات</h2></div>
         <div id="quizzes"></div>
       </section>
     </div>

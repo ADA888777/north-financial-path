@@ -14,7 +14,13 @@
     try { return DAY_AR[new Date(iso + 'T00:00:00').getDay()]; } catch (e) { return ''; }
   }
   function dayShort(iso) {
-    try { return DAY_SHORT[new Date(iso + 'T00:00:00').getDay()]; } catch (e) { return ''; }
+    try {
+      return new Intl.DateTimeFormat('ar-SA', { weekday: 'short' })
+        .format(new Date(iso + 'T00:00:00')).slice(0, 3);
+    } catch (e) { return ''; }
+  }
+  function dayNum(iso) {
+    try { return num(new Date(iso + 'T00:00:00').getDate()); } catch (e) { return ''; }
   }
   function shortDate(iso) {
     try {
@@ -35,92 +41,71 @@
   /* ---------- 1) سلسلة التعلم ---------- */
   function streak(d, x) {
     var n = d.streak || 0;
-    var line = n === 0
+    el('st-n').textContent = num(n);
+    el('st-lbl').textContent = n === 1 ? 'يوم متتالٍ'
+      : (n === 2 ? 'يومان متتاليان' : (n >= 3 && n <= 10 ? 'أيام متتالية' : 'يوماً متتالياً'));
+    el('st-msg').textContent = n === 0
       ? 'ابدأ رحلتك اليوم!'
-      : (d.active_today
-          ? 'أنجزت اليوم. حافظ على السلسلة.'
-          : 'لم تنجز اليوم بعد — درس واحد يكفي لتبقى في السلسلة.');
+      : (d.active_today ? 'أنجزت اليوم. حافظ على السلسلة.'
+                        : 'لم تنجز اليوم بعد — درس واحد يكفي.');
 
-    var week = (x.week || []).map(function (w) {
+    el('week').innerHTML = (x.week || []).map(function (w) {
       var cls = w.active ? 'on' : (w.future ? 'future' : 'off');
       if (w.today) cls += ' today';
-      return '<div class="wd ' + cls + '">' +
-             '<span class="wd-n" title="' + esc(dayName(w.day)) + '">' +
-               esc(dayShort(w.day)) + '</span>' +
-             '<i class="wd-o">' + (w.active ? '<span class="ms">check</span>' : '') + '</i>' +
-             '</div>';
+      return '<div class="wd ' + cls + '" role="listitem">' +
+        '<span class="wd-n">' + esc(dayShort(w.day)) + '</span>' +
+        '<i class="wd-o">' + esc(dayNum(w.day)) + '</i></div>';
     }).join('');
-
-    el('streak').innerHTML =
-      '<div class="streak-top">' +
-        '<div class="streak-n"><b>' + num(n) + '</b><span>' +
-          (n === 1 ? 'يوم متتالٍ' : 'يوماً متتالياً') + '</span></div>' +
-        '<p class="streak-msg">' + esc(line) + '</p>' +
-      '</div>' +
-      '<div class="week" role="list">' + week + '</div>' +
-      (d.longest_streak > n
-        ? '<p class="streak-best">أطول سلسلة لك: ' + num(d.longest_streak) + ' يوماً</p>' : '');
   }
 
   /* ---------- 2) ملخص المستوى ---------- */
   function summary(d, x) {
-    var lvl = x.current_level;
-    var lq = x.last_quiz;
-    var nc = x.next_class;
+    var lvl = x.current_level, lq = x.last_quiz, nc = x.next_class;
 
     function card(ico, label, value, note, href) {
       var inner =
-        '<span class="ms">' + ico + '</span>' +
-        '<span class="s-l">' + esc(label) + '</span>' +
-        '<b class="s-v">' + value + '</b>' +
-        (note ? '<span class="s-n">' + esc(note) + '</span>' : '');
-      return href
-        ? '<a class="s-card" href="' + href + '">' + inner + '</a>'
-        : '<div class="s-card">' + inner + '</div>';
+        '<span class="ntile"><span class="ms">' + ico + '</span></span>' +
+        '<span class="nstat-b"><span class="nstat-l">' + esc(label) + '</span>' +
+        '<b class="nstat-v">' + value + '</b>' +
+        (note ? '<span class="nstat-n">' + esc(note) + '</span>' : '') + '</span>';
+      return href ? '<a class="nstat" href="' + href + '">' + inner + '</a>'
+                  : '<div class="nstat">' + inner + '</div>';
     }
 
     el('summary').innerHTML =
-      card('school', 'المستوى الحالي',
+      card('emoji_events', 'المستوى الحالي',
            esc(lvl ? (lvl.label || lvl.title) : 'لم يبدأ'),
            lvl && lvl.track ? lvl.track : '', lvl ? 'map.html' : null) +
-      card('fact_check', 'آخر نتيجة اختبار',
+      card('speed', 'آخر نتيجة اختبار',
            lq ? num(lq.percent) + '<i>%</i>' : 'لم يبدأ',
            lq ? (lq.passed ? 'ناجح — ' : 'لم يُجتَز — ') + lq.title : '',
            lq ? 'quiz.html?id=' + encodeURIComponent(lq.quiz_id) : null) +
-      card('trending_up', 'نسبة التقدم', num(d.percent || 0) + '<i>%</i>',
-           '', null) +
-      card('menu_book', 'الدروس المكتملة',
-           '<span dir="ltr">' + num(d.lessons_done || 0) + '/' + num(d.lessons_total || 0) + '</span>',
-           '', 'map.html') +
-      card('event', 'الحصة القادمة',
-           nc ? esc(nc.title) : 'لا يوجد',
+      card('menu_book', 'التقدم', num(d.percent || 0) + '<i>%</i>',
+           num(d.lessons_done || 0) + '/' + num(d.lessons_total || 0) + ' دروس', 'map.html') +
+      card('event', 'الحصة القادمة', nc ? esc(nc.title) : 'لا يوجد',
            nc ? when(nc.starts_at) : '',
-           nc ? (nc.kind === 'live' ? 'live.html' : 'classes.html')
-              : 'live.html');
+           nc ? (nc.kind === 'live' ? 'live.html' : 'classes.html') : 'live.html');
   }
 
   /* ---------- 6) تابع التعلم ---------- */
   function resume(d, x) {
     var r = x.resume;
     var l = r || d.last_lesson || d.next_lesson;
+    var head = '<div class="nhead"><span class="ms">play_circle</span><h2>تابع التعلم</h2></div>';
+
     if (!l) {
-      el('resume-box').innerHTML =
-        '<div class="resume"><div><span class="lbl">ابدأ</span>' +
-        '<b>لم تفتح أي درس بعد</b></div>' +
-        '<a class="btn btn-light" href="map.html">اختر مرحلتك</a></div>';
+      el('resume-box').innerHTML = head +
+        '<p class="n-sub">لم تفتح أي درس بعد.</p>' +
+        '<a class="nbtn nbtn-p" href="map.html">اختر مرحلتك</a>';
       return;
     }
     var id = r ? r.lesson_id : l.id;
     var pos = r ? r.pos : 0;
-    el('resume-box').innerHTML =
-      '<div class="resume"><div>' +
-        '<span class="lbl">تابع التعلم</span>' +
-        '<b>' + esc(l.title) + '</b>' +
-        (pos > 0 ? '<span class="lbl rp">توقفت عند ' + num(pos) + '% من الدرس</span>' : '') +
-      '</div>' +
-      '<a class="btn btn-light" href="lesson.html?id=' + encodeURIComponent(id) +
-        (pos > 0 ? '&at=' + pos : '') + '">' +
-        (pos > 0 ? 'أكمل من حيث وقفت' : 'متابعة التعلم') + '</a></div>';
+    el('resume-box').innerHTML = head +
+      '<p class="rsm-t">' + esc(l.title) + '</p>' +
+      (pos > 0 ? '<p class="n-mut">توقفت عند ' + num(pos) + '% من الدرس</p>' : '') +
+      '<a class="nbtn nbtn-p" href="lesson.html?id=' + encodeURIComponent(id) +
+        (pos > 0 ? '&at=' + pos : '') + '">متابعة التعلم</a>';
   }
 
   /* ---------- 4) مهام اليوم ---------- */
@@ -149,20 +134,19 @@
         href: quiz ? 'quiz.html?id=' + encodeURIComponent(quiz.id) : null }
     ];
 
-    var html = '<div class="dt">' + fixed.map(function (f) {
+    var html = '<div class="nrows">' + fixed.map(function (f) {
       var body =
-        '<span class="ms">' + f.ico + '</span>' +
-        '<div><b>' + esc(f.t) + '</b><p>' + f.s + '</p></div>' +
-        (f.href ? '<span class="ms go">chevron_left</span>' : '');
+        '<span class="ntile"><span class="ms">' + f.ico + '</span></span>' +
+        '<span class="nrow-b"><b>' + esc(f.t) + '</b><span>' + f.s + '</span></span>' +
+        (f.href ? '<span class="ms n-go">chevron_left</span>' : '');
       return f.href
-        ? '<a class="dt-i" href="' + f.href + '">' + body + '</a>'
-        : '<div class="dt-i off">' + body + '</div>';
+        ? '<a class="nrow" href="' + f.href + '">' + body + '</a>'
+        : '<div class="nrow off">' + body + '</div>';
     }).join('') + '</div>';
 
-    // مهام تكتبها الإدارة، إن وُجدت
     var extra = d.tasks || [];
     if (extra.length) {
-      html += '<div class="dt-extra"><h3>من الإدارة</h3>' + extra.map(function (t) {
+      html += '<div class="dt-extra"><h3 class="n-h3">من الإدارة</h3>' + extra.map(function (t) {
         return '<label class="task"><input type="checkbox" data-task="' + esc(t.id) + '"' +
           (t.done ? ' checked' : '') + '><div><b>' + esc(t.title) + '</b>' +
           (t.description ? '<p>' + esc(t.description) + '</p>' : '') + '</div></label>';
@@ -181,51 +165,49 @@
     });
   }
 
-  /* ---------- 5) نشاط المتعلم ---------- */
+  /* ---------- 5) نشاط المتعلم ----------
+     خريطة مربّعات: كل عمود أسبوع وكل صفّ يوم، ودرجة اللون شدّة النشاط.
+     تعرض ثلاثة أشهر في مساحة لا يتسع فيها مخطط أعمدة لها. */
   function chart() {
-    var log = state.log.slice(-state.range);
+    var log = state.log.slice(-91);
     var box = el('activity');
     if (!log.length) { box.innerHTML = empty('لا يوجد نشاط مسجّل بعد.'); return; }
 
     var max = 0;
     log.forEach(function (d) { if (d.total > max) max = d.total; });
-    var total = log.reduce(function (a, d) { return a + d.total; }, 0);
-    var days = log.filter(function (d) { return d.total > 0; }).length;
 
-    var w = 100 / log.length;
-    var bars = log.map(function (d, i) {
-      var h = max > 0 ? (d.total / max) * 100 : 0;
+    function level(n) {
+      if (!n) return 0;
+      if (max <= 1) return 4;
+      var r = n / max;
+      return r > .75 ? 4 : r > .5 ? 3 : r > .25 ? 2 : 1;
+    }
+
+    // أول عمود يبدأ بالسبت
+    var lead = 0;
+    try { lead = (new Date(log[0].day + 'T00:00:00').getDay() + 1) % 7; } catch (e) {}
+
+    var cells = '';
+    for (var i = 0; i < lead; i++) cells += '<i class="hm-c hm-pad"></i>';
+    log.forEach(function (d) {
       var lbl = shortDate(d.day) + ': ' +
         (d.total === 0 ? 'بلا نشاط'
           : [d.lessons ? d.lessons + ' درس' : '',
              d.quizzes ? d.quizzes + ' اختبار' : '',
-             d.challenge ? d.challenge + ' تحدٍ' : ''].filter(Boolean).join('، '));
-      return '<div class="ch-c" style="width:' + w + '%" title="' + esc(lbl) + '">' +
-             '<i style="height:' + Math.max(d.total > 0 ? 6 : 2, h) + '%"' +
-             (d.total === 0 ? ' class="z"' : '') + '></i></div>';
-    }).join('');
+             d.challenge ? d.challenge + ' مفردة' : ''].filter(Boolean).join('، '));
+      cells += '<i class="hm-c l' + level(d.total) + '" title="' + esc(lbl) + '"></i>';
+    });
+
+    var total = log.reduce(function (a, d) { return a + d.total; }, 0);
+    var days = log.filter(function (d) { return d.total > 0; }).length;
 
     box.innerHTML =
-      '<div class="ch" role="img" aria-label="نشاطك خلال ' + state.range + ' يوماً">' + bars + '</div>' +
-      '<div class="ch-f"><span>' + esc(shortDate(log[0].day)) + '</span>' +
-      '<span>' + esc(shortDate(log[log.length - 1].day)) + '</span></div>' +
-      '<p class="ch-s">' + num(total) + ' نشاطاً في ' + num(days) +
-      ' يوماً من ' + num(log.length) + '</p>';
-  }
-
-  function rangeBtns() {
-    var opts = [[14, 'أسبوعان'], [30, 'شهر'], [90, '٣ أشهر']];
-    el('act-range').innerHTML = opts.map(function (o) {
-      return '<button type="button" data-r="' + o[0] + '"' +
-        (o[0] === state.range ? ' class="on" aria-pressed="true"' : ' aria-pressed="false"') +
-        '>' + o[1] + '</button>';
-    }).join('');
-    el('act-range').querySelectorAll('button').forEach(function (b) {
-      b.addEventListener('click', function () {
-        state.range = parseInt(b.getAttribute('data-r'), 10);
-        rangeBtns(); chart();
-      });
-    });
+      '<div class="hm" role="img" aria-label="نشاطك خلال ثلاثة أشهر">' + cells + '</div>' +
+      '<div class="hm-k"><span>أقل</span>' +
+        '<i class="hm-c l0"></i><i class="hm-c l1"></i><i class="hm-c l2"></i>' +
+        '<i class="hm-c l3"></i><i class="hm-c l4"></i>' +
+        '<span>أكثر</span></div>' +
+      '<p class="n-mut hm-s">' + num(total) + ' نشاطاً في ' + num(days) + ' يوماً</p>';
   }
 
   /* ---------- 7) آخر إشعار ---------- */
@@ -238,8 +220,8 @@
             (n.body ? '<p>' + esc(n.body) + '</p>' : '') +
             '<span class="when">' + esc(when(n.created_at)) + '</span>' +
           '</div>'
-        : empty('لا توجد إشعارات بعد')) +
-      '<a class="btn btn-ghost btn-sm btn-wide" href="notifications.html">عرض الإشعارات' +
+        : '<p class="n-sub">لا توجد إشعارات بعد</p>') +
+      '<a class="n-link" href="notifications.html">عرض الإشعارات' +
       (x.unread_count > 0 ? ' (' + num(x.unread_count) + ')' : '') + '</a>';
   }
 
@@ -261,47 +243,62 @@
     }).join('');
   }
 
-  /* ---------- 8) خارطة مصغّرة ---------- */
+  /* ---------- 8) خارطة مصغّرة ----------
+     شرائح الدروس بدل قائمة: تُرى الرحلة كلها في سطر. */
   function mapMini(m) {
-    var levels = [];
+    var all = [];
     (m.tracks || []).forEach(function (t) {
-      (t.levels || []).forEach(function (l) { levels.push(l); });
+      (t.levels || []).forEach(function (l) {
+        (l.weeks || []).forEach(function (w) {
+          (w.lessons || []).forEach(function (ls) { all.push(ls); });
+        });
+        if (!(l.weeks || []).length) all.push({ state: l.state, title: l.title, id: l.id, level: true });
+      });
     });
-    if (!levels.length) {
-      el('map-mini').innerHTML = empty('لم تُنشر مراحل بعد.');
+
+    if (!all.length) {
+      el('map-mini').innerHTML = '<p class="n-sub">لم تُنشر مراحل بعد.</p>';
       return;
     }
-    var ICO = { done: 'check_circle', current: 'play_circle', open: 'radio_button_unchecked', locked: 'lock' };
-    var TXT = { done: 'مكتملة', current: 'الحالية', open: 'متاحة', locked: 'مقفلة' };
+
+    var shown = all.slice(0, 12);
     el('map-mini').innerHTML =
-      '<ol class="mini">' + levels.map(function (l) {
-        var st = l.state;
-        var to = st === 'locked' ? null
-          : (l.next_lesson ? 'lesson.html?id=' + encodeURIComponent(l.next_lesson)
-                           : 'level.html?id=' + encodeURIComponent(l.id));
-        var in_ =
-          '<span class="ms mi-s ' + st + '">' + ICO[st] + '</span>' +
-          '<div><b>' + esc(l.title) + '</b>' +
-          '<span class="mi-m">' + TXT[st] + ' · ' + num(l.done) + '/' + num(l.total) + '</span></div>';
-        return '<li class="mi ' + st + '">' +
-          (to ? '<a href="' + to + '">' + in_ + '</a>' : '<div>' + in_ + '</div>') + '</li>';
-      }).join('') + '</ol>' +
-      '<a class="btn btn-ghost btn-sm btn-wide" href="map.html">الخارطة كاملة</a>';
+      '<div class="pips">' + shown.map(function (ls, i) {
+        var to = ls.state === 'locked' ? null
+          : (ls.level ? 'level.html?id=' + encodeURIComponent(ls.id)
+                      : 'lesson.html?id=' + encodeURIComponent(ls.id));
+        var inner = ls.state === 'done' ? '<span class="ms">menu_book</span>'
+          : ls.state === 'locked' ? 'قفل' : num(i + 1);
+        var title = ls.title + ' — ' +
+          (ls.state === 'done' ? 'مكتمل' : ls.state === 'locked' ? 'مقفل' : 'الحالي');
+        return to
+          ? '<a class="pip ' + ls.state + '" href="' + to + '" title="' + esc(title) + '">' + inner + '</a>'
+          : '<span class="pip ' + ls.state + '" title="' + esc(title) + '">' + inner + '</span>';
+      }).join('') + '</div>' +
+      '<div class="pip-k">' +
+        '<span><i class="pip-d done"></i>مكتمل</span>' +
+        '<span><i class="pip-d current"></i>الحالي</span>' +
+        '<span><i class="pip-d locked"></i>متاح لاحقاً</span>' +
+      '</div>';
   }
 
   /* ---------- الاختبارات ---------- */
   function quizzes(d) {
     var rows = d.quizzes || [];
-    if (!rows.length) { el('quizzes').innerHTML = empty('لا توجد اختبارات منشورة بعد.'); return; }
-    el('quizzes').innerHTML = rows.map(function (q) {
-      return '<div class="lvl"><div class="lvl-h"><b>' + esc(q.title) + '</b>' +
-        '<span dir="ltr">' + (q.best == null ? '—' : num(q.best) + '%') + '</span></div>' +
-        '<div class="lvl-f">' +
-          (q.passed ? '<span class="done-tag">مجتاز</span>'
-                    : '<span style="font-size:12.5px;color:var(--fg-2)">النجاح ' + num(q.pass_score) + '%</span>') +
-          '<a href="quiz.html?id=' + encodeURIComponent(q.id) + '">' +
-          (q.attempts > 0 ? 'إعادة' : 'ابدأ') + '</a></div></div>';
-    }).join('');
+    if (!rows.length) {
+      el('quizzes').innerHTML = '<p class="n-sub">لا توجد اختبارات منشورة بعد.</p>';
+      return;
+    }
+    el('quizzes').innerHTML = '<div class="nrows">' + rows.map(function (q) {
+      return '<a class="nrow" href="quiz.html?id=' + encodeURIComponent(q.id) + '">' +
+        '<span class="ntile sm' + (q.passed ? ' ok' : '') + '">' +
+          '<span class="ms">' + (q.passed ? 'task_alt' : 'quiz') + '</span></span>' +
+        '<span class="nrow-b"><b>' + esc(q.title) + '</b>' +
+          '<span>' + (q.best == null ? 'النجاح ' + num(q.pass_score) + '%'
+                                     : 'أفضل نتيجة ' + num(q.best) + '%') + '</span></span>' +
+        (q.passed ? '<span class="nchip ok">مجتاز</span>' : '<span class="ms n-go">chevron_left</span>') +
+      '</a>';
+    }).join('') + '</div>';
   }
 
   /* ---------- التشغيل ---------- */
@@ -330,24 +327,13 @@
         return;
       }
 
-      el('hi').textContent = 'أهلاً، ' + (d.name || '');
-      el('hi-sub').textContent = d.membership_no
-        ? 'رقم العضوية ' + d.membership_no : '';
-
-      var chips = [];
-      if (d.plan) chips.push('<span class="chip-i"><span class="ms">workspace_premium</span>' + esc(d.plan) + '</span>');
-      chips.push('<span class="chip-i ' + (d.allowed ? 'ok' : 'off') + '">' +
-        '<span class="ms">' + (d.allowed ? 'verified' : 'error') + '</span>' +
-        (d.allowed ? 'اشتراك نشط' : 'اشتراك غير نشط') + '</span>');
-      el('chips').innerHTML = chips.join('');
-
       state.log = x.activity_log || [];
 
       streak(d, x);
       summary(d, x);
       resume(d, x);
       tasks(d, x);
-      rangeBtns(); chart();
+      chart();
       lastNote(x);
       guide(g);
       mapMini(m);

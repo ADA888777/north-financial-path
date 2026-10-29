@@ -15,27 +15,35 @@
 
   function head() {
     el('ch-head').innerHTML =
-      '<div class="ch-head">' +
-        '<div class="chh-n"><b>' + num(stat.correct) + '<i>/' + num(stat.total) + '</i></b>' +
-          '<span>إجابات صحيحة</span></div>' +
-        '<div class="chh-n"><b>' + num(stat.answered) + '</b><span>مفردة أجبتها</span></div>' +
-        '<div class="chh-n"><b>' +
-          (stat.answered ? num(Math.round(stat.correct * 100 / stat.answered)) + '<i>%</i>' : '—') +
-          '</b><span>نسبة الإتقان</span></div>' +
-      '</div>';
+      '<section class="ncard nsec"><div class="nhead">' +
+        '<span class="ntile"><span class="ms">insights</span></span>' +
+        '<h2>نتيجتك في التحدي</h2></div>' +
+      '<div class="nstats">' +
+        '<div class="nstat"><span class="ntile ok"><span class="ms">task_alt</span></span>' +
+          '<span class="nstat-b"><span class="nstat-l">إجابات صحيحة</span>' +
+          '<b class="nstat-v">' + num(stat.correct) + '<i>/' + num(stat.total) + '</i></b></span></div>' +
+        '<div class="nstat"><span class="ntile"><span class="ms">edit_note</span></span>' +
+          '<span class="nstat-b"><span class="nstat-l">مفردة أجبتها</span>' +
+          '<b class="nstat-v">' + num(stat.answered) + '</b></span></div>' +
+        '<div class="nstat"><span class="ntile"><span class="ms">percent</span></span>' +
+          '<span class="nstat-b"><span class="nstat-l">نسبة الإتقان</span>' +
+          '<b class="nstat-v">' +
+            (stat.answered ? num(Math.round(stat.correct * 100 / stat.answered)) + '<i>%</i>' : '—') +
+          '</b></span></div>' +
+      '</div></section>';
   }
 
   function done() {
     el('ch-body').innerHTML =
-      '<section class="lbox ch-done">' +
-        '<span class="ms">military_tech</span>' +
-        '<h2>أنهيت كل المفردات المتاحة</h2>' +
-        '<p>' + num(stat.correct) + ' صحيحة من ' + num(stat.total) + '. ' +
+      '<section class="ncard ch-done">' +
+        '<span class="ntile ok"><span class="ms">military_tech</span></span>' +
+        '<h2 class="n-h1">أنهيت كل المفردات المتاحة</h2>' +
+        '<p class="n-sub">' + num(stat.correct) + ' صحيحة من ' + num(stat.total) + '. ' +
           'تُضاف مفردات جديدة كلما فتحت مرحلة جديدة.</p>' +
-        '<div class="ch-acts">' +
-          '<a class="btn btn-primary" href="map.html">خارطة التقدم</a>' +
-          '<a class="btn btn-ghost" href="learn.html">لوحتي</a>' +
-          '<button class="btn btn-ghost" type="button" id="again">راجع من البداية</button>' +
+        '<div class="vq-acts">' +
+          '<a class="nbtn nbtn-p" href="map.html">خارطة التقدم</a>' +
+          '<a class="nbtn nbtn-g" href="learn.html">لوحتي</a>' +
+          '<button class="nbtn nbtn-g" type="button" id="again">راجع من البداية</button>' +
         '</div>' +
       '</section>';
     el('again').addEventListener('click', function () { i = 0; card(); });
@@ -43,34 +51,40 @@
 
   function card() {
     if (!items.length) {
-      el('ch-body').innerHTML = '<section class="lbox"><p class="empty">' +
-        'لا توجد مفردات متاحة بعد. تظهر هنا مفردات الدروس في المراحل التي فتحتها.' +
-        '</p><a class="btn btn-ghost btn-sm btn-wide" href="map.html">خارطة التقدم</a></section>';
+      el('ch-body').innerHTML =
+        '<section class="ncard"><div class="nempty">' +
+          '<span class="ms">inventory_2</span>' +
+          '<p>لا توجد مفردات متاحة بعد. تظهر هنا مفردات الدروس في المراحل التي فتحتها.</p>' +
+          '<a class="nbtn nbtn-g" href="map.html">خارطة التقدم</a>' +
+        '</div></section>';
       return;
     }
     if (i >= items.length) { done(); return; }
 
     var v = items[i];
     el('ch-body').innerHTML =
-      '<section class="lbox vq">' +
-        '<div class="vq-h">' +
-          '<span class="vq-n">المفردة ' + num(i + 1) + ' من ' + num(items.length) + '</span>' +
-          '<a class="vq-lesson" href="lesson.html?id=' + encodeURIComponent(v.lesson_id) + '">' +
-            '<span class="ms">menu_book</span>' + esc(v.lesson) + '</a>' +
+      '<section class="ncard nsec vq">' +
+        '<div class="vq-top">' +
+          '<div class="vq-t">' +
+            '<span class="vq-n">مفردة ' + num(i + 1) + ' من ' + num(items.length) + '</span>' +
+            '<h2 class="vq-term">' + esc(v.term) + '</h2>' +
+            '<a class="vq-lesson" href="lesson.html?id=' + encodeURIComponent(v.lesson_id) + '">' +
+              '<span class="ms">menu_book</span>من درس: ' + esc(v.lesson) + '</a>' +
+          '</div>' +
+          '<div class="vq-score"><span>نتيجتك الآن</span>' +
+            '<b>' + num(stat.correct) + '/' + num(stat.answered) + '</b></div>' +
         '</div>' +
-        '<p class="vq-lbl">اكتب تعريف هذا المصطلح</p>' +
-        '<h2 class="vq-term">' + esc(v.term) + '</h2>' +
-        '<div class="fld vq-f">' +
-          '<label for="ans" class="sr">اكتب التعريف</label>' +
-          '<textarea id="ans" rows="3" maxlength="400" placeholder="اكتب التعريف بأسلوبك"></textarea>' +
+        '<div class="vq-body">' +
+          '<label for="ans" class="vq-lbl">اكتب التعريف</label>' +
+          '<textarea id="ans" rows="4" maxlength="400" placeholder="اكتب التعريف بأسلوبك"></textarea>' +
+          '<div class="vq-acts">' +
+            '<button class="nbtn nbtn-p" type="button" id="check">تحقق من الإجابة</button>' +
+            '<a class="nbtn nbtn-g" href="lesson.html?id=' + encodeURIComponent(v.lesson_id) + '">مراجعة الدروس</a>' +
+          '</div>' +
+          '<p class="vq-rule">التحقق يقارن كلمات جوابك بكلمات التعريف المعتمد. ' +
+            'إن كتبت صياغة صحيحة بكلمات أخرى ورفضها، أرسلها لمراجعة المعلّم.</p>' +
+          '<div id="vq-res"></div>' +
         '</div>' +
-        '<div class="vq-acts">' +
-          '<button class="btn btn-primary" type="button" id="check">تحقق من الإجابة</button>' +
-          '<a class="btn btn-ghost" href="lesson.html?id=' + encodeURIComponent(v.lesson_id) + '">مراجعة الدروس</a>' +
-        '</div>' +
-        '<p class="vq-rule">التحقق يقارن كلمات جوابك بكلمات التعريف المعتمد. ' +
-          'إن كتبت صياغة صحيحة بكلمات أخرى ورفضها، أرسلها لمراجعة المعلّم.</p>' +
-        '<div id="vq-res"></div>' +
       '</section>';
 
     var ta = el('ans');
@@ -100,10 +114,10 @@
           ? '<p class="vr-n">أجبت هذه المفردة من قبل، فلم تُحتسب مرة ثانية.</p>' : '') +
         '<div class="vr-f">' +
           (i + 1 < items.length
-            ? '<button class="btn btn-primary" type="button" id="next">المفردة التالية</button>'
-            : '<button class="btn btn-primary" type="button" id="next">عرض النتيجة</button>') +
+            ? '<button class="nbtn nbtn-p" type="button" id="next">المفردة التالية</button>'
+            : '<button class="nbtn nbtn-p" type="button" id="next">عرض النتيجة</button>') +
           (d.verdict !== 'correct'
-            ? '<button class="btn btn-ghost" type="button" id="dispute">جوابي صحيح، أرسله للمراجعة</button>'
+            ? '<button class="nbtn nbtn-g" type="button" id="dispute">جوابي صحيح، أرسله للمراجعة</button>'
             : '') +
         '</div>' +
       '</div>';
@@ -160,7 +174,7 @@
     return db.rpc('my_vocab_challenge', { p_limit: 100 }).then(function (r) {
       var d = (r && r.data) || {};
       if (r.error || d.error) {
-        el('ch-body').innerHTML = '<section class="lbox"><p class="empty">' +
+        el('ch-body').innerHTML = '<section class="ncard"><p class="n-sub">' +
           esc(d.error || r.error.message || 'تعذّر التحميل') + '</p></section>';
         return;
       }

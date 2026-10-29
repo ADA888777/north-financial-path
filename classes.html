@@ -8,9 +8,10 @@
 <link rel="icon" href="assets/north-mark.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Cormorant+Garamond:wght@600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,300..400,0..1,0&display=block">
 <link rel="stylesheet" href="assets/app.css">
+<link rel="stylesheet" href="assets/ds.css">
 <link rel="stylesheet" href="assets/auth.css">
 <link rel="stylesheet" href="assets/account.css">
 <link rel="stylesheet" href="assets/learn.css">
@@ -42,25 +43,38 @@
 <div class="rail gate" id="gate" hidden></div>
 
 <main class="rail lrn" id="shell" hidden>
-  <div class="hello"><div>
-    <h1>الكلاسات الخاصة</h1>
-    <p class="sub">جلسات فردية مدّتها <span id="pc-min">٦٠</span> دقيقة بتوقيت الرياض.</p>
-  </div></div>
+  <div class="pg-head">
+    <span class="pg-eyebrow">جلسة فردية مع كوتش</span>
+    <h1 class="n-h1">الكلاسات الخاصة</h1>
+    <p class="n-sub">جلسات فردية مدّتها <span id="pc-min">٦٠</span> دقيقة بتوقيت الرياض.
+      تحجزين من رصيد شهرك، والإلغاء قبل ١٢ ساعة لا يُحتسب.</p>
+  </div>
 
-  <section class="sum" id="pc-top" aria-label="رصيدك وجلستك القادمة"></section>
+  <section class="ngrid-2 nsec" id="pc-top" aria-label="رصيدك وجلستك القادمة"></section>
 
-  <section class="lbox">
-    <h2><span class="ms">groups</span> اختاري الكوتش</h2>
-    <div id="pc-coaches"></div>
-  </section>
+  <div class="ngrid-r nsec" style="display:grid">
+    <section class="ncard">
+      <div class="nhead">
+        <span class="ntile"><span class="ms">groups</span></span>
+        <h2>اختاري الكوتش</h2>
+      </div>
+      <div id="pc-coaches"></div>
+    </section>
 
-  <section class="lbox" id="pc-slots-box" hidden>
-    <h2><span class="ms">event_available</span> المواعيد المتاحة</h2>
-    <div id="pc-slots"></div>
-  </section>
+    <section class="ncard" id="pc-book-card">
+      <div class="nhead">
+        <span class="ntile ok"><span class="ms">event_available</span></span>
+        <h2>احجزي جلستك</h2>
+      </div>
+      <div id="pc-book"></div>
+    </section>
+  </div>
 
-  <section class="lbox">
-    <h2><span class="ms">policy</span> سياسة الإلغاء وإعادة الجدولة</h2>
+  <section class="ncard nsec">
+    <div class="nhead">
+      <span class="ntile"><span class="ms">policy</span></span>
+      <h2>سياسة الإلغاء وإعادة الجدولة</h2>
+    </div>
     <ul class="pol">
       <li>الإلغاء أو إعادة الجدولة قبل الموعد بـ<b>١٢ ساعة أو أكثر</b> لا يُحتسب من رصيدك.</li>
       <li>الإلغاء المتأخر أو عدم الحضور <b>يُحتسب من رصيد الشهر</b>.</li>
@@ -68,8 +82,11 @@
     </ul>
   </section>
 
-  <section class="lbox">
-    <h2><span class="ms">event_note</span> مواعيدي</h2>
+  <section class="ncard">
+    <div class="nhead">
+      <span class="ntile"><span class="ms">event_note</span></span>
+      <h2>جلساتي الخاصة</h2>
+    </div>
     <div id="pc-mine"></div>
   </section>
 </main>

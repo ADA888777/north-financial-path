@@ -63,7 +63,8 @@ python3 -m http.server 8000
 ## للمبرمج
 
 كراسة تسليم الباكند ولوحة الإدارة في `docs/BACKEND-SPEC.md`،
-وسكربت قاعدة البيانات في `supabase/01_stories_and_admin.sql`.
+ونظام التصميم الموحّد في `docs/DESIGN-SYSTEM.md`،
+وسكربتات قاعدة البيانات في `supabase/` بترتيب أرقامها.
 
 ## صفحات السياسات
 

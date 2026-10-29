@@ -32,13 +32,13 @@
     var h = Math.floor(ms / 3600000);
     var m = Math.floor((ms % 3600000) / 60000);
     var s = Math.floor((ms % 60000) / 1000);
-    return '<span class="cd" data-at="' + esc(iso) + '">' +
+    return '<span class="cdn" data-at="' + esc(iso) + '">' +
       '<span class="ms">timer</span>' +
       (h > 0 ? num(h) + ' س ' : '') + num(m) + ' د ' + num(s) + ' ث</span>';
   }
 
   function refreshCounters() {
-    document.querySelectorAll('.cd').forEach(function (c) {
+    document.querySelectorAll('.cdn').forEach(function (c) {
       var html = countdown(c.getAttribute('data-at'));
       if (!html) { c.remove(); return; }
       var tmp = document.createElement('div');
@@ -49,36 +49,49 @@
 
   function drawSlots() {
     if (!rows.length) {
-      el('slots').innerHTML = '<p class="empty">لا توجد حصص مباشرة معلنة حالياً. ' +
-        'تظهر هنا فور إعلانها.</p>';
+      el('slots').innerHTML =
+        '<section class="ncard"><div class="nempty">' +
+          '<span class="ms">event_busy</span>' +
+          '<p>لا توجد حصص قادمة حالياً. تظهر هنا فور إعلانها، ويصلك إشعار بموعدها.</p>' +
+          '<a class="nbtn nbtn-g" href="learn.html">عودة إلى لوحتي</a>' +
+        '</div></section>';
       return;
     }
-    el('slots').innerHTML = rows.map(function (s) {
-      var full = s.seats_left <= 0 && !s.mine;
-      return '<div class="slot' + (s.mine ? ' mine' : '') + '" id="sl-' + esc(s.id) + '">' +
-        '<div class="slot-m"><b>' + esc(s.title) + '</b>' +
-          (s.description ? '<p>' + esc(s.description) + '</p>' : '') +
-          '<span class="slot-w"><span class="ms">schedule</span>' + esc(when(s.starts_at)) +
-            ' · ' + num(s.duration_min) + ' دقيقة</span>' +
-          countdown(s.starts_at) +
-        '</div>' +
-        '<div class="slot-a">' +
-          (s.capacity
-            ? '<span class="seats' + (full ? ' none' : '') + '">' +
-              (full ? 'اكتملت المقاعد' : num(s.seats_left) + ' مقعداً متاحاً') + '</span>'
-            : '') +
-          (s.mine
-            ? (s.meeting_url
-                ? '<a class="btn btn-primary btn-sm" href="' + esc(s.meeting_url) +
-                  '" target="_blank" rel="noopener">رابط الانضمام</a>'
-                : '<span class="done-tag">محجوزة — الرابط قبل الموعد</span>') +
-              '<button class="btn btn-ghost btn-sm" type="button" data-cancel="' +
-                esc(s.id) + '">إلغاء</button>'
-            : (full ? ''
-                : '<button class="btn btn-primary btn-sm" type="button" data-book="' +
-                  esc(s.id) + '">احجز</button>')) +
-        '</div></div>';
-    }).join('');
+    el('slots').innerHTML =
+      '<section class="ncard"><div class="nhead">' +
+        '<span class="ntile"><span class="ms">event_upcoming</span></span>' +
+        '<h2>الحصص القادمة</h2>' +
+        '<span class="nchip">' + num(rows.length) + '</span>' +
+      '</div><div class="ss-list">' +
+      rows.map(function (s) {
+        var full = s.seats_left <= 0 && !s.mine;
+        return '<div class="ss' + (s.mine ? ' mine' : '') + '" id="sl-' + esc(s.id) + '">' +
+          '<span class="ss-d"><b>' + esc(riyadh(s.starts_at, { day: 'numeric' })) + '</b>' +
+            '<span>' + esc(riyadh(s.starts_at, { month: 'short' })) + '</span></span>' +
+          '<span class="ss-b"><b>' + esc(s.title) + '</b>' +
+            '<span>' + esc(when(s.starts_at)) + ' · ' + num(s.duration_min) + ' دقيقة' +
+              // لا تُعرض المقاعد لمن حجزت: مقعدها محجوز وعددها صفر مُربك
+              (s.capacity && !s.mine
+                ? ' · ' + (full ? 'اكتملت المقاعد' : num(s.seats_left) + ' مقعداً متاحاً')
+                : '') +
+            '</span>' +
+            countdown(s.starts_at) +
+          '</span>' +
+          '<span class="ss-a">' +
+            (s.mine
+              ? (s.meeting_url
+                  ? '<a class="nbtn nbtn-p" href="' + esc(s.meeting_url) +
+                    '" target="_blank" rel="noopener">رابط الانضمام</a>'
+                  : '<span class="nchip ok">محجوزة</span>') +
+                '<button class="nbtn nbtn-g" type="button" data-cancel="' +
+                  esc(s.id) + '">إلغاء</button>'
+              : (full ? '<span class="nchip">مكتملة</span>'
+                  : '<button class="nbtn nbtn-p" type="button" data-book="' +
+                    esc(s.id) + '">احجز مقعدي</button>')) +
+          '</span>' +
+          (s.description ? '<p class="ss-p">' + esc(s.description) + '</p>' : '') +
+        '</div>';
+      }).join('') + '</div></section>';
 
     el('slots').querySelectorAll('[data-book]').forEach(function (b) {
       b.addEventListener('click', function () { book(b.getAttribute('data-book'), b); });
@@ -96,53 +109,69 @@
     var y = month.getFullYear(), m = month.getMonth();
     var first = new Date(y, m, 1);
     var days = new Date(y, m + 1, 0).getDate();
-    // الأسبوع يبدأ السبت
-    var lead = (first.getDay() + 1) % 7;
+    var lead = (first.getDay() + 1) % 7;   // الأسبوع يبدأ السبت
 
-    var has = {};
-    rows.forEach(function (s) { has[dayKey(s.starts_at)] = (has[dayKey(s.starts_at)] || 0) + 1; });
+    // حصص كل يوم من هذا الشهر
+    var byDay = {};
+    rows.forEach(function (s) {
+      var k = dayKey(s.starts_at);
+      (byDay[k] = byDay[k] || []).push(s);
+    });
 
-    var head = ['س', 'ح', 'ن', 'ث', 'ر', 'خ', 'ج']
-      .map(function (d) { return '<span class="cal-hd">' + d + '</span>'; }).join('');
+    el('cal-m').textContent =
+      new Intl.DateTimeFormat('ar-SA', { month: 'long', year: 'numeric' }).format(first);
+
+    var inMonth = rows.filter(function (s) {
+      return dayKey(s.starts_at).slice(0, 7) === monthKey(first);
+    }).length;
+    el('cal-count').textContent = inMonth
+      ? num(inMonth) + (inMonth === 1 ? ' حصة' : ' حصص') + ' هذا الشهر'
+      : 'لا حصص هذا الشهر';
+
+    var dows = ['السبت', 'الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة']
+      .map(function (d) { return '<span>' + d + '</span>'; }).join('');
+
+    var today = new Date();
+    var tKey = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') +
+      '-' + String(today.getDate()).padStart(2, '0');
 
     var cells = '';
-    for (var i = 0; i < lead; i++) cells += '<span class="cal-c out"></span>';
-    var today = new Date();
+    for (var i = 0; i < lead; i++) cells += '<div class="cal-d pad"></div>';
     for (var d = 1; d <= days; d++) {
       var key = y + '-' + String(m + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
-      var n = has[key] || 0;
-      var isToday = today.getFullYear() === y && today.getMonth() === m && today.getDate() === d;
-      cells += '<span class="cal-c' + (n ? ' has' : '') + (isToday ? ' today' : '') + '"' +
-        (n ? ' title="' + n + ' حصة" data-day="' + key + '"' : '') + '>' +
-        num(d) + (n ? '<i></i>' : '') + '</span>';
+      var evs = byDay[key] || [];
+      var cls = 'cal-d';
+      if (evs.length) cls += ' has';
+      if (key === tKey) cls += ' today';
+      else if (key < tKey) cls += ' past';
+      cells += '<div class="' + cls + '"' +
+        (evs.length ? ' data-day="' + key + '" role="button" tabindex="0"' +
+          ' title="' + esc(evs.map(function (x) { return x.title; }).join(' · ')) + '"' : '') +
+        '><span class="cal-dn">' + num(d) + '</span>' +
+        evs.slice(0, 2).map(function (x) {
+          return '<span class="cal-ev' + (x.mine ? ' live' : '') + '">' + esc(x.title) + '</span>';
+        }).join('') +
+        (evs.length > 2 ? '<span class="cal-more">+' + num(evs.length - 2) + '</span>' : '') +
+      '</div>';
     }
 
-    el('cal-nav').innerHTML =
-      '<button type="button" id="cal-prev" aria-label="الشهر السابق"><span class="ms">chevron_right</span></button>' +
-      '<b>' + new Intl.DateTimeFormat('ar-SA', { month: 'long', year: 'numeric' }).format(first) + '</b>' +
-      '<button type="button" id="cal-next" aria-label="الشهر التالي"><span class="ms">chevron_left</span></button>';
+    el('cal').innerHTML = '<div class="cal-dows">' + dows + '</div>' +
+      '<div class="cal-grid">' + cells + '</div>';
 
-    el('cal').innerHTML = '<div class="cal">' + head + cells + '</div>' +
-      '<p class="cal-k"><i></i> يوم فيه حصة</p>';
-
-    el('cal-prev').addEventListener('click', function () {
-      month = new Date(y, m - 1, 1); drawCal();
-    });
-    el('cal-next').addEventListener('click', function () {
-      month = new Date(y, m + 1, 1); drawCal();
-    });
     el('cal').querySelectorAll('[data-day]').forEach(function (c) {
-      c.addEventListener('click', function () {
+      function go() {
         var k = c.getAttribute('data-day');
         var s = rows.filter(function (x) { return dayKey(x.starts_at) === k; })[0];
-        if (s) {
-          var node = document.getElementById('sl-' + s.id);
-          if (node) {
-            node.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            node.classList.add('hit');
-            setTimeout(function () { node.classList.remove('hit'); }, 1600);
-          }
-        }
+        if (!s) return;
+        var node = document.getElementById('sl-' + s.id);
+        if (!node) return;
+        node.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        node.classList.add('hit');
+        setTimeout(function () { node.classList.remove('hit'); }, 1600);
+      }
+      c.addEventListener('click', go);
+      c.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); }
       });
     });
   }
@@ -194,17 +223,32 @@
     }).catch(function (e) { btn.disabled = false; msg(id, (e && e.message) || ''); });
   }
 
+  // أزرار الشهر ثابتة في الصفحة، فتُربط مرة واحدة
+  function bindNav() {
+    el('cal-prev').addEventListener('click', function () {
+      month = new Date(month.getFullYear(), month.getMonth() - 1, 1); drawCal();
+    });
+    el('cal-next').addEventListener('click', function () {
+      month = new Date(month.getFullYear(), month.getMonth() + 1, 1); drawCal();
+    });
+  }
+
   function load() {
     return Promise.all([
       db.rpc('slots_by_kind', { p_kind: 'live' }),
       db.rpc('my_sessions', { p_kind: 'live' })
     ]).then(function (r) {
       if (r[0].error) {
-        el('slots').innerHTML = '<p class="empty">' + esc(r[0].error.message) + '</p>';
+        el('slots').innerHTML = '<section class="ncard"><p class="n-sub">' +
+          esc(r[0].error.message) + '</p></section>';
         return;
       }
       var d = r[0].data;
-      if (d && d.error) { el('slots').innerHTML = '<p class="empty">' + esc(d.error) + '</p>'; return; }
+      if (d && d.error) {
+        el('slots').innerHTML = '<section class="ncard"><p class="n-sub">' +
+          esc(d.error) + '</p></section>';
+        return;
+      }
       rows = d || [];
       mine = (r[1] && r[1].data) || [];
       drawSlots(); drawCal();
@@ -216,6 +260,8 @@
   L.guard().then(function (s) {
     if (!s) return;
     uid = s.user.id;
+    month = new Date();
+    bindNav();
     return load();
   }).catch(function (e) {
     L.deny('تعذّر تحميل الحصص', (e && e.message) || '', false);

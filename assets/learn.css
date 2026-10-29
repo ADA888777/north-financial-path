@@ -2,9 +2,11 @@
 .lrn{padding-block:clamp(26px,4vw,42px) clamp(50px,6vw,80px);position:relative;z-index:1}
 
 /* ترحيب */
-.hello{display:flex;align-items:flex-start;justify-content:space-between;gap:22px;flex-wrap:wrap;margin-bottom:24px}
-.hello h1{font-size:clamp(24px,3.2vw,36px);letter-spacing:-.02em}
-.hello .sub{color:var(--fg-2);font-size:15px;margin-top:8px}
+.hello{display:flex;align-items:flex-start;justify-content:space-between;gap:22px;
+  flex-wrap:wrap;margin-bottom:clamp(16px,2.6vw,22px)}
+.hello > *{min-width:0}
+.hello h1{font-size:clamp(24px,3.4vw,34px);font-weight:800;line-height:1.3;letter-spacing:-.01em}
+.hello .sub{color:var(--fg-2);font-size:14px;line-height:1.85;margin-top:8px;max-width:62ch}
 .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
 .chip-i{
   display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;
@@ -24,10 +26,16 @@
 
 /* بطاقات */
 .lgrid{display:grid;grid-template-columns:1.35fr .65fr;gap:18px;align-items:start}
-.lbox{background:var(--surface);border:1px solid var(--line);border-radius:var(--rp);padding:clamp(20px,3vw,26px);min-width:0}
-.lbox h2{font-size:17.5px;margin-bottom:16px;display:flex;align-items:center;gap:9px}
-.lbox h2 .ms{font-size:20px;color:var(--accent)}
-.lbox + .lbox{margin-top:18px}
+/* .lbox و .hello اسمان قديمان: يرثان الآن بطاقة ds.css وترويستها
+   حتى تتوحّد الصفحات التي لم تُعَد كتابتها بعد. */
+.lbox{background:var(--surface);border:1px solid var(--card-line);border-radius:var(--rc);
+  padding:clamp(16px,2.4vw,22px);min-width:0;box-shadow:var(--card-sh)}
+.lbox h2{font-size:clamp(17px,2vw,20px);font-weight:700;margin-bottom:16px;
+  display:flex;align-items:center;gap:9px}
+.lbox h2 .ms{font-size:20px;color:var(--accent);
+  width:34px;height:34px;display:grid;place-items:center;border-radius:10px;
+  background:var(--tile-bg);flex:0 0 auto}
+.lbox + .lbox{margin-top:var(--gap)}
 
 /* متابعة التعلم */
 .resume{
@@ -78,11 +86,14 @@
 .empty .ms{font-size:30px;color:var(--fg-3);display:block;margin-bottom:10px}
 
 /* صفحة الدرس */
-.lesson-head{margin-bottom:24px}
+.lesson-head{margin-bottom:clamp(16px,2.6vw,22px)}
 .crumb{font-size:13px;color:var(--fg-2);margin-bottom:10px;display:flex;align-items:center;gap:7px}
 .crumb a{color:var(--accent)}
 .crumb a:hover{text-decoration:underline;text-underline-offset:3px}
-.lesson-head h1{font-size:clamp(23px,3vw,33px);letter-spacing:-.02em}
+.lesson-head h1{font-size:clamp(24px,3.4vw,34px);font-weight:800;line-height:1.3;
+  letter-spacing:-.01em}
+.lesson-head .crumb a{font-weight:700}
+.lesson-head .n-sub,.lesson-head .sub{max-width:62ch;margin-top:8px}
 .prose{font-size:15.5px;line-height:2.05;color:var(--fg)}
 .prose p{margin-bottom:16px}
 .vocab{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -169,12 +180,12 @@
 .bell-h{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px;border-bottom:1px solid var(--line)}
 .bell-h b{font-size:14.5px}
 .bell-h button{background:none;border:none;color:var(--accent);font-size:12.5px;font-weight:600;cursor:pointer;font-family:var(--body)}
-.nrow{display:block;padding:13px 16px;border-bottom:1px solid var(--line)}
-.nrow:last-child{border-bottom:none}
-.nrow.unread{background:var(--accent-wash)}
-.nrow b{font-size:14px;display:block;line-height:1.5}
-.nrow p{font-size:12.5px;color:var(--fg-2);margin-top:4px;line-height:1.75}
-.nrow time{font-size:11.5px;color:var(--fg-3);display:block;margin-top:6px}
+.nf-row{display:block;padding:13px 16px;border-bottom:1px solid var(--line)}
+.nf-row:last-child{border-bottom:none}
+.nf-row.unread{background:var(--accent-wash)}
+.nf-row b{font-size:14px;display:block;line-height:1.5}
+.nf-row p{font-size:12.5px;color:var(--fg-2);margin-top:4px;line-height:1.75}
+.nf-row time{font-size:11.5px;color:var(--fg-3);display:block;margin-top:6px}
 
 /* ============================================================
    شريط تنقّل المتعلم
@@ -197,76 +208,6 @@
   .lnav-item{padding:11px 10px;font-size:12.5px;gap:5px}
   .lnav-item .ms{font-size:18px}
 }
-
-/* ============================================================
-   سلسلة التعلم
-   ============================================================ */
-.streak-top{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-bottom:18px}
-.streak-n{display:flex;align-items:baseline;gap:8px}
-.streak-n b{font-size:clamp(34px,5vw,46px);line-height:1;font-family:var(--display);
-  color:var(--accent);letter-spacing:-.03em}
-.streak-n span{font-size:13.5px;color:var(--fg-2)}
-.streak-msg{font-size:14.5px;color:var(--fg);flex:1;min-width:200px;line-height:1.7}
-.streak-best{margin-top:14px;font-size:12.5px;color:var(--fg-3)}
-.week{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}
-.wd{display:flex;flex-direction:column;align-items:center;gap:7px}
-.wd-n{font-size:11.5px;color:var(--fg-3)}
-.wd-o{width:100%;aspect-ratio:1;max-width:44px;border-radius:var(--rb);
-  display:grid;place-items:center;border:1px solid var(--line);background:var(--surface-2)}
-.wd-o .ms{font-size:19px;color:var(--on-accent)}
-.wd.on .wd-o{background:var(--accent);border-color:var(--accent)}
-.wd.off .wd-o{background:var(--surface-2)}
-.wd.future .wd-o{background:transparent;border-style:dashed;opacity:.6}
-.wd.today .wd-o{outline:2px solid var(--accent);outline-offset:2px}
-.wd.today .wd-n{color:var(--accent);font-weight:600}
-
-/* ============================================================
-   بطاقات الملخص
-   ============================================================ */
-.sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));gap:14px;margin-bottom:18px}
-.s-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--rp);
-  padding:18px;display:flex;flex-direction:column;gap:5px;min-width:0;transition:border-color .2s}
-a.s-card:hover{border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
-.s-card>.ms{font-size:20px;color:var(--accent);margin-bottom:4px}
-.s-l{font-size:12.5px;color:var(--fg-2)}
-.s-v{font-size:clamp(19px,2.4vw,24px);font-family:var(--display);letter-spacing:-.02em;
-  line-height:1.3;overflow-wrap:anywhere}
-.s-v i{font-size:.62em;font-style:normal;color:var(--fg-2);margin-inline-start:2px}
-.s-n{font-size:11.5px;color:var(--fg-3);line-height:1.6;overflow-wrap:anywhere}
-
-/* ============================================================
-   مهام اليوم
-   ============================================================ */
-.dt{display:grid;gap:9px}
-.dt-i{display:flex;align-items:center;gap:13px;padding:14px 15px;border-radius:var(--rb);
-  border:1px solid var(--line);transition:border-color .2s,background .2s}
-a.dt-i:hover{border-color:color-mix(in srgb,var(--accent) 45%,var(--line));background:var(--accent-wash)}
-.dt-i>.ms{font-size:21px;color:var(--accent);flex-shrink:0}
-.dt-i div{flex:1;min-width:0}
-.dt-i b{font-size:14.5px;display:block}
-.dt-i p{font-size:12.5px;color:var(--fg-2);margin-top:3px;line-height:1.6}
-.dt-i .go{font-size:19px;color:var(--fg-3);flex-shrink:0}
-.dt-i.off{opacity:.55}
-.dt-extra{margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
-.dt-extra h3{font-size:12.5px;color:var(--fg-3);margin-bottom:4px;font-weight:500}
-
-/* ============================================================
-   مخطط النشاط
-   ============================================================ */
-.seg{display:inline-flex;gap:2px;margin-inline-start:auto;background:var(--surface-2);
-  border-radius:999px;padding:3px}
-.seg button{font:inherit;font-size:11.5px;padding:4px 10px;border:0;border-radius:999px;
-  background:transparent;color:var(--fg-2);cursor:pointer;transition:background .18s,color .18s}
-.seg button.on{background:var(--surface);color:var(--fg);box-shadow:0 1px 3px rgba(0,0,0,.09)}
-.ch{display:flex;align-items:flex-end;gap:1px;height:120px;margin-bottom:8px}
-.ch-c{display:flex;align-items:flex-end;justify-content:center;height:100%;min-width:2px}
-.ch-c i{display:block;width:100%;max-width:14px;border-radius:3px 3px 1px 1px;
-  background:var(--accent);transition:height .4s cubic-bezier(.4,0,.2,1)}
-.ch-c i.z{background:var(--surface-2)}
-.ch-f{display:flex;justify-content:space-between;font-size:11.5px;color:var(--fg-3);
-  font-family:var(--mono);direction:ltr}
-.ch-s{margin-top:10px;font-size:12.5px;color:var(--fg-2)}
-@media (prefers-reduced-motion:reduce){.ch-c i{transition:none}}
 
 /* ============================================================
    آخر إشعار
@@ -294,79 +235,35 @@ a.dt-i:hover{border-color:color-mix(in srgb,var(--accent) 45%,var(--line));backg
 .gstep:hover b{color:var(--accent)}
 
 /* ============================================================
-   الخارطة المصغّرة
-   ============================================================ */
-.mini{list-style:none;margin:0 0 14px;padding:0}
-.mi{position:relative;padding-inline-start:0}
-.mi a,.mi>div{display:flex;align-items:center;gap:12px;padding:11px 0}
-.mi+.mi{border-top:1px solid var(--line)}
-.mi-s{font-size:21px;flex-shrink:0}
-.mi-s.done{color:var(--up);font-variation-settings:'FILL' 1}
-.mi-s.current{color:var(--accent);font-variation-settings:'FILL' 1}
-.mi-s.open{color:var(--fg-3)}
-.mi-s.locked{color:var(--fg-3)}
-.mi b{font-size:14px;display:block;line-height:1.5}
-.mi-m{font-size:11.5px;color:var(--fg-3);display:block;margin-top:3px}
-.mi.locked{opacity:.55}
-.mi a:hover b{color:var(--accent)}
-.resume .rp{margin-top:8px;font-size:12px}
-
-/* ============================================================
-   صفحة الخارطة
-   ============================================================ */
-.mp-track + .mp-track{margin-top:18px}
-.mp-track h2 .beg{font-size:11.5px;font-weight:600;color:var(--accent);
-  background:var(--accent-wash);border-radius:999px;padding:3px 10px}
-.mp-list{list-style:none;margin:0;padding:0;display:grid;gap:12px}
-.mp a,.mp>div{display:block;border:1px solid var(--line);border-radius:var(--rb);
-  padding:16px 18px;transition:border-color .2s,background .2s}
-.mp a:hover{border-color:color-mix(in srgb,var(--accent) 48%,var(--line));background:var(--accent-wash)}
-.mp.current a{border-color:color-mix(in srgb,var(--accent) 55%,var(--line))}
-.mp.locked>div{opacity:.62;background:var(--surface-2)}
-.mp-top{display:flex;align-items:flex-start;gap:12px;margin-bottom:12px}
-.mp-i{font-size:24px;flex-shrink:0}
-.mp-i.done{color:var(--up);font-variation-settings:'FILL' 1}
-.mp-i.current{color:var(--accent);font-variation-settings:'FILL' 1}
-.mp-i.open{color:var(--accent)}
-.mp-i.locked{color:var(--fg-3)}
-.mp-h{flex:1;min-width:0}
-.mp-h b{font-size:15.5px;display:block;line-height:1.5}
-.mp-h p{font-size:12.5px;color:var(--fg-2);margin-top:3px}
-.mp-tag{font-size:11.5px;font-weight:600;border-radius:999px;padding:3px 10px;flex-shrink:0;
-  background:var(--surface-2);color:var(--fg-2)}
-.mp-tag.done{background:color-mix(in srgb,var(--up) 14%,transparent);color:var(--up)}
-.mp-tag.current{background:var(--accent-wash);color:var(--accent)}
-.mp-f{display:flex;justify-content:space-between;gap:10px;margin-top:10px;
-  font-size:12px;color:var(--fg-2);font-family:var(--mono)}
-.mp-f .ok{color:var(--up)}
-.mp-lock{font-size:12.5px;color:var(--fg-2);line-height:1.7}
-
-/* ============================================================
    التحدي — كتابة التعريف
    ============================================================ */
-.ch-head{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:18px}
-.chh-n{flex:1;min-width:120px;background:var(--surface);border:1px solid var(--line);
-  border-radius:var(--rp);padding:16px 18px;text-align:center}
-.chh-n b{display:block;font-size:clamp(24px,3.4vw,32px);font-family:var(--display);
-  color:var(--accent);letter-spacing:-.03em;line-height:1.2}
-.chh-n b i{font-size:.55em;font-style:normal;color:var(--fg-3)}
-.chh-n span{font-size:12px;color:var(--fg-2);display:block;margin-top:5px}
-
-.vq-h{display:flex;align-items:center;justify-content:space-between;gap:12px;
-  flex-wrap:wrap;margin-bottom:22px}
-.vq-n{font-size:12.5px;color:var(--fg-3);font-family:var(--mono)}
+/* بطاقة المفردة — تخطيط المرجع: المصطلح على اليمين والنتيجة على اليسار */
+.vq{padding:0!important;overflow:hidden}
+.vq-top{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;
+  flex-wrap:wrap;padding:clamp(18px,3vw,24px);background:var(--tile-bg);
+  border-bottom:1px solid var(--card-line)}
+.vq-t{min-width:0;flex:1 1 220px}
+.vq-n{display:block;font-size:12.5px;color:var(--fg-3);font-family:var(--mono);
+  margin-bottom:8px}
+.vq-term{display:block;font-size:clamp(26px,4.2vw,38px);font-family:var(--display);
+  font-weight:800;letter-spacing:-.02em;line-height:1.35;margin:0 0 8px;
+  overflow-wrap:anywhere;text-align:start}
 .vq-lesson{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;
-  color:var(--accent);min-height:34px;padding-inline:4px}
+  color:var(--accent);min-height:34px;padding-inline-end:4px}
 .vq-lesson .ms{font-size:16px}
 .vq-lesson:hover{text-decoration:underline;text-underline-offset:3px}
-.vq-lbl{font-size:12.5px;color:var(--fg-2);text-align:center}
-/* .lbox h2 تجعل العنوان flex، فيبطل التوسيط ويلتصق بحافة البداية. */
-.vq-term{display:block;font-size:clamp(26px,4.4vw,40px);font-family:var(--display);text-align:center;
-  letter-spacing:-.02em;margin:10px 0 26px;line-height:1.4;overflow-wrap:anywhere}
-.vq-f textarea{width:100%;font:inherit;font-size:15px;line-height:1.9;padding:14px 16px;
-  border-radius:var(--rb);border:1px solid var(--line-2);background:var(--surface);
-  color:var(--fg);resize:vertical;min-height:92px}
-.vq-f textarea:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:transparent}
+.vq-score{flex:0 0 auto;text-align:center;background:var(--surface);
+  border:1px solid var(--card-line);border-radius:var(--rt);padding:10px 16px;min-width:104px}
+.vq-score span{display:block;font-size:11.5px;color:var(--fg-3);margin-bottom:3px}
+.vq-score b{font-size:22px;font-family:var(--display);font-weight:800;
+  color:var(--accent);letter-spacing:-.02em;line-height:1.2}
+
+.vq-body{padding:clamp(18px,3vw,24px)}
+.vq-lbl{display:block;font-size:13px;font-weight:700;color:var(--fg-2);margin-bottom:9px}
+.vq-body textarea{width:100%;font:inherit;font-size:15px;line-height:1.9;padding:14px 16px;
+  border-radius:var(--rt);border:1px solid var(--line-2);background:var(--surface);
+  color:var(--fg);resize:vertical;min-height:104px}
+.vq-body textarea:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:transparent}
 .vq-acts{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
 .vq-rule{font-size:12px;color:var(--fg-3);line-height:1.8;margin-top:14px;
   border-inline-start:2px solid var(--line);padding-inline-start:11px}
@@ -389,11 +286,11 @@ a.dt-i:hover{border-color:color-mix(in srgb,var(--accent) 45%,var(--line));backg
 .vr-f{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
 .vr-sent{font-size:12.5px;color:var(--up);align-self:center}
 
-.ch-done{text-align:center;padding-block:clamp(30px,6vw,56px)}
-.ch-done .ms{font-size:46px;color:var(--accent);display:block;margin-bottom:14px}
-.ch-done h2{display:block;font-size:clamp(20px,3vw,26px);margin-bottom:10px}
-.ch-done p{font-size:14px;color:var(--fg-2);line-height:1.9}
-.ch-acts{display:flex;gap:10px;justify-content:center;margin-top:22px;flex-wrap:wrap}
+.ch-done{text-align:center;padding-block:clamp(26px,5vw,44px)}
+.ch-done .ntile{margin:0 auto 14px}
+.ch-done .ntile .ms{font-size:26px}
+.ch-done h2{display:block;margin-bottom:8px}
+.ch-done .vq-acts{justify-content:center}
 
 /* ============================================================
    الحصص
@@ -416,15 +313,15 @@ a.dt-i:hover{border-color:color-mix(in srgb,var(--accent) 45%,var(--line));backg
    الإشعارات
    ============================================================ */
 .nlist{display:grid}
-.nrow + .nrow{border-top:1px solid var(--line)}
-.nrow a,.nrow>div{display:flex;align-items:flex-start;gap:13px;padding:15px 0}
-.nrow.new{cursor:pointer}
+.nf-row + .nf-row{border-top:1px solid var(--line)}
+.nf-row a,.nf-row>div{display:flex;align-items:flex-start;gap:13px;padding:15px 0}
+.nf-row.new{cursor:pointer}
 .n-i{font-size:21px;color:var(--fg-3);flex-shrink:0;margin-top:2px}
-.nrow.new .n-i{color:var(--accent)}
-.nrow div div,.nrow a div{flex:1;min-width:0}
-.nrow b{font-size:14.5px;display:block;line-height:1.5}
-.nrow p{font-size:13px;color:var(--fg-2);margin-top:4px;line-height:1.7}
-.nrow .when{font-size:11.5px;color:var(--fg-3);display:block;margin-top:8px}
+.nf-row.new .n-i{color:var(--accent)}
+.nf-row div div,.nf-row a div{flex:1;min-width:0}
+.nf-row b{font-size:14.5px;display:block;line-height:1.5}
+.nf-row p{font-size:13px;color:var(--fg-2);margin-top:4px;line-height:1.7}
+.nf-row .when{font-size:11.5px;color:var(--fg-3);display:block;margin-top:8px}
 .n-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0;margin-top:8px}
 
 /* ============================================================
@@ -467,137 +364,35 @@ a.dt-i:hover{border-color:color-mix(in srgb,var(--accent) 45%,var(--line));backg
 .msg-note{display:block;margin-top:9px;font-size:11.5px;color:var(--fg-3)}
 
 /* ============================================================
-   خارطة التقدم: المستويات والأسابيع والدروس
-   ============================================================ */
-.mp-track-h{margin:26px 0 14px}
-.mp-track-h:first-child{margin-top:0}
-.mp-track-h h2{font-size:17.5px;display:flex;align-items:center;gap:9px}
-.mp-track-h h2 .ms{font-size:20px;color:var(--accent)}
-.mp-track-h .beg{font-size:11.5px;font-weight:600;color:var(--accent);
-  background:var(--accent-wash);border-radius:999px;padding:3px 10px}
-
-.lv{background:var(--surface);border:1px solid var(--line);border-radius:var(--rp);
-  padding:clamp(18px,2.6vw,24px);margin-bottom:14px}
-.lv.current{border-color:color-mix(in srgb,var(--accent) 52%,var(--line))}
-.lv.locked{opacity:.68;background:var(--surface-2)}
-.lv-h{display:flex;align-items:flex-start;gap:12px;margin-bottom:12px}
-.lv-i{font-size:24px;flex-shrink:0}
-.lv-i.done{color:var(--up);font-variation-settings:'FILL' 1}
-.lv-i.current{color:var(--accent);font-variation-settings:'FILL' 1}
-.lv-i.open{color:var(--accent)}
-.lv-i.locked{color:var(--fg-3)}
-.lv-t{flex:1;min-width:0}
-.lv-c{display:inline-block;font-family:var(--mono);font-size:11.5px;font-weight:600;
-  color:var(--accent);background:var(--accent-wash);border-radius:6px;
-  padding:2px 8px;margin-bottom:6px}
-.lv-t b{font-size:16px;display:block;line-height:1.5}
-.lv-t p{font-size:12.5px;color:var(--fg-2);margin-top:3px}
-.lv-d{font-size:13px;color:var(--fg-2);line-height:1.8;margin-bottom:12px}
-
-.wk{margin-top:18px}
-.wk-h{font-size:12.5px;color:var(--fg-3);font-weight:600;margin-bottom:9px;
-  padding-bottom:7px;border-bottom:1px solid var(--line)}
-.ln-list{list-style:none;margin:0;padding:0}
-.ln a,.ln>div{display:flex;align-items:center;gap:11px;padding:11px 0}
-.ln + .ln{border-top:1px solid var(--line)}
-.ln-i{font-size:20px;flex-shrink:0}
-.ln-i.done{color:var(--up);font-variation-settings:'FILL' 1}
-.ln-i.open{color:var(--accent)}
-.ln-i.locked{color:var(--fg-3)}
-.ln-b{flex:1;min-width:0}
-.ln-b b{font-size:14px;display:block;line-height:1.5;font-weight:500}
-.ln-m,.ln-r{font-size:11.5px;color:var(--fg-3);display:block;margin-top:3px;line-height:1.6}
-.ln-r{color:var(--warn-title,#9A4A24)}
-.ln.locked{opacity:.7}
-.ln a:hover b{color:var(--accent)}
-.ln-q{flex-shrink:0;width:30px;height:30px;border-radius:8px;display:grid;place-items:center;
-  background:var(--surface-2);color:var(--fg-2)}
-.ln-q:hover{background:var(--accent-wash);color:var(--accent)}
-.ln-q .ms{font-size:17px}
-
-/* ============================================================
    الكلاسات الخاصة
    ============================================================ */
 .pc-flash{background:color-mix(in srgb,var(--up) 12%,transparent);border:1px solid var(--up);
   color:var(--up);border-radius:var(--rb);padding:12px 15px;font-size:13.5px;margin-bottom:16px}
-.co-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
-.co{display:flex;align-items:center;gap:12px;font:inherit;text-align:start;cursor:pointer;
-  padding:14px 15px;border-radius:var(--rb);border:1px solid var(--line);
-  background:var(--surface);color:var(--fg);transition:border-color .2s,background .2s}
-.co:hover{border-color:color-mix(in srgb,var(--accent) 48%,var(--line))}
-.co.on{border-color:var(--accent);background:var(--accent-wash)}
-.co-av{flex-shrink:0;width:42px;height:42px;border-radius:50%;display:grid;place-items:center;
-  background:var(--accent);color:var(--on-accent);font-size:18px;font-family:var(--display)}
-.co-b{flex:1;min-width:0}
-.co-b b{font-size:14.5px;display:block;line-height:1.5}
-.co-t,.co-d{font-size:11.5px;color:var(--fg-3);display:block;margin-top:3px;line-height:1.6}
-.sl-day + .sl-day{margin-top:18px;padding-top:16px;border-top:1px solid var(--line)}
-.sl-day h4{font-size:13px;color:var(--fg-2);margin-bottom:10px;font-weight:600}
-.sl-times{display:flex;gap:8px;flex-wrap:wrap}
-.sl-t{font:inherit;font-size:13.5px;font-family:var(--mono);padding:9px 14px;cursor:pointer;
-  border-radius:999px;border:1px solid var(--line-2);background:var(--surface);color:var(--fg);
-  transition:border-color .18s,background .18s}
-.sl-t:hover{border-color:var(--accent);background:var(--accent-wash);color:var(--accent)}
-.bk{border:1px solid var(--accent);border-radius:var(--rb);padding:18px;margin-bottom:18px;
-  background:var(--accent-wash)}
-.bk h4{font-size:15px;margin-bottom:10px}
-.bk-when{display:flex;align-items:center;gap:7px;font-size:13.5px;color:var(--fg);margin-bottom:14px}
-.bk-when .ms{font-size:17px;color:var(--accent)}
-.bk .fld{margin-bottom:12px}
-.bk input{width:100%;font:inherit;font-size:14px;padding:11px 13px;border-radius:var(--rb);
-  border:1px solid var(--line-2);background:var(--surface);color:var(--fg)}
-.bk .hint{font-size:11.5px;color:var(--fg-3);display:block;margin-top:5px;line-height:1.6}
-.bk label{font-size:12.5px;font-weight:600;display:block;margin-bottom:6px}
-.bk-pol{font-size:12px;color:var(--fg-2);line-height:1.7;margin-bottom:14px}
-.bk-f{display:flex;gap:10px;flex-wrap:wrap}
-.bk-err{margin-top:10px;font-size:12.5px;color:var(--dn)}
+/* منتقي الكوتش ونموذج الحجز وقائمة الجلسات تملكها ds.css
+   (.co .co-list .bk-form .bk-note .ss) — لا تُعاد هنا. */
 .pol{list-style:none;margin:0;padding:0}
 .pol li{position:relative;padding-inline-start:18px;font-size:13.5px;color:var(--fg-2);
   line-height:1.9;margin-bottom:8px}
 .pol li::before{content:'';position:absolute;inset-inline-start:0;inset-block-start:11px;
   width:6px;height:6px;border-radius:50%;background:var(--accent)}
 .pol b{color:var(--fg)}
-.ms-row{display:flex;align-items:center;gap:12px;padding:13px 0;flex-wrap:wrap}
-.ms-row + .ms-row{border-top:1px solid var(--line)}
-.ms-row.past{opacity:.6}
-.ms-b{flex:1;min-width:180px}
-.ms-b b{font-size:14px;display:block;line-height:1.5}
-.ms-m{font-size:11.5px;color:var(--fg-3);display:block;margin-top:3px}
 
 /* ============================================================
-   الحصص المباشرة: تقويم وعدّاد
+   العدّاد التنازلي للحصص
+   مُسمّى .cdn لا .cd: الأخير يملكه عنصر البطاقات التعليمية
    ============================================================ */
-.lgrid-live{grid-template-columns:1.25fr .75fr}
-.cd{display:inline-flex;align-items:center;gap:5px;margin-top:9px;font-size:12px;
+.cdn{display:inline-flex;align-items:center;gap:5px;margin-top:9px;font-size:12px;
   font-family:var(--mono);color:var(--dn);background:color-mix(in srgb,var(--dn) 10%,transparent);
   border-radius:999px;padding:4px 10px}
-.cd .ms{font-size:15px}
-.cal-nav{display:inline-flex;align-items:center;gap:6px;margin-inline-start:auto;font-size:13px}
-.cal-nav b{font-weight:600;min-width:7.5em;text-align:center}
-.cal-nav button{font:inherit;border:0;background:transparent;color:var(--fg-2);cursor:pointer;
-  width:28px;height:28px;border-radius:7px;display:grid;place-items:center}
-.cal-nav button:hover{background:var(--surface-2);color:var(--fg)}
-.cal-nav .ms{font-size:18px}
-.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
-.cal-hd{font-size:11px;color:var(--fg-3);text-align:center;padding-bottom:6px}
-.cal-c{position:relative;aspect-ratio:1;display:grid;place-items:center;font-size:12.5px;
-  font-family:var(--mono);color:var(--fg-2);border-radius:8px}
-.cal-c.out{visibility:hidden}
-.cal-c.today{outline:1.5px solid var(--accent);color:var(--accent);font-weight:600}
-.cal-c.has{background:var(--accent-wash);color:var(--accent);cursor:pointer;font-weight:600}
-.cal-c.has:hover{background:color-mix(in srgb,var(--accent) 22%,transparent)}
-.cal-c i{position:absolute;inset-block-end:5px;width:4px;height:4px;border-radius:50%;
-  background:var(--accent)}
-.cal-k{display:flex;align-items:center;gap:7px;margin-top:12px;font-size:11.5px;color:var(--fg-3)}
-.cal-k i{width:6px;height:6px;border-radius:50%;background:var(--accent);display:inline-block}
-.slot.hit{animation:hit 1.5s ease}
-@keyframes hit{0%,100%{border-color:var(--line)}25%{border-color:var(--accent)}}
-@media (prefers-reduced-motion:reduce){.slot.hit{animation:none;border-color:var(--accent)}}
-@media (max-width:900px){.lgrid-live{grid-template-columns:1fr}}
+.cdn .ms{font-size:15px}
+.ss.hit,.slot.hit{animation:hit 1.5s ease}
+@keyframes hit{0%,100%{border-color:var(--card-line)}25%{border-color:var(--accent)}}
+@media (prefers-reduced-motion:reduce){
+  .ss.hit,.slot.hit{animation:none;border-color:var(--accent)}
+}
 
 /* أهداف لمس مريحة في عناصر التحكم الصغيرة */
 .seg button{min-height:34px;padding:7px 13px}
-.cal-nav button{width:34px;height:34px}
 .sl-t{min-height:38px}
 .mp-f a,.lvl-f a{display:inline-block;padding-block:7px}
 .ln-q{width:34px;height:34px}
@@ -609,4 +404,4 @@ a.dt-i:hover{border-color:color-mix(in srgb,var(--accent) 45%,var(--line));backg
 /* أبناء الشبكة بلا min-width:0 يمنعهم محتواهم من التقلّص دون عرضه
    الأدنى، فيتجاوز الصفُّ الشاشة على العروض الضيقة جداً. */
 .lgrid > *{min-width:0}
-.sum > *,.ch,.week,.dt,.co-grid,.st-grid,.cd-grid{min-width:0}
+.sum > *,.ch,.week,.dt,.st-grid,.cd-grid{min-width:0}

@@ -1,4 +1,4 @@
-/* خارطة التقدم. كل رقم من my_map(): لا عدد مستويات ولا دروس مكتوب هنا.
+/* خارطة الطريق. كل رقم من my_map(): لا عدد مستويات ولا دروس مكتوب هنا.
    القفل مفروض في القاعدة؛ ما تعرضه الصفحة انعكاسٌ له لا بديلٌ عنه. */
 (function () {
   'use strict';
@@ -6,89 +6,101 @@
 
   var LVL = {
     done:    { t: 'مكتملة',          ico: 'check_circle' },
-    current: { t: 'المرحلة الحالية', ico: 'play_circle' },
-    open:    { t: 'متاحة',           ico: 'lock_open' },
-    locked:  { t: 'مقفلة',           ico: 'lock' }
+    current: { t: 'المستوى الحالي',  ico: 'play_circle' },
+    open:    { t: 'متاح',            ico: 'lock_open' },
+    locked:  { t: 'مقفل',            ico: 'lock' }
   };
   var LSN = {
-    done:   { t: 'مكتمل', ico: 'check_circle' },
-    open:   { t: 'متاح',  ico: 'play_arrow' },
-    locked: { t: 'مقفل',  ico: 'lock' }
+    done:   { ico: 'check_circle', sub: 'اضغط لفتح الدرس' },
+    open:   { ico: 'local_fire_department', sub: 'اضغط لفتح الدرس' },
+    locked: { ico: 'lock', sub: null }
   };
+  // ألوان المستويات اللاحقة، تدور بالترتيب
+  var HUES = ['b', 'p', 'o', 'r', 'g'];
 
-  function stats(m) {
-    function card(ico, label, value, note) {
-      return '<div class="s-card"><span class="ms">' + ico + '</span>' +
-        '<span class="s-l">' + esc(label) + '</span>' +
-        '<b class="s-v">' + value + '</b>' +
-        (note ? '<span class="s-n">' + esc(note) + '</span>' : '') + '</div>';
-    }
-    el('m-stats').innerHTML =
-      card('stairs', 'المستويات', num(m.levels_total || 0), '') +
-      card('menu_book', 'الدروس', num(m.lessons_total || 0), '') +
-      card('trending_up', 'تقدمك', num(m.percent || 0) + '<i>%</i>',
-           num(m.lessons_done || 0) + ' مكتمل') +
-      card('lock_open', 'متاحة الآن', num(m.lessons_open || 0), '') +
-      card('lock', 'مقفلة', num(m.lessons_locked || 0), '');
-  }
-
-  function lesson(ls) {
+  function lesson(ls, i) {
     var s = LSN[ls.state] || LSN.locked;
-    var body =
-      '<span class="ms ln-i ' + ls.state + '">' + s.ico + '</span>' +
-      '<div class="ln-b"><b>' + esc(ls.title) + '</b>' +
-        (ls.state === 'locked' && ls.reason
-          ? '<span class="ln-r">' + esc(ls.reason) + '</span>'
-          : '<span class="ln-m">' + s.t +
-            (ls.duration_min ? ' · ' + num(ls.duration_min) + ' دقيقة' : '') +
-            (ls.free_preview ? ' · درس تعريفي' : '') + '</span>') +
-      '</div>' +
-      (ls.quiz_id && ls.state !== 'locked'
-        ? '<a class="ln-q" href="quiz.html?id=' + encodeURIComponent(ls.quiz_id) +
-          '" title="اختبار الدرس"><span class="ms">quiz</span></a>' : '');
+    var sub = ls.state === 'locked'
+      ? (ls.reason || 'غير متاح بعد')
+      : (ls.duration_min ? num(ls.duration_min) + ' دقيقة · اضغط لفتح الدرس' : s.sub);
 
-    return '<li class="ln ' + ls.state + '">' +
+    var body =
+      '<i class="ls-n">' + num(i) + '</i>' +
+      '<div class="ls-b"><b>' + esc(ls.title) + '</b><span>' + esc(sub) + '</span></div>' +
+      '<span class="ms ls-s">' + s.ico + '</span>';
+
+    return '<li class="ls ' + ls.state + '">' +
       (ls.state === 'locked'
         ? '<div>' + body + '</div>'
         : '<a href="lesson.html?id=' + encodeURIComponent(ls.id) + '">' + body + '</a>') +
       '</li>';
   }
 
-  function weeks(ws) {
-    if (!ws || !ws.length) return '';
-    return ws.map(function (w) {
-      return '<div class="wk">' +
-        (Number(w.week) > 0
-          ? '<h4 class="wk-h">الأسبوع ' + num(w.week) + '</h4>' : '') +
-        '<ul class="ln-list">' + (w.lessons || []).map(lesson).join('') + '</ul>' +
-      '</div>';
-    }).join('');
+  function week(w, start) {
+    var ls = w.lessons || [];
+    var done = ls.filter(function (x) { return x.state === 'done'; }).length;
+    var pct = ls.length ? Math.round(done * 100 / ls.length) : 0;
+    var n = start;
+
+    return '<section class="ncard wk-card">' +
+      '<div class="wk-h">' +
+        '<i class="wk-n">' + num(w.week || 1) + '</i>' +
+        '<div><b>الأسبوع ' + num(w.week || 1) + '</b>' +
+          '<span>' + num(done) + '/' + num(ls.length) + ' مكتمل</span></div>' +
+        '<div class="wk-bar"><div class="nbar sm"><i style="width:' + pct + '%"></i></div></div>' +
+      '</div>' +
+      '<ul class="ls-list">' + ls.map(function (x) { return lesson(x, n++); }).join('') + '</ul>' +
+    '</section>';
   }
 
-  function level(l) {
-    var st = l.state, s = LVL[st] || LVL.locked;
-    return '<section class="lv ' + st + '">' +
-      '<div class="lv-h">' +
-        '<span class="ms lv-i ' + st + '">' + s.ico + '</span>' +
-        '<div class="lv-t">' +
-          (l.code ? '<span class="lv-c">' + esc(l.code) + '</span>' : '') +
-          '<b>' + esc(l.title) + '</b>' +
-          (l.subtitle ? '<p>' + esc(l.subtitle) + '</p>' : '') +
+  function current(l) {
+    if (!l) return '';
+    return '<section class="lv-cur nsec">' +
+      '<div class="lv-cur-in">' +
+        '<div class="lv-cur-t">' +
+          '<span class="nchip ok">المستوى الحالي</span>' +
+          '<h2 class="n-h1">' + (l.code ? esc(l.code) + ' - ' : '') + esc(l.title) + '</h2>' +
+          (l.subtitle ? '<p class="n-sub">' + esc(l.subtitle) + '</p>' : '') +
         '</div>' +
-        '<span class="mp-tag ' + st + '">' + s.t + '</span>' +
+        '<div class="lv-cur-n"><b>' + num(Math.max(0, (l.total || 0) - (l.done || 0))) + '</b>' +
+          '<span>درس متبقٍ في مستواك</span></div>' +
       '</div>' +
-      (l.description ? '<p class="lv-d">' + esc(l.description) + '</p>' : '') +
-      (st === 'locked'
-        ? '<p class="mp-lock">أكمل دروس المرحلة السابقة واجتز اختبارها لفتح هذه المرحلة.</p>'
-        : L.bar(l.percent) +
-          '<div class="mp-f"><span dir="ltr">' + num(l.done) + '/' + num(l.total) + ' درساً</span>' +
-          (l.quiz_id
-            ? '<a href="quiz.html?id=' + encodeURIComponent(l.quiz_id) + '" class="' +
-              (l.quiz_passed ? 'ok' : '') + '">' +
-              (l.quiz_passed ? 'اختبار المرحلة مُجتاز' : 'اختبار المرحلة') + '</a>'
-            : '<span>بلا اختبار مرحلة</span>') + '</div>' +
-          weeks(l.weeks)) +
+      '<div class="nbar-row"><span>' + num(l.percent) + '% مكتمل</span>' +
+        '<span>تقدمك في ' + esc(l.code || l.title) + '</span></div>' +
+      '<div class="nbar"><i style="width:' + num(l.percent) + '%"></i></div>' +
     '</section>';
+  }
+
+  function other(levels) {
+    if (!levels.length) return '';
+    return '<h2 class="n-h2 sec-t">المستويات الأخرى</h2>' +
+      levels.map(function (l, i) {
+        var left = Math.max(0, (l.total || 0) - (l.done || 0));
+        return '<section class="lv-o h' + HUES[i % HUES.length] + '">' +
+          '<div class="lv-o-in">' +
+            '<div class="lv-o-t">' +
+              '<h3 class="n-h2">' + (l.code ? esc(l.code) + ' - ' : '') + esc(l.title) + '</h3>' +
+              (l.subtitle ? '<p class="n-sub">' + esc(l.subtitle) + '</p>' : '') +
+              '<p class="n-mut">' + num(l.done) + ' من ' + num(l.total) + ' مكتمل</p>' +
+            '</div>' +
+            '<div class="lv-o-n"><b>' + num(left) + '</b><span>قادم</span></div>' +
+          '</div>' +
+          '<div class="nbar-row"><span>' + num(l.percent || 0) + '% مكتمل</span>' +
+            '<span>' + (l.state === 'locked' ? 'يُفتح بعد تقدمك' : 'متاح') + '</span></div>' +
+          '<div class="nbar sm"><i style="width:' + num(l.percent || 0) + '%"></i></div>' +
+        '</section>';
+      }).join('');
+  }
+
+  function tiles(m) {
+    function t(cls, v, lbl) {
+      return '<div class="mt ' + cls + '"><b>' + num(v) + '</b><span>' + esc(lbl) + '</span></div>';
+    }
+    // ترتيب المرجع: ما ينتظرها أولاً ثم ما أنجزته ثم ما هو متاح
+    el('m-tiles').innerHTML =
+      t('warn', m.lessons_locked || 0, 'درس مغلق لك') +
+      t('blue', m.lessons_done || 0, 'مكتمل') +
+      t('ok', m.lessons_open || 0, 'متاح الآن');
   }
 
   L.guard().then(function (s) {
@@ -96,40 +108,52 @@
     return db.rpc('my_map').then(function (r) {
       var m = (r && r.data) || {};
       if (r.error || m.error) {
-        el('map').innerHTML = '<p class="empty">' +
-          esc(m.error || r.error.message || 'تعذّر تحميل الخارطة.') + '</p>';
+        el('map').innerHTML = '<section class="ncard"><p class="n-sub">' +
+          esc(m.error || r.error.message || 'تعذّر تحميل الخارطة.') + '</p></section>';
         return;
       }
 
-      stats(m);
+      el('m-meta').textContent =
+        num(m.levels_total || 0) + ' مستويات · ' + num(m.lessons_total || 0) +
+        ' درس · تقدمك الكلي ' + num(m.percent || 0) + '%';
+      el('m-left').textContent =
+        num(m.lessons_done || 0) + ' من ' + num(m.lessons_total || 0) + ' درس';
+      el('m-fill').style.width = (m.percent || 0) + '%';
+      tiles(m);
 
-      var tracks = (m.tracks || []).filter(function (t) { return (t.levels || []).length; });
-      var curName = '';
-      tracks.forEach(function (t) {
-        (t.levels || []).forEach(function (l) {
-          if (l.id === m.current_level) curName = (l.code ? l.code + ' — ' : '') + l.title;
-        });
+      var levels = [];
+      (m.tracks || []).forEach(function (t) {
+        (t.levels || []).forEach(function (l) { levels.push(l); });
       });
-      el('m-sub').textContent = curName
-        ? 'مرحلتك الحالية: ' + curName
-        : (m.lessons_total ? 'أنهيت كل المراحل المتاحة.' : 'لم تُنشر مراحل بعد.');
+
+      var cur = levels.filter(function (l) { return l.id === m.current_level; })[0]
+                || levels.filter(function (l) { return l.state !== 'done'; })[0];
+
+      el('m-sub').textContent = cur
+        ? 'مسارك التعليمي من المستوى الحالي إلى آخر مستوى متاح في المنصة.'
+        : (levels.length ? 'أنهيت كل المستويات المتاحة.' : 'لم تُنشر مستويات بعد.');
+
+      el('m-current').innerHTML = current(cur);
+
+      if (cur) {
+        var n = 1;
+        el('map').innerHTML = (cur.weeks || []).map(function (w) {
+          var html = week(w, n);
+          n += (w.lessons || []).length;
+          return html;
+        }).join('') || '<section class="ncard"><p class="n-sub">لا دروس في هذا المستوى بعد.</p></section>';
+      } else {
+        el('map').innerHTML = '';
+      }
+
+      el('m-other').innerHTML = other(levels.filter(function (l) {
+        return !cur || l.id !== cur.id;
+      }));
 
       if (m.next_lesson) {
-        var go = el('m-go');
-        go.hidden = false;
-        go.href = 'lesson.html?id=' + encodeURIComponent(m.next_lesson);
+        el('m-next').hidden = false;
+        el('m-go').href = 'lesson.html?id=' + encodeURIComponent(m.next_lesson);
       }
-
-      if (!tracks.length) {
-        el('map').innerHTML = '<p class="empty">لم تُنشر مراحل بعد.</p>';
-        return;
-      }
-
-      el('map').innerHTML = tracks.map(function (t) {
-        return '<div class="mp-track-h"><h2><span class="ms">route</span> ' + esc(t.track) +
-          (t.for_beginners ? ' <span class="beg">للمبتدئين</span>' : '') + '</h2></div>' +
-          t.levels.map(level).join('');
-      }).join('');
     });
   }).catch(function (e) {
     L.deny('تعذّر تحميل الخارطة', (e && e.message) || '', false);
