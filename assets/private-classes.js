@@ -60,7 +60,14 @@
       return;
     }
     el('pc-coaches').innerHTML = '<div class="co-list">' + coaches.map(function (c) {
-      var days = (c.days || []).map(function (d) { return DAYS[d]; }).join('، ');
+      /* التقييم بدل الوصف. المتوسط محسوب في القاعدة من تقييمات
+         حقيقية مرتبطة بجلسات حضرتها صاحباتها — ولا نجوم بلا تقييم. */
+      var n = Number(c.rating_count || 0);
+      var rate = n > 0
+        ? '<span class="co-rate"><span class="ms">star</span>' +
+            esc(c.rating_avg) + '<i>(' + num(n) + ')</i></span>'
+        : '<span class="co-rate none">لا توجد تقييمات بعد</span>';
+
       return '<button type="button" class="co" aria-pressed="' +
         (picked === c.id ? 'true' : 'false') + '" data-coach="' + esc(c.id) + '">' +
         '<span class="co-av">' +
@@ -68,12 +75,7 @@
             ? '<img src="' + esc(c.photo_url) + '" alt="">'
             : esc((c.name || '؟').trim().charAt(0))) +
         '</span>' +
-        '<span class="co-b"><b>' + esc(c.name) + '</b>' +
-          '<span>' +
-            (c.title ? esc(c.title) : '<span class="ms">star</span>كوتش') +
-            (days ? ' · ' + esc(days) : '') +
-          '</span>' +
-        '</span>' +
+        '<span class="co-b"><b>' + esc(c.name) + '</b>' + rate + '</span>' +
         '<span class="ms ck">check_circle</span>' +
       '</button>';
     }).join('') + '</div>';
@@ -139,6 +141,7 @@
 
     var m = byDay(), days = Object.keys(m).sort();
     var c = coaches.filter(function (x) { return x.id === picked; })[0] || {};
+    var needTg = !!quota.require_telegram && !quota.telegram;
 
     bookPanel(
       '<div class="bk-form">' +
@@ -157,10 +160,17 @@
         '<div class="nfld"><label for="bk-time">الوقت بتوقيت الرياض</label>' +
           '<select id="bk-time"></select></div>' +
 
-        '<div class="nfld"><label for="bk-tg">معرّف تيليجرام</label>' +
+        '<div class="nfld' + (needTg ? ' need' : '') + '">' +
+          '<label for="bk-tg">اسم المستخدم في تيليجرام' +
+            (quota.require_telegram ? ' <span class="req">*</span>' : '') + '</label>' +
           '<input id="bk-tg" type="text" dir="ltr" placeholder="@username" maxlength="60"' +
-            ' value="' + esc(quota.telegram || '') + '">' +
-          '<span class="hint">يُستخدم لتنسيق الجلسة معك. اتركيه فارغاً إن لم يكن لديك.</span></div>' +
+            ' value="' + esc(quota.telegram ? '@' + String(quota.telegram).replace(/^@+/, '') : '') + '">' +
+          '<span class="hint">المطلوب <b>اسم المستخدم</b> مثل ‎@username — لا الاسم الظاهر ' +
+            'في حسابك ولا رقم الجوال. به يتواصل معك الكوتش لتنسيق الجلسة، ولا يراه غيره.</span>' +
+          (needTg
+            ? '<span class="nerr">أضيفي اسم المستخدم قبل تأكيد الحجز.</span>'
+            : '') +
+        '</div>' +
 
         '<div class="nfld"><label for="bk-note">ما الذي تريدين تغطيته؟ (اختياري)</label>' +
           '<input id="bk-note" type="text" maxlength="200"></div>' +
@@ -191,12 +201,39 @@
 
   function book(at) {
     if (busy || !at) return;
+
+    var tg = (el('bk-tg').value || '').trim();
+    if (quota.require_telegram && !tg) {
+      var e0 = el('bk-err');
+      e0.hidden = false;
+      e0.textContent = 'أضيفي اسم المستخدم في تيليجرام قبل تأكيد الحجز.';
+      el('bk-tg').focus();
+      return;
+    }
+
     busy = true;
     var b = el('bk-go'), label = b.textContent;
     b.disabled = true; b.textContent = 'جارٍ الحجز…';
     el('bk-err').hidden = true;
 
-    db.rpc('book_private', {
+    /* المعرّف يُحفظ بدالته أولاً: تتحقّق من صيغته وتوحّدها، ويبقى
+       محفوظاً في حسابها ولو تعذّر الحجز بعدها لسبب آخر. */
+    (tg ? db.rpc('set_my_telegram', { p_handle: tg }) : Promise.resolve({ data: {} }))
+      .then(function (tr) {
+        var td = (tr && tr.data) || {};
+        if (td.error) { throw new Error(td.error); }
+        if (td.telegram) quota.telegram = String(td.telegram).replace(/^@+/, '');
+        return doBook(at, b, label);
+      })
+      .catch(function (err) {
+        busy = false; b.disabled = false; b.textContent = label;
+        var e = el('bk-err'); e.hidden = false;
+        e.textContent = (err && err.message) || 'تعذّر الحجز';
+      });
+  }
+
+  function doBook(at, b, label) {
+    return db.rpc('book_private', {
       p_coach: picked,
       p_start: at,
       p_telegram: el('bk-tg').value || null,
@@ -208,13 +245,10 @@
         var e = el('bk-err');
         e.hidden = false;
         e.textContent = d.error || r.error.message;
+        if (d.need_telegram) el('bk-tg').focus();
         return;
       }
       reload(d.message);
-    }).catch(function (err) {
-      busy = false; b.disabled = false; b.textContent = label;
-      var e = el('bk-err'); e.hidden = false;
-      e.textContent = (err && err.message) || 'تعذّر الحجز';
     });
   }
 
@@ -270,6 +304,67 @@
     });
   }
 
+  /* ---------- تقييم الكوتش ----------
+     القائمة من my_ratable_sessions(): جلسات حضرتها فعلاً وانتهت.
+     لا تُبنى هنا من التواريخ: انقضاء الوقت ليس حضوراً، والحضور
+     حالةٌ يسجّلها الكوتش أو الإدارة ولا تملك المتعلمة تغييرها. */
+  function drawRate(rows) {
+    var boxw = el('pc-rate-box');
+    if (!rows || !rows.length) { boxw.hidden = true; return; }
+    boxw.hidden = false;
+
+    el('pc-rate').innerHTML = '<div class="ss-list">' + rows.map(function (x) {
+      return '<div class="ss rt" data-bk="' + esc(x.booking_id) + '">' +
+        '<span class="co-av">' + esc((x.coach || '؟').trim().charAt(0)) + '</span>' +
+        '<span class="ss-b"><b>' + esc(x.coach) + '</b>' +
+          '<span>' + esc(dayLabel(x.starts_at)) + ' · ' +
+            esc(timeLabel(x.starts_at)) + '</span></span>' +
+        '<span class="stars" role="group" aria-label="التقييم من ١ إلى ٥">' +
+          [1, 2, 3, 4, 5].map(function (n) {
+            var on = x.my_stars && n <= x.my_stars;
+            return '<button type="button" class="star' + (on ? ' on' : '') +
+              '" data-stars="' + n + '" aria-label="' + n + ' من ٥">' +
+              '<span class="ms">star</span></button>';
+          }).join('') +
+        '</span>' +
+      '</div>';
+    }).join('') + '</div>';
+
+    el('pc-rate').querySelectorAll('.star').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var row = b.closest('[data-bk]');
+        var n = parseInt(b.getAttribute('data-stars'), 10);
+        row.querySelectorAll('.star').forEach(function (s2, k) {
+          s2.classList.toggle('on', k < n);
+        });
+        row.querySelectorAll('.star').forEach(function (s2) { s2.disabled = true; });
+
+        db.rpc('rate_coach', { p_booking: row.getAttribute('data-bk'), p_stars: n })
+          .then(function (r) {
+            var d = (r && r.data) || {};
+            if (r.error || d.error) {
+              A_toast(d.error || r.error.message, true);
+              row.querySelectorAll('.star').forEach(function (s2) { s2.disabled = false; });
+              return;
+            }
+            row.insertAdjacentHTML('beforeend',
+              '<span class="nchip ok rt-done">' + esc(d.message || 'سُجّل') + '</span>');
+            reload();
+          }).catch(function () {
+            row.querySelectorAll('.star').forEach(function (s2) { s2.disabled = false; });
+          });
+      });
+    });
+  }
+
+  function A_toast(msg, bad) {
+    var n = document.createElement('p');
+    n.className = bad ? 'nerr' : 'pc-flash';
+    n.textContent = msg;
+    el('pc-rate').insertAdjacentElement('beforebegin', n);
+    setTimeout(function () { n.remove(); }, 6000);
+  }
+
   function flash(msg) {
     if (!msg) return;
     var n = document.createElement('p');
@@ -282,11 +377,12 @@
   function reload(msg) {
     return Promise.all([
       db.rpc('my_private_quota'),
-      db.rpc('my_sessions', { p_kind: 'private' })
+      db.rpc('my_sessions', { p_kind: 'private' }),
+      db.rpc('my_ratable_sessions')
     ]).then(function (r) {
       quota = (r[0] && r[0].data) || {};
       mine = (r[1] && r[1].data) || [];
-      top(); drawMine();
+      top(); drawMine(); drawRate((r[2] && r[2].data) || []);
       if (picked) pick(picked);
       flash(msg);
     });
@@ -297,11 +393,13 @@
     return Promise.all([
       db.rpc('active_coaches'),
       db.rpc('my_private_quota'),
-      db.rpc('my_sessions', { p_kind: 'private' })
+      db.rpc('my_sessions', { p_kind: 'private' }),
+      db.rpc('my_ratable_sessions')
     ]).then(function (r) {
       coaches = (r[0] && r[0].data) || [];
       quota = (r[1] && r[1].data) || {};
       mine = (r[2] && r[2].data) || [];
+      drawRate((r[3] && r[3].data) || []);
       if (coaches.length && coaches[0].slot_min) {
         el('pc-min').textContent = num(coaches[0].slot_min);
       }

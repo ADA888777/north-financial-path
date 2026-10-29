@@ -124,6 +124,7 @@
 
     /* ---------- المحتوى: البوابة من قاعدة البيانات لا من الواجهة ---------- */
     wireEdit();
+    wireTelegram(p);
 
     db.rpc('has_active_subscription').then(function (r) {
       var ok = !r.error && r.data === true;
@@ -141,7 +142,52 @@
      المنع الحقيقي في القاعدة — صلاحية UPDATE على profiles مسحوبة من
      دور authenticated، وحارس على الجدول يرفض تغيير حقول الهوية ولو
      جاء الطلب مباشرة إلى الـAPI. ما هنا عرضٌ صادق لذلك المنع. */
-  function wireEdit() { /* لا شيء يُربط: لا أزرار تعديل في الصفحة */ }
+  function wireEdit() { /* لا أزرار تعديل لبيانات الحساب في الصفحة */ }
+
+  /* ---------- معرّف تيليجرام ----------
+     الاستثناء الوحيد من قاعدة «العرض فقط»: هذا معرّف تواصلها هي،
+     لا بيانات حساب. الحفظ يمرّ بدالة set_my_telegram التي تتحقّق من
+     الصيغة وتوحّدها — وحارس القاعدة يمنع ما عدا هذا العمود. */
+  function wireTelegram(p) {
+    var inp = el('tg-in'), btn = el('tg-save'), msg = el('tg-msg');
+    if (!inp || !btn) return;
+
+    inp.value = p.telegram ? '@' + String(p.telegram).replace(/^@+/, '') : '';
+
+    function say(text, bad) {
+      msg.hidden = false;
+      msg.textContent = text;
+      msg.classList.toggle('bad', !!bad);
+      clearTimeout(msg._t);
+      msg._t = setTimeout(function () { msg.hidden = true; }, 7000);
+    }
+
+    btn.addEventListener('click', function () {
+      if (btn.disabled) return;
+      btn.disabled = true;
+      var was = btn.textContent;
+      btn.textContent = 'جارٍ الحفظ…';
+
+      db.rpc('set_my_telegram', { p_handle: inp.value })
+        .then(function (r) {
+          btn.disabled = false; btn.textContent = was;
+          var d = (r && r.data) || {};
+          if (r.error) { say('تعذّر الحفظ: ' + r.error.message, true); return; }
+          if (d.error) { say(d.error, true); return; }
+          p.telegram = d.telegram ? String(d.telegram).replace(/^@+/, '') : null;
+          inp.value = d.telegram || '';
+          say(d.message || 'حُفظ.');
+        })
+        .catch(function (e) {
+          btn.disabled = false; btn.textContent = was;
+          say((e && e.message) || 'تعذّر الحفظ', true);
+        });
+    });
+
+    inp.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') { e.preventDefault(); btn.click(); }
+    });
+  }
 
   /* ---------- القائمة الشخصية ---------- */
   var btn = el('acct-btn'), menu = el('acct-menu');

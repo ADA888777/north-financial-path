@@ -347,3 +347,9 @@ tr.sb-soon td:first-child{box-shadow:inset 2px 0 0 #C98A3C}
 .lv-sw.rose::after{background:#F43F5E}
 .lv-sw.teal::after{background:#14B8A6}
 .lv-sw.slate::after{background:#64748B}
+
+/* تقييمات الكوتش في اللوحة */
+.co-rt{color:#E0B341}
+.co-rt .ms{font-size:15px;vertical-align:-3px}
+.co-rt-box:not(:empty){margin-top:12px;padding-top:12px;
+  border-top:1px dashed var(--a-line,#1E3A57)}

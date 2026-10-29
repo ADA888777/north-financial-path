@@ -11,6 +11,46 @@
 
   var DAYS = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
   var rows = [], avail = [], sessions = 0, busy = false, sheet = null, editing = null;
+  /* النافذة المعتمدة وتقييمات الكوتشات — كلاهما من القاعدة.
+     المتوسط محسوب من التقييمات المحفوظة، فلا يملك أحد كتابته. */
+  var policy = { open_from: '18:00', open_to: '23:00' };
+  var openDays = [0, 1, 2, 3, 4];
+  var ratings = {};
+
+  function rateLine(id) {
+    var r = ratings[id];
+    if (!r || !r.count) {
+      return '<span class="co-meta">لا توجد تقييمات بعد</span>';
+    }
+    return '<span class="co-meta co-rt"><span class="ms">star</span>' +
+      esc(r.avg) + ' من ٥ · ' + esc(r.count) + ' تقييماً</span>';
+  }
+
+  function showRatings(id, host) {
+    var r = ratings[id] || {};
+    var list = r.ratings || [];
+    if (host._open) { host.innerHTML = ''; host._open = false; return; }
+    host._open = true;
+
+    if (!list.length) {
+      host.innerHTML = '<p class="muted" style="padding:10px 0">' +
+        'لا توجد تقييمات لهذا الكوتش بعد.</p>';
+      return;
+    }
+    host.innerHTML =
+      '<p class="sub" style="margin:10px 0">المتوسط ' + esc(r.avg) + ' من ٥، محسوب من ' +
+        esc(r.count) + ' تقييماً مرتبطاً بجلسات حضرها أصحابها — لا يُعدَّل يدوياً.</p>' +
+      '<div class="tbl-wrap"><table class="tbl"><thead><tr>' +
+        '<th>العضو</th><th>رقم العضوية</th><th>التقييم</th><th>الملاحظة</th><th>التاريخ</th>' +
+      '</tr></thead><tbody>' +
+      list.map(function (x) {
+        return '<tr><td>' + esc(x.member || '—') + '</td>' +
+          '<td><span class="num">' + esc(x.membership_no || '—') + '</span></td>' +
+          '<td><span class="num">' + esc(x.stars) + '/5</span></td>' +
+          '<td>' + esc(x.comment || '—') + '</td>' +
+          '<td class="muted">' + esc(A.fmtDate(x.at)) + '</td></tr>';
+      }).join('') + '</tbody></table></div>';
+  }
 
   function kpis() {
     var c = panel.querySelectorAll('#co-kpis .kpi b');
@@ -36,11 +76,13 @@
           '<div><b>' + esc(c.name) + '</b>' +
             (c.title ? '<span class="muted"> · ' + esc(c.title) + '</span>' : '') +
             '<span class="co-meta">' + esc(c.slot_min) + ' دقيقة للجلسة' +
-              (c.telegram ? ' · ' + esc(c.telegram) : '') + '</span></div>' +
+              (c.telegram ? ' · ' + esc(c.telegram) : '') + '</span>' +
+            rateLine(c.id) + '</div>' +
           (c.active ? '<span class="tag tag-ok">مفعّل</span>' : '<span class="tag tag-off">معطّل</span>') +
           '<div class="co-btns">' +
             '<button class="bt bt-ghost bt-sm" type="button" data-co="' + esc(c.id) + '">تعديل</button>' +
             '<button class="bt bt-ghost bt-sm" type="button" data-co-del="' + esc(c.id) + '">حذف</button>' +
+            '<button class="bt bt-ghost bt-sm" type="button" data-co-rt="' + esc(c.id) + '">التقييمات</button>' +
           '</div>' +
         '</div>' +
         '<div class="av">' +
@@ -53,15 +95,28 @@
               }).join('')
             : '<span class="muted">بلا أوقات توفّر — لن تظهر له مواعيد للحجز.</span>') +
         '</div>' +
+        '<div class="co-rt-box" data-rt-host="' + esc(c.id) + '"></div>' +
         '<form class="av-add" data-coach="' + esc(c.id) + '">' +
           '<select name="d">' + DAYS.map(function (d, i) {
-            return '<option value="' + i + '">' + d + '</option>'; }).join('') + '</select>' +
-          '<input name="s" type="time" value="16:00" step="900">' +
-          '<input name="e" type="time" value="20:00" step="900">' +
+            // الأيام المغلقة لا تُعرض أصلاً: القاعدة ترفضها على كل حال
+            return (openDays.indexOf(i) === -1)
+              ? ''
+              : '<option value="' + i + '">' + d + '</option>'; }).join('') + '</select>' +
+          '<input name="s" type="time" value="' + esc(policy.open_from || '18:00') +
+            '" min="' + esc(policy.open_from || '18:00') + '" max="' + esc(policy.open_to || '23:00') + '" step="900">' +
+          '<input name="e" type="time" value="' + esc(policy.open_to || '23:00') +
+            '" min="' + esc(policy.open_from || '18:00') + '" max="' + esc(policy.open_to || '23:00') + '" step="900">' +
           '<button class="bt bt-soft bt-sm" type="submit">أضف وقتاً</button>' +
         '</form>' +
       '</div>';
     }).join('');
+
+    el('co-list').querySelectorAll('[data-co-rt]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var id = b.getAttribute('data-co-rt');
+        showRatings(id, el('co-list').querySelector('[data-rt-host="' + id + '"]'));
+      });
+    });
 
     el('co-list').querySelectorAll('.av-add').forEach(function (f) {
       f.addEventListener('submit', function (e) { e.preventDefault(); addAvail(f); });
@@ -75,7 +130,9 @@
       db.from('coaches').select('*').order('sort_order'),
       db.from('coach_availability').select('*'),
       db.from('class_slots').select('id', { count: 'exact', head: true })
-        .eq('kind', 'private').eq('status', 'scheduled')
+        .eq('kind', 'private').eq('status', 'scheduled'),
+      db.rpc('admin_coach_ratings'),
+      db.from('booking_policy').select('*').maybeSingle()
     ]).then(function (r) {
       if (r[0].error) {
         el('co-list').innerHTML = '<div class="state"><span class="ms">error</span>' +
@@ -85,6 +142,20 @@
       rows = r[0].data || [];
       avail = (!r[1].error && r[1].data) || [];
       sessions = (!r[2].error && r[2].count) || 0;
+
+      ratings = {};
+      var rt = (r[3] && !r[3].error && r[3].data) || [];
+      if (Array.isArray(rt)) {
+        rt.forEach(function (x) { ratings[x.coach_id] = x; });
+      }
+
+      var pol = (r[4] && !r[4].error && r[4].data) || null;
+      if (pol) {
+        policy = { open_from: String(pol.open_from || '18:00').slice(0, 5),
+                   open_to:   String(pol.open_to   || '23:00').slice(0, 5) };
+        openDays = Array.isArray(pol.open_weekdays) ? pol.open_weekdays : openDays;
+      }
+
       draw();
     });
   }

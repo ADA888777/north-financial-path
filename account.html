@@ -104,6 +104,19 @@
         <div><dt>تاريخ الانضمام</dt><dd id="d-joined">—</dd></div>
       </dl>
 
+      <!-- الاستثناء الوحيد: معرّف تواصلها هي، تكتبه بنفسها -->
+      <div class="tg-box">
+        <label for="tg-in">اسم المستخدم في تيليجرام</label>
+        <div class="tg-row">
+          <input type="text" id="tg-in" dir="ltr" placeholder="@username" maxlength="60">
+          <button class="nbtn nbtn-p nbtn-sm" type="button" id="tg-save">حفظ</button>
+        </div>
+        <p class="tg-hint">المطلوب <b>اسم المستخدم</b> مثل ‎@username — لا الاسم الظاهر
+          في حسابك ولا رقم الجوال. به يتواصل معك الكوتش لتنسيق جلستك الخاصة،
+          ولا يظهر لغيره.</p>
+        <p class="tg-msg" id="tg-msg" hidden></p>
+      </div>
+
       <p class="ro-note" id="ro-note">
         <span class="ms sm">lock</span>
         <span>بياناتك معروضة للاطّلاع. تعديل الاسم أو البريد أو اسم المستخدم

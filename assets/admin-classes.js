@@ -282,7 +282,7 @@
       '<div class="tbl-wrap"><table class="tbl">' +
         '<thead><tr>' +
           '<th>العضو</th><th>البريد</th><th>رقم العضوية</th>' +
-          '<th>الحالة</th><th>تاريخ الحجز</th><th></th>' +
+          '<th>تيليجرام</th><th>الحالة</th><th>تاريخ الحجز</th><th></th>' +
         '</tr></thead><tbody>' +
         bookings.map(function (b) {
           var m = byId[b.user_id] || {};
@@ -290,6 +290,9 @@
             '<td>' + esc(m.full_name || '—') + '</td>' +
             '<td><span class="num">' + esc(m.email || '—') + '</span></td>' +
             '<td><span class="num">' + esc(m.membership_no || '—') + '</span></td>' +
+            '<td><span class="num">' +
+              (b.telegram ? '@' + esc(String(b.telegram).replace(/^@+/, '')) : '—') +
+            '</span></td>' +
             '<td>' +
               '<select class="bk-status" style="padding:7px 10px;font-size:13px">' +
                 Object.keys(BK).map(function (k) {
@@ -308,12 +311,25 @@
     bkList.querySelectorAll('tr[data-id]').forEach(function (tr) {
       var id = tr.getAttribute('data-id');
 
+      /* الحضور يمرّ بـadmin_set_attendance لا بكتابة مباشرة:
+         الدالة ترفض تسجيل حضور قبل انتهاء الجلسة، وتكتب لحظة
+         التسجيل ومن سجّله، وتقيّده في السجلّ الإداري. */
       tr.querySelector('.bk-status').addEventListener('change', function (e) {
-        var value = e.target.value;
-        db.from('bookings').update({ status: value }).eq('id', id).then(function (r) {
-          if (r.error) { A.toast('تعذّر التغيير: ' + F.why(r.error), 'bad'); loadBookings(); return; }
-          A.toast('حُدّثت حالة الحضور.');
-        });
+        var sel = e.target, value = sel.value;
+        sel.disabled = true;
+        db.rpc('admin_set_attendance', { p_booking: id, p_status: value })
+          .then(function (r) {
+            sel.disabled = false;
+            var d = (r && r.data) || {};
+            if (r.error || d.error) {
+              A.toast(d.error || F.why(r.error), 'bad');
+              loadBookings();
+              return;
+            }
+            A.toast(d.message || 'حُدّثت حالة الحضور.');
+            loadBookings();
+          })
+          .catch(function () { sel.disabled = false; loadBookings(); });
       });
 
       tr.querySelector('[data-act=del]').addEventListener('click', function () {

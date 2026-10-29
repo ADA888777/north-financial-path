@@ -488,7 +488,11 @@ a.pip:hover{transform:translateY(-1px)}
 .co-b{min-width:0;flex:1}
 .co-b b{display:block;font-size:14px;font-weight:700;overflow:hidden;text-overflow:ellipsis;
   white-space:nowrap}
-.co-b span{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--fg-3);margin-top:2px}
+.co-b span{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--fg-3);margin-top:3px}
+.co-rate{font-weight:700;color:#D79B1E}
+.co-rate .ms{font-size:16px;color:#F5A623}
+.co-rate i{font-style:normal;font-weight:400;color:var(--fg-3)}
+.co-rate.none{font-weight:400;color:var(--fg-3)}
 .co-b .ms{font-size:14px;color:#F5A623}
 .co .ck{flex:0 0 auto;color:var(--accent);font-size:20px;opacity:0}
 .co[aria-pressed="true"] .ck{opacity:1}
@@ -576,3 +580,20 @@ a.pip:hover{transform:translateY(-1px)}
     color-mix(in srgb,var(--gc,var(--accent)) 11%,var(--surface)),var(--surface) 64%);
   border-color:color-mix(in srgb,var(--gc,var(--accent)) 32%,var(--card-line))}
 .gd.is-goal .gd-t b{font-size:16px}
+
+/* تقييم الكوتش بعد جلسة حضرتها */
+.ss.rt{flex-wrap:wrap}
+.stars{display:flex;gap:3px;flex:0 0 auto}
+.star{font:inherit;border:0;background:transparent;cursor:pointer;padding:4px;
+  line-height:1;color:var(--line-2);min-width:36px;min-height:36px;
+  display:grid;place-items:center}
+.star .ms{font-size:24px}
+.star:hover,.star.on{color:#F5A623}
+.star[disabled]{cursor:default}
+.rt-done{flex-basis:100%;margin-top:8px}
+
+/* حقل مطلوب ولم يُدخل بعد */
+.nfld.need select,.nfld.need input{border-color:var(--flame)}
+.nfld .req{color:var(--dn)}
+.nfld .nerr{display:block;margin-top:6px}
+.nfld .hint b{color:var(--fg-2)}
