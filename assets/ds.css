@@ -562,7 +562,13 @@ a.pip:hover{transform:translateY(-1px)}
 .gd-h{display:flex;align-items:center;gap:10px;width:100%;font:inherit;text-align:start;
   cursor:pointer;border:0;background:var(--tile-bg);color:var(--fg);
   padding:clamp(14px,2.2vw,18px);border-bottom:1px solid var(--card-line)}
+/* ترويسة الدليل: اسم القسم وتحته سطر تعريفي.
+   اسمها .gd-ti لا .gd-t — الأخير يملكه جسم البطاقة. */
 .gd-h h2{flex:1;min-width:0;font-size:clamp(17px,2vw,20px);font-weight:900;margin:0}
+.gd-ti{flex:1;min-width:0}
+.gd-ti b{display:block;font-family:var(--display);font-weight:var(--w-black);
+  font-size:clamp(17px,2vw,20px);line-height:1.35}
+.gd-ti i{display:block;font-style:normal;font-size:12.5px;color:var(--fg-3);margin-top:3px}
 .gd-c{color:var(--fg-3);font-size:22px;flex:0 0 auto}
 .gd-body{display:grid;gap:10px;padding:clamp(14px,2.2vw,18px)}
 

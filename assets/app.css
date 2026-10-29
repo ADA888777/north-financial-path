@@ -617,3 +617,11 @@ img{max-width:100%;display:block}
   .nav-links a{padding-block:11px}
   .lnav-item{padding-block:15px}
 }
+
+/* تنبيه تحت عنوان القسم */
+.sec-note{display:flex;gap:8px;align-items:flex-start;max-width:70ch;margin-top:12px;
+  font-size:13.5px;line-height:1.9;color:var(--fg-2)}
+.sec-note .ms{color:var(--accent);flex:0 0 auto;margin-top:2px}
+/* ثلاث بطاقات متساوية بدل شبكة البنتو الستّية */
+.bento-3{grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr))}
+.bento-3 .cell{grid-column:auto;grid-row:auto}
