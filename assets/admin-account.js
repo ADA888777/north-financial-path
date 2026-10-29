@@ -31,6 +31,29 @@
 
   function close() { if (sheet) sheet.classList.remove('on'); cur = null; }
 
+  /* اشتراك نافذ الآن؟ تغيير الباقة وحده لا يُفعّل اشتراكاً منتهياً،
+     ولو خُفي ذلك لرقّت الإدارة عضوة ثم لم تر العضوة شيئاً. */
+  function live(m) {
+    return m.account_status === 'active' && m.effective_status === 'active';
+  }
+
+  function subTag(m) {
+    if (live(m)) {
+      return '<span class="tag tag-ok">نافذ' +
+        (m.days_left != null ? ' · ' + m.days_left + ' يوماً' : '') + '</span>';
+    }
+    return '<span class="tag tag-off">' +
+      (m.effective_status === 'expired' ? 'منتهٍ' : 'غير نافذ') + '</span>';
+  }
+
+  function expiredWarn(m) {
+    if (live(m)) return '';
+    return '<p class="warn-line"><span class="ms">report</span>' +
+      'اشتراك هذه العضوة غير نافذ الآن، فتغيير الباقة وحده لن يفتح لها شيئاً. ' +
+      'استعملي «غيّر الباقة وفعّل ٦٠ يوماً»، أو غيّري الباقة ثم جدّدي من ' +
+      '«الاشتراك».</p>';
+  }
+
   function render(m, events) {
     cur = m;
     el('acc-title').textContent = 'بيانات الحساب: ' + (m.full_name || '');
@@ -43,6 +66,26 @@
             ? '<span class="tag tag-ok">فعّال</span>'
             : '<span class="tag tag-off">موقوف</span>') + '</b></div>' +
         '<div><span>الباقة</span><b>' + esc(m.plan || '—') + '</b></div>' +
+        '<div><span>الاشتراك</span><b>' + subTag(m) + '</b></div>' +
+      '</div>' +
+
+      /* الترقية من هنا مباشرة: الباقة تظهر في هذا الشيت، فيُنتظر
+         تغييرها فيه. العضوية ورقمها لا تتغيّر — الاسم وحده ينتقل. */
+      '<div class="sub-act">' +
+        '<h3>الباقة</h3>' +
+        '<p class="sub-h">ترقية العميلة أو تخفيضها تتم هنا، على حسابها نفسه. ' +
+          'رقم العضوية والبريد وكلمة المرور وتقدّمها في الدروس لا يتغيّر شيء منها، ' +
+          'ويُسجَّل التغيير في سجلّ الاشتراك.</p>' +
+        '<div class="fld"><label for="a-plan">الباقة</label>' +
+          '<select id="a-plan"><option value="">جارٍ التحميل…</option></select></div>' +
+        '<div class="fld"><label for="a-plan-note">ملاحظة (اختيارية)</label>' +
+          '<input id="a-plan-note" type="text" maxlength="200" placeholder="سبب الترقية أو مرجع الدفع">' +
+        '</div>' +
+        expiredWarn(m) +
+        '<button class="bt bt-main" type="button" id="do-plan">غيّر الباقة</button>' +
+        (live(m) ? '' :
+          '<button class="bt bt-soft" type="button" id="do-plan-renew" style="margin-inline-start:8px">' +
+            'غيّر الباقة وفعّل ٦٠ يوماً</button>') +
       '</div>' +
 
       '<div class="sub-act">' +
@@ -126,6 +169,77 @@
     var sus = el('do-suspend'); if (sus) sus.addEventListener('click', suspend);
     var act = el('do-activate'); if (act) act.addEventListener('click', activate);
     el('do-delete').addEventListener('click', remove);
+
+    fillPlans(m);
+    el('do-plan').addEventListener('click', function () { changePlan(false); });
+    var pr = el('do-plan-renew');
+    if (pr) pr.addEventListener('click', function () { changePlan(true); });
+  }
+
+  /* ---------- الباقة ----------
+     القائمة من جدول الباقات لا من باقات الأعضاء الحاليين: باقة لا
+     يملكها أحدٌ بعد يجب أن تكون قابلة للاختيار، وإلا استحالت أول ترقية
+     إليها — وهذا بالضبط ما كان يمنع الترقية من البرونزية إلى الماسية. */
+  function fillPlans(m) {
+    var sel = el('a-plan');
+    db.rpc('admin_plans').then(function (r) {
+      var list = (!r.error && r.data) || [];
+      var names = list
+        .filter(function (p) { return p.active !== false; })
+        .map(function (p) { return typeof p === 'string' ? p : p.name; });
+
+      // باقتها الحالية تبقى في القائمة ولو أُوقفت، كي لا يبدو الحقل فارغاً
+      if (m.plan && names.indexOf(m.plan) === -1) names.unshift(m.plan);
+
+      if (!names.length) {
+        sel.innerHTML = '<option value="">لا توجد باقات — أضيفيها من تبويب «الباقات»</option>';
+        el('do-plan').disabled = true;
+        return;
+      }
+      sel.innerHTML = names.map(function (n) {
+        return '<option value="' + esc(n) + '"' +
+          (n === m.plan ? ' selected' : '') + '>' + esc(n) + '</option>';
+      }).join('');
+    }).catch(function () {
+      sel.innerHTML = '<option value="' + esc(m.plan || '') + '">' +
+        esc(m.plan || '—') + '</option>';
+    });
+  }
+
+  function changePlan(alsoRenew) {
+    var plan = el('a-plan').value;
+    var note = el('a-plan-note').value || null;
+    if (!plan) { A.toast('اختاري باقة.', 'bad'); return; }
+
+    if (plan === (cur && cur.plan) && !alsoRenew) {
+      A.toast('الباقة كما هي، لم يُغيَّر شيء.');
+      return;
+    }
+
+    var btn = alsoRenew ? el('do-plan-renew') : el('do-plan');
+    var was = btn.textContent;
+    btn.disabled = true; btn.textContent = 'جارٍ الحفظ…';
+
+    /* التفعيل مع الترقية نداءٌ واحد: admin_renew_days تضبط الباقة
+       والمدّة والحالة معاً، فلا تبقى عضوة بباقة ماسية واشتراك منتهٍ. */
+    var call = alsoRenew
+      ? db.rpc('admin_renew_days', {
+          p_user: cur.id, p_days: 60, p_plan: plan,
+          p_note: note || 'ترقية وتفعيل من بيانات الحساب',
+          p_paid: false, p_payment_ref: null })
+      : db.rpc('admin_set_plan', { p_user: cur.id, p_plan: plan, p_note: note });
+
+    call.then(function (r) {
+      btn.disabled = false; btn.textContent = was;
+      var d = (r && r.data) || {};
+      if (r.error || d.error) { A.toast(d.error || r.error.message, 'bad'); return; }
+      A.toast(d.message || 'حُفظت الباقة.');
+      if (onDone) onDone();
+      reload(cur.id);
+    }).catch(function (e) {
+      btn.disabled = false; btn.textContent = was;
+      A.toast((e && e.message) || 'تعذّر الحفظ', 'bad');
+    });
   }
 
   var LABEL = { full_name: 'الاسم الظاهر', username: 'اسم المستخدم',
