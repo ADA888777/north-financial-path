@@ -106,8 +106,23 @@
       }
       return db.rpc('is_admin').then(function (res) {
         if (res.error || res.data !== true) {
-          deny('ليس لديك صلاحية', 'هذا الحساب ليس حساب إدارة. إذا كان هذا خطأ تواصل مع مسؤول المنصة.', false);
-          return null;
+          /* الأدمن المعطَّل تردّه is_admin أيضاً، فرسالة «ليس حساب
+             إدارة» تضلّله. نسأل عن حالة الحساب لنقول السبب الصحيح. */
+          return db.rpc('account_state').then(function (st) {
+            var d = (st && st.data) || {};
+            if (d.signed_in && d.active === false) {
+              deny('حسابك معطَّل', d.reason || 'تواصل مع إدارة المنصة.', false);
+              db.auth.signOut().catch(function () {});
+            } else {
+              deny('ليس لديك صلاحية',
+                'هذا الحساب ليس حساب إدارة. إذا كان هذا خطأ تواصل مع مسؤول المنصة.', false);
+            }
+            return null;
+          }).catch(function () {
+            deny('ليس لديك صلاحية',
+              'هذا الحساب ليس حساب إدارة. إذا كان هذا خطأ تواصل مع مسؤول المنصة.', false);
+            return null;
+          });
         }
         if (shell) shell.hidden = false;
         if (gate) gate.hidden = true;

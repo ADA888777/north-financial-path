@@ -40,6 +40,7 @@
     <button class="tab" type="button" data-tab="quizzes">الاختبارات</button>
     <button class="tab" type="button" data-tab="classes">الحصص</button>
     <button class="tab" type="button" data-tab="coaches">الكوتشات</button>
+    <button class="tab" type="button" data-tab="me">الملف الشخصي والإعدادات</button>
     <button class="tab" type="button" data-tab="vocab">المفردات</button>
     <button class="tab" type="button" data-tab="plans">الباقات</button>
     <button class="tab" type="button" data-tab="stories">قصص النجاح</button>
@@ -176,6 +177,20 @@
   </section>
 
   <!-- ===================== قصص النجاح ===================== -->
+  <!-- ============ الملف الشخصي والإعدادات ============ -->
+  <section data-panel="me" hidden>
+    <div class="kpis" id="me-kpis">
+      <div class="kpi"><span>حسابات الإدارة</span><b>—</b></div>
+      <div class="kpi"><span>حالة حسابك</span><b>—</b></div>
+      <div class="kpi"><span>عمليات مسجّلة</span><b>—</b></div>
+    </div>
+    <div class="panel-box">
+      <h2 style="margin:0 0 6px">الملف الشخصي والإعدادات</h2>
+      <p class="sub" style="margin-top:0">بياناتك أنت. الصلاحيات لا تُعدَّل من هنا.</p>
+      <div id="me-body"></div>
+    </div>
+  </section>
+
   <!-- ===================== الكوتشات ===================== -->
   <section data-panel="coaches" hidden>
     <div class="kpis" id="co-kpis">
@@ -710,6 +725,7 @@
 <script src="assets/admin-members.js"></script>
 <script src="assets/admin-subscription.js"></script>
 <script src="assets/admin-account.js"></script>
+<script src="assets/admin-me.js"></script>
 <script src="assets/admin-plans.js"></script>
 <script src="assets/admin-vocab.js"></script>
 <script src="assets/admin-coaches.js"></script>

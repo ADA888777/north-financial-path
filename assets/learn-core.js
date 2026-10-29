@@ -72,9 +72,25 @@
     return db.auth.getSession().then(function (r) {
       var s = r && r.data && r.data.session;
       if (!s) { deny('تحتاج تسجيل الدخول', 'هذه الصفحة لحسابك الخاص.', true); return null; }
-      var sh = el('shell'); if (sh) sh.hidden = false;
-      var g = el('gate'); if (g) g.hidden = true;
-      return s;
+      /* جلسة صدرت قبل التعطيل تبقى صالحة حتى تنتهي. نسأل القاعدة عن
+         حالة الحساب عند كل فتح صفحة، فلا يبقى معطَّل يتصفّح بجلسته. */
+      return db.rpc('account_state').then(function (r) {
+        var st = (r && r.data) || {};
+        if (st.signed_in && st.active === false) {
+          deny('حسابك معطَّل', st.reason || 'تواصل مع إدارة المنصة.', false);
+          db.auth.signOut().catch(function () {});
+          return null;
+        }
+        var sh = el('shell'); if (sh) sh.hidden = false;
+        var g = el('gate'); if (g) g.hidden = true;
+        return s;
+      }).catch(function () {
+        /* تعذّر السؤال: لا نُخرج أحداً بسبب عطب شبكة عابر. الدوال
+           نفسها ترفض المعطَّل، فالمحتوى محميّ على كل حال. */
+        var sh = el('shell'); if (sh) sh.hidden = false;
+        var g = el('gate'); if (g) g.hidden = true;
+        return s;
+      });
     }).catch(function (e) {
       deny('تعذّر التحقق', (e && e.message) || '', false);
       return null;

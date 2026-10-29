@@ -89,6 +89,26 @@
         '<p class="sub-h" id="reset-note" hidden></p>' +
       '</div>' +
 
+      '<div class="sub-act danger">' +
+        '<h3>حالة الحساب</h3>' +
+        (m.account_status === 'active'
+          ? '<p class="sub-h">التعطيل يوقف دخول العضو ويُنهي جلساته القائمة، ' +
+            'ويحتفظ ببياناته وسجل اشتراكاته وحجوزاته كما هي. يمكن التراجع عنه في أي وقت.</p>' +
+            '<div class="fld"><label for="x-reason">سبب التعطيل (يُسجَّل)</label>' +
+              '<input id="x-reason" type="text" maxlength="200"></div>' +
+            '<button class="bt bt-ghost" type="button" id="do-suspend">عطّل الحساب</button>'
+          : '<p class="sub-h">الحساب معطَّل الآن: لا يستطيع الدخول، وبياناته محفوظة.</p>' +
+            '<button class="bt bt-main" type="button" id="do-activate">أعد تفعيل الحساب</button>') +
+      '</div>' +
+
+      '<div class="sub-act danger">' +
+        '<h3>حذف الحساب</h3>' +
+        '<p class="sub-h">الحذف نهائي ولا رجعة فيه. يمحو معه الاشتراكات والحجوزات ' +
+          'والتقدّم والنتائج — كلها مرتبطة بالحساب وتُحذف معه. ' +
+          '<b>إن كان الهدف منع الدخول مؤقتاً فالتعطيل أعلاه يكفي ويحفظ كل شيء.</b></p>' +
+        '<button class="bt bt-ghost danger-btn" type="button" id="do-delete">احذف الحساب نهائياً…</button>' +
+      '</div>' +
+
       '<div class="sub-act">' +
         '<h3>سجل التعديلات</h3>' + history(events) +
       '</div>';
@@ -102,6 +122,10 @@
     el('do-user').addEventListener('click', saveUser);
     el('do-email').addEventListener('click', saveEmail);
     el('do-reset').addEventListener('click', sendReset);
+
+    var sus = el('do-suspend'); if (sus) sus.addEventListener('click', suspend);
+    var act = el('do-activate'); if (act) act.addEventListener('click', activate);
+    el('do-delete').addEventListener('click', remove);
   }
 
   var LABEL = { full_name: 'الاسم الظاهر', username: 'اسم المستخدم',
@@ -209,6 +233,81 @@
     }).catch(function (e) {
       b.disabled = false; b.textContent = 'أرسل رابط إعادة التعيين';
       A.toast((e && e.message) || 'تعذّر الإرسال', 'bad');
+    });
+  }
+
+  /* الثلاث تمرّ بدالة الخادم: التعطيل يحتاج حظراً في نظام المصادقة،
+     والحذف يحتاج حذف المستخدم نفسه. الجدول وحده لا يكفي لأي منهما. */
+  function callServer(btn, action, reason, after) {
+    if (busy || !cur) return;
+    busy = true;
+    var txt = btn.textContent;
+    btn.disabled = true; btn.textContent = 'جارٍ التنفيذ…';
+
+    db.functions.invoke('admin-account-action', {
+      body: { user_id: cur.id, action: action, reason: reason || null }
+    }).then(function (r) {
+      busy = false; btn.disabled = false; btn.textContent = txt;
+      var d = (r && r.data) || {};
+      if (r.error && !r.data) {
+        A.toast('تعذّر الوصول إلى دالة الخادم. تأكد من نشر admin-account-action.', 'bad');
+        return;
+      }
+      if (d.error) { A.toast(d.error, 'bad'); return; }
+      A.toast(d.message || 'تم', 'ok');
+      if (onDone) onDone();
+      if (after) after(d); else reload(cur.id);
+    }).catch(function (e) {
+      busy = false; btn.disabled = false; btn.textContent = txt;
+      A.toast((e && e.message) || 'تعذّر التنفيذ', 'bad');
+    });
+  }
+
+  function suspend() {
+    if (!window.confirm('تعطيل حساب ' + (cur.full_name || '') + '؟\n' +
+      'سيُمنع من الدخول فوراً، وتبقى بياناته وسجلّه كما هي.')) return;
+    callServer(el('do-suspend'), 'suspend', el('x-reason') ? el('x-reason').value : null);
+  }
+
+  function activate() {
+    callServer(el('do-activate'), 'activate', null);
+  }
+
+  /* الحذف لا يُنفَّذ بنقرة: نقرأ أولاً ما سيُمحى ونعرضه، ثم نطلب كتابة
+     رقم العضوية. نافذة «هل أنت متأكد» وحدها تُضغط بلا قراءة. */
+  function remove() {
+    var btn = el('do-delete');
+    btn.disabled = true;
+    db.rpc('admin_delete_preview', { p_user: cur.id }).then(function (r) {
+      btn.disabled = false;
+      var d = (r && r.data) || {};
+      if (r.error || d.error) { A.toast(d.error || r.error.message, 'bad'); return; }
+
+      var counts = d.counts || {};
+      var lines = Object.keys(counts)
+        .filter(function (k) { return counts[k] > 0; })
+        .map(function (k) { return '  • ' + counts[k] + ' ' + k; });
+
+      var ref = d.membership_no || d.email || '';
+      var typed = window.prompt(
+        'حذف نهائي لحساب: ' + (d.name || '') + '\n' +
+        (lines.length ? 'سيُمحى معه:\n' + lines.join('\n') + '\n\n'
+                      : 'لا توجد سجلات مرتبطة به.\n\n') +
+        'لا رجعة في هذا.\nاكتب رقم العضوية للتأكيد: ' + ref);
+
+      if (typed === null) return;
+      if (String(typed).trim() !== String(ref).trim()) {
+        A.toast('لم يطابق رقم العضوية. أُلغي الحذف.', 'bad');
+        return;
+      }
+
+      callServer(btn, 'delete', null, function () {
+        close();
+        if (onDone) onDone();
+      });
+    }).catch(function (e) {
+      btn.disabled = false;
+      A.toast((e && e.message) || 'تعذّر التحقق', 'bad');
     });
   }
 

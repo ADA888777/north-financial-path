@@ -292,3 +292,10 @@ body.adm-body::after{opacity:.35}
 /* أزرار الصف في جدول الأعضاء */
 .row-acts{white-space:nowrap}
 .row-acts .bt + .bt{margin-inline-start:6px}
+
+/* أقسام حسّاسة في لوحة الحساب */
+.sub-act.danger{border-top-color:color-mix(in srgb,var(--a-bad,#BE5F3F) 35%,var(--a-line))}
+.sub-act.danger h3{color:var(--a-bad,#E08B6A)}
+.danger-btn{border-color:color-mix(in srgb,var(--a-bad,#BE5F3F) 45%,var(--a-line))!important;
+  color:var(--a-bad,#E08B6A)!important}
+.danger-btn:hover{background:color-mix(in srgb,var(--a-bad,#BE5F3F) 14%,transparent)!important}
