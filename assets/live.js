@@ -26,7 +26,10 @@
   }
 
   /* عدّاد يظهر وحده حين يبقى أقل من ٢٤ ساعة */
-  function countdown(iso) {
+  /* العدّ التنازلي لا يبدأ إلا داخل ٢٤ ساعة، ويتوقّف عند البداية.
+     soon تأتي من الخادم: ساعة المتصفح قد تكون مضبوطة خطأً. */
+  function countdown(iso, soon) {
+    if (soon === false) return '';
     var ms = new Date(iso) - new Date();
     if (ms <= 0 || ms > 24 * 3600 * 1000) return '';
     var h = Math.floor(ms / 3600000);
@@ -39,7 +42,7 @@
 
   function refreshCounters() {
     document.querySelectorAll('.cdn').forEach(function (c) {
-      var html = countdown(c.getAttribute('data-at'));
+      var html = countdown(c.getAttribute('data-at'), true);
       if (!html) { c.remove(); return; }
       var tmp = document.createElement('div');
       tmp.innerHTML = html;
@@ -74,8 +77,12 @@
               (s.capacity && !s.mine
                 ? ' · ' + (full ? 'اكتملت المقاعد' : num(s.seats_left) + ' مقعداً متاحاً')
                 : '') +
+            (s.phase === 'live' ? ' · بدأت' : '') +
             '</span>' +
-            countdown(s.starts_at) +
+            countdown(s.starts_at, s.soon) +
+            (s.phase === 'live'
+              ? '<span class="cdn now"><span class="ms">sensors</span>جارية الآن</span>'
+              : '') +
           '</span>' +
           '<span class="ss-a">' +
             (s.mine

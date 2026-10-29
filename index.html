@@ -169,13 +169,12 @@
 
 
 <section class="rail" style="padding-top:clamp(44px,5vw,72px)">
-  <div class="figs">
-    <div class="fig"><b>3</b><span>مسارات تعليمية متدرّجة</span></div>
-    <div class="fig"><b>48</b><span>درساً مسجّلاً</span></div>
-    <div class="fig"><b>12</b><span>اختباراً قصيراً</span></div>
+  <div class="figs" id="figs">
+    <div class="fig"><b data-fig="tracks">—</b><span>مسارات تعليمية متدرّجة</span></div>
+    <div class="fig"><b data-fig="lessons">—</b><span>درساً مسجّلاً</span></div>
+    <div class="fig"><b data-fig="quizzes">—</b><span>اختباراً قصيراً</span></div>
     <div class="fig"><b>24/7</b><span>وصول إلى المحتوى</span></div>
   </div>
-  <p class="figs-note"><span class="ms sm">info</span> أرقام تجريبية لعرض التصميم.</p>
 </section>
 
 <section class="band" id="about">
@@ -530,6 +529,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js"></script>
 <script src="assets/supabase.js"></script>
 <script src="assets/stories.js"></script>
+<script src="assets/figs.js"></script>
 <script src="assets/nav-session.js"></script>
 </body>
 </html>

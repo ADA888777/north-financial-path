@@ -45,6 +45,7 @@
     <button class="tab" type="button" data-tab="vocab">المفردات</button>
     <button class="tab" type="button" data-tab="plans">الباقات</button>
     <button class="tab" type="button" data-tab="subs">الاشتراكات</button>
+    <button class="tab" type="button" data-tab="guide">دليل المبتدئين</button>
     <button class="tab" type="button" data-tab="stories">قصص النجاح</button>
   </nav>
 
@@ -290,6 +291,69 @@
       <p class="sub" style="margin-top:-10px">هذه القائمة هي ما يظهر عند ترقية عضو أو تجديد اشتراكه.
         رصيد الجلسات الخاصة هنا هو ما تراه المشتركة في صفحة الكلاسات.</p>
       <div id="pl-list"></div>
+    </div>
+  </section>
+
+  <section data-panel="guide" hidden>
+    <div class="panel-box">
+      <h2 style="margin:0 0 6px">دليل المبتدئين</h2>
+      <p class="sub" style="margin-top:0">بطاقات إرشادية ثابتة تظهر في لوحة كل متعلمة،
+        برونزية كانت أو ماسية، ولا ترتبط بتقدّمها ولا باجتياز اختبار.
+        رتّبيها بالترتيب، وحدّدي بطاقة واحدة «بطاقة الهدف» لتظهر أخيرة بتمييز.</p>
+      <form id="gd-form" class="fgrid" style="margin-top:18px">
+        <div class="fld">
+          <label for="gd-title">عنوان البطاقة</label>
+          <input type="text" id="gd-title" maxlength="80" placeholder="كل يوم درس جديد">
+          <p class="err" id="err-gd-title"><span class="ms">error</span><span></span></p>
+        </div>
+        <div class="fld">
+          <label for="gd-icon">الأيقونة</label>
+          <select id="gd-icon">
+            <option value="menu_book">درس — كتاب</option>
+            <option value="target">تطبيق — هدف</option>
+            <option value="shield">أمان — درع</option>
+            <option value="trending_up">تحليل — مؤشر</option>
+            <option value="groups">مشاركة — مجموعة</option>
+            <option value="schedule">وقت — ساعة</option>
+            <option value="emoji_events">هدف — كأس</option>
+            <option value="check_circle">عام — صح</option>
+          </select>
+        </div>
+        <div class="fld">
+          <label for="gd-accent">اللون</label>
+          <select id="gd-accent">
+            <option value="blue">أزرق</option>
+            <option value="green">أخضر</option>
+            <option value="violet">بنفسجي</option>
+            <option value="amber">كهرماني</option>
+            <option value="rose">وردي</option>
+            <option value="teal">فيروزي</option>
+          </select>
+        </div>
+        <div class="fld">
+          <label for="gd-order">الترتيب</label>
+          <input type="number" id="gd-order" value="0" min="0">
+        </div>
+        <div class="fld fld-wide">
+          <label for="gd-body">النص</label>
+          <textarea id="gd-body" rows="3" maxlength="400"
+            placeholder="اشرحي النصيحة بجملتين واضحتين."></textarea>
+        </div>
+        <div class="fld fld-wide">
+          <label class="chk"><input type="checkbox" id="gd-goal">
+            <span>بطاقة الهدف — تظهر أخيرة بتمييز خاص</span></label>
+          <label class="chk"><input type="checkbox" id="gd-pub" checked>
+            <span>منشورة</span></label>
+        </div>
+        <div class="fld fld-wide facts">
+          <button class="bt bt-main" type="submit" id="gd-save">حفظ البطاقة</button>
+          <button class="bt bt-ghost" type="button" id="gd-cancel" hidden>إلغاء التعديل</button>
+        </div>
+      </form>
+    </div>
+    <div class="panel-box">
+      <h2 style="margin:0 0 14px">البطاقات</h2>
+      <div id="gd-list"></div>
     </div>
   </section>
 
@@ -790,6 +854,7 @@
 <script src="assets/admin-subscription.js"></script>
 <script src="assets/admin-account.js"></script>
 <script src="assets/admin-me.js"></script>
+<script src="assets/admin-guide.js"></script>
 <script src="assets/admin-plans.js"></script>
 <script src="assets/admin-plan-features.js"></script>
 <script src="assets/admin-subs.js"></script>

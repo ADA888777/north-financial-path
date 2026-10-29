@@ -58,10 +58,15 @@
   <!-- ٢) ملخص المستوى -->
   <section class="nstats nsec" id="summary" aria-label="ملخص مستواك"></section>
 
-  <!-- ٣) دليل المبتدئين -->
-  <section class="ncard nsec" id="guide-box" hidden>
-    <div class="nhead"><span class="ms">lightbulb</span><h2>دليل المبتدئين</h2></div>
-    <div id="guide"></div>
+  <!-- ٣) دليل المبتدئين — ثابت للجميع، لا يرتبط بتقدّم ولا بباقة -->
+  <section class="ncard nsec gd-box" id="guide-box" hidden>
+    <button class="gd-h" type="button" id="guide-toggle"
+            aria-expanded="true" aria-controls="guide">
+      <span class="ntile"><span class="ms">lightbulb</span></span>
+      <h2>دليل المبتدئين</h2>
+      <span class="ms gd-c">expand_less</span>
+    </button>
+    <div id="guide" class="gd-body"></div>
   </section>
 
   <div class="ngrid nsec">

@@ -6,6 +6,8 @@
   var db = L.db, el = L.el, esc = L.esc, num = L.num;
 
   var id = L.qs('id');
+  // درس مقصود من تحدّي المفردات: يُعلَّم ويُمرَّر إليه عند الفتح
+  var want = L.qs('lesson');
 
   L.guard().then(function (s) {
     if (!s) return;
@@ -61,7 +63,8 @@
         : isNext
           ? '<span class="done-tag" style="color:var(--accent);background:var(--accent-wash)">قيد التقدّم</span>'
           : '<span style="font-size:11.5px;color:var(--fg-3)">لم يبدأ</span>';
-      return '<div class="qz">' +
+      return '<div class="qz' + (want && l.id === want ? ' hit' : '') + '"' +
+        (want && l.id === want ? ' id="lsn-' + esc(l.id) + '"' : '') + '>' +
         '<div style="min-width:0"><b>' + num(i + 1) + '. ' + esc(l.title) + '</b>' +
           '<div class="meta">' +
             (l.kind === 'strategy' ? 'استراتيجية' : 'درس') +
@@ -74,6 +77,17 @@
         '</div></div>';
     }).join('')
       : '<div class="empty"><span class="ms">menu_book</span>لا توجد دروس منشورة في هذا المستوى بعد.</div>';
+
+    /* المجيء من «مراجعة الدروس» في التحدي: يُمرَّر إلى الدرس المقصود.
+       القفل كما هو — التمرير لا يفتح درساً. */
+    if (want) {
+      var node = document.getElementById('lsn-' + want);
+      if (node) {
+        setTimeout(function () {
+          node.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 220);
+      }
+    }
 
     if (quiz) {
       el('lv-quiz-box').hidden = false;

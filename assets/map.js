@@ -89,8 +89,9 @@
           '<h2 class="n-h1">' + lvName(l) + '</h2>' +
           (l.subtitle ? '<p class="n-sub">' + esc(l.subtitle) + '</p>' : '') +
         '</div>' +
-        '<div class="lv-cur-n"><b>' + num(Math.max(0, (l.total || 0) - (l.done || 0))) + '</b>' +
-          '<span>درس متبقٍ في مستواك</span></div>' +
+        '<div class="lv-cur-n"><b>' + num(l.total || 0) + '</b>' +
+          '<span>درساً · ' + num(Math.max(0, (l.total || 0) - (l.done || 0))) +
+          ' متبقٍ</span></div>' +
       '</div>' +
       '<div class="nbar-row"><span>' + num(l.percent) + '% مكتمل</span>' +
         '<span>تقدمك في ' + esc(l.code || l.title) + '</span></div>' +
@@ -113,10 +114,12 @@
               (tl
                 ? '<p class="lv-lock"><span class="ms">lock</span>' +
                     esc(l.lock_reason || 'يتطلب باقة أعلى') + '</p>' + upBadge(l)
-                : '<p class="n-mut">' + num(l.done) + ' من ' + num(l.total) + ' مكتمل</p>') +
+                : '<p class="n-mut">' + num(l.done) + ' من ' + num(l.total) + ' مكتمل' +
+                  (left ? ' · ' + num(left) + ' متبقٍ' : '') + '</p>') +
             '</div>' +
-            '<div class="lv-o-n"><b>' + num(tl ? (l.total || 0) : left) + '</b>' +
-              '<span>' + (tl ? 'درساً بالباقة الأعلى' : 'قادم') + '</span></div>' +
+            // الرقم الكبير إجمالي دروس المستوى دائماً، والنسبة تحته
+            '<div class="lv-o-n"><b>' + num(l.total || 0) + '</b>' +
+              '<span>' + (num(l.total || 0) === '١' ? 'درس' : 'درساً') + '</span></div>' +
           '</div>' +
           (tl ? ''
               : '<div class="nbar-row"><span>' + num(l.percent || 0) + '% مكتمل</span>' +

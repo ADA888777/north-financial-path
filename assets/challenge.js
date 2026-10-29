@@ -8,10 +8,26 @@
   var items = [], i = 0, stat = { total: 0, answered: 0, correct: 0 }, busy = false;
 
   var VERDICT = {
-    correct: { t: 'إجابة صحيحة', c: 'ok',   ico: 'check_circle' },
-    close:   { t: 'قريبة',        c: 'mid',  ico: 'adjust' },
-    wrong:   { t: 'غير صحيحة',    c: 'no',   ico: 'cancel' }
+    correct: { t: 'إجابة صحيحة',          c: 'ok',  ico: 'check_circle' },
+    close:   { t: 'قريبة — راجع التعريف',  c: 'mid', ico: 'adjust' },
+    wrong:   { t: 'راجع التعريف الصحيح',   c: 'no',  ico: 'cancel' }
   };
+
+  /* موضع المتعلمة يُحفظ في الجلسة، فالعودة من مراجعة الدرس تُرجعها
+     إلى المفردة نفسها لا إلى أول القائمة. */
+  var SPOT = 'north-vq-spot';
+  function saveSpot(id) { try { sessionStorage.setItem(SPOT, id || ''); } catch (e) {} }
+  function readSpot() { try { return sessionStorage.getItem(SPOT) || ''; } catch (e) { return ''; } }
+
+  /* «مراجعة الدروس» تفتح المستوى الذي فيه الدرس، والدرس مُعلَّم فيه.
+     صفحة المستوى تحترم قفل الدروس، فالمراجعة لا تتجاوز صلاحية. */
+  function reviewHref(v) {
+    if (v.level_id) {
+      return 'level.html?id=' + encodeURIComponent(v.level_id) +
+             (v.lesson_id ? '&lesson=' + encodeURIComponent(v.lesson_id) : '');
+    }
+    return v.lesson_id ? 'lesson.html?id=' + encodeURIComponent(v.lesson_id) : 'map.html';
+  }
 
   function head() {
     el('ch-head').innerHTML =
@@ -66,10 +82,14 @@
       '<section class="ncard nsec vq">' +
         '<div class="vq-top">' +
           '<div class="vq-t">' +
-            '<span class="vq-n">مفردة ' + num(i + 1) + ' من ' + num(items.length) + '</span>' +
+            '<span class="vq-n">مفردة ' + num(i + 1) + ' من ' + num(stat.total) + '</span>' +
             '<h2 class="vq-term">' + esc(v.term) + '</h2>' +
-            '<a class="vq-lesson" href="lesson.html?id=' + encodeURIComponent(v.lesson_id) + '">' +
+            '<a class="vq-lesson" href="' + reviewHref(v) + '">' +
               '<span class="ms">menu_book</span>من درس: ' + esc(v.lesson) + '</a>' +
+            (v.level
+              ? '<span class="vq-level"><span class="ms">stairs</span>' +
+                (v.level_code ? esc(v.level_code) + ' · ' : '') + esc(v.level) + '</span>'
+              : '') +
           '</div>' +
           '<div class="vq-score"><span>نتيجتك الآن</span>' +
             '<b>' + num(stat.correct) + '/' + num(stat.answered) + '</b></div>' +
@@ -79,7 +99,7 @@
           '<textarea id="ans" rows="4" maxlength="400" placeholder="اكتب التعريف بأسلوبك"></textarea>' +
           '<div class="vq-acts">' +
             '<button class="nbtn nbtn-p" type="button" id="check">تحقق من الإجابة</button>' +
-            '<a class="nbtn nbtn-g" href="lesson.html?id=' + encodeURIComponent(v.lesson_id) + '">مراجعة الدروس</a>' +
+            '<a class="nbtn nbtn-g" href="' + reviewHref(v) + '">مراجعة الدروس</a>' +
           '</div>' +
           '<p class="vq-rule">التحقق يقارن كلمات جوابك بكلمات التعريف المعتمد. ' +
             'إن كتبت صياغة صحيحة بكلمات أخرى ورفضها، أرسلها لمراجعة المعلّم.</p>' +
@@ -87,6 +107,7 @@
         '</div>' +
       '</section>';
 
+    saveSpot(v.id);
     var ta = el('ans');
     ta.focus();
     ta.addEventListener('keydown', function (e) {
@@ -109,13 +130,16 @@
         '<div class="vr-h"><span class="ms">' + vd.ico + '</span><b>' + vd.t + '</b>' +
           (d.overlap != null ? '<span class="vr-p">تطابق ' + num(d.overlap) + '%</span>' : '') +
         '</div>' +
-        '<p><span class="vr-l">التعريف المعتمد</span>' + esc(d.meaning || '') + '</p>' +
+        '<p><span class="vr-l">' +
+          (d.verdict === 'correct' ? 'التعريف المعتمد' : 'التعريف الصحيح') +
+          '</span>' + esc(d.meaning || '') + '</p>' +
         (d.repeat && !silent
           ? '<p class="vr-n">أجبت هذه المفردة من قبل، فلم تُحتسب مرة ثانية.</p>' : '') +
         '<div class="vr-f">' +
           (i + 1 < items.length
             ? '<button class="nbtn nbtn-p" type="button" id="next">المفردة التالية</button>'
             : '<button class="nbtn nbtn-p" type="button" id="next">عرض النتيجة</button>') +
+          '<a class="nbtn nbtn-g" href="' + reviewHref(items[i] || {}) + '">مراجعة الدروس</a>' +
           (d.verdict !== 'correct'
             ? '<button class="nbtn nbtn-g" type="button" id="dispute">جوابي صحيح، أرسله للمراجعة</button>'
             : '') +
@@ -171,7 +195,7 @@
 
   L.guard().then(function (s) {
     if (!s) return;
-    return db.rpc('my_vocab_challenge', { p_limit: 100 }).then(function (r) {
+    return db.rpc('my_vocab_challenge', { p_limit: 500 }).then(function (r) {
       var d = (r && r.data) || {};
       if (r.error || d.error) {
         el('ch-body').innerHTML = '<section class="ncard"><p class="n-sub">' +
@@ -180,8 +204,14 @@
       }
       items = d.items || [];
       stat = { total: d.total || 0, answered: d.answered || 0, correct: d.correct || 0 };
-      // يبدأ من أول مفردة لم تُجب، لا من أولها دائماً
-      var k = items.findIndex(function (x) { return !x.answered; });
+
+      /* الأولوية للمفردة التي كانت عليها قبل أن تذهب لمراجعة الدرس،
+         ثم لأول مفردة لم تُجب، ثم أول القائمة. */
+      var spot = readSpot();
+      var k = spot
+        ? items.findIndex(function (x) { return x.id === spot; })
+        : -1;
+      if (k === -1) k = items.findIndex(function (x) { return !x.answered; });
       i = k === -1 ? 0 : k;
       head();
       card();

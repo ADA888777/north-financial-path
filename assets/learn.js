@@ -225,22 +225,34 @@
       (x.unread_count > 0 ? ' (' + num(x.unread_count) + ')' : '') + '</a>';
   }
 
-  /* ---------- 3) دليل المبتدئين ---------- */
+  /* ---------- 3) دليل المبتدئين ----------
+     محتوى ثابت من guide_steps: لا يسأل عن تقدّم ولا عن باقة، ولا
+     يختفي بإكمال درس. بطاقة الهدف تأتي أخيرة بتمييز خاص. */
   function guide(rows) {
-    if (!rows || !rows.length) return;
-    el('guide-box').hidden = false;
-    el('guide').innerHTML = rows.map(function (g, i) {
-      var href = g.first_lesson
-        ? 'lesson.html?id=' + encodeURIComponent(g.first_lesson)
-        : (g.first_level ? 'level.html?id=' + encodeURIComponent(g.first_level) : 'map.html');
-      return '<a class="gstep" href="' + href + '">' +
-        '<i class="gs-n">' + num(i + 1) + '</i>' +
-        '<div><b>' + esc(g.title) + '</b>' +
-        (g.description ? '<p>' + esc(g.description) + '</p>' : '') +
-        '<span class="gs-m">' + num(g.lessons) + ' درساً' +
-        (g.level_label ? ' · ' + esc(g.level_label) : '') + '</span></div>' +
-        '<span class="ms go">chevron_left</span></a>';
+    var box = el('guide-box');
+    if (!rows || !rows.length) { box.hidden = true; return; }
+    box.hidden = false;
+
+    el('guide').innerHTML = rows.map(function (g) {
+      return '<article class="gd ' + esc(g.accent || 'blue') +
+        (g.is_goal ? ' is-goal' : '') + '">' +
+        '<span class="gd-i"><span class="ms">' +
+          esc(g.icon || (g.is_goal ? 'emoji_events' : 'check_circle')) + '</span></span>' +
+        '<div class="gd-t"><b>' + esc(g.title) + '</b>' +
+          (g.body ? '<p>' + esc(g.body) + '</p>' : '') + '</div>' +
+      '</article>';
     }).join('');
+
+    var t = el('guide-toggle');
+    if (t && !t._wired) {
+      t._wired = true;
+      t.addEventListener('click', function () {
+        var open = t.getAttribute('aria-expanded') === 'true';
+        t.setAttribute('aria-expanded', open ? 'false' : 'true');
+        el('guide').hidden = open;
+        t.querySelector('.gd-c').textContent = open ? 'expand_more' : 'expand_less';
+      });
+    }
   }
 
   /* ---------- 8) خارطة مصغّرة ----------

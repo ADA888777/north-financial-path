@@ -528,3 +528,51 @@ a.pip:hover{transform:translateY(-1px)}
 .nerr{font-size:13px;color:var(--dn);line-height:1.8}
 .nbtn-wide{width:100%}
 
+
+/* ============================================================
+   دليل المبتدئين — صور المرجع ١–٣
+   ثابت للجميع: لا شرط باقة ولا تقدّم في عرضه.
+   ============================================================ */
+.gd-box{padding:0!important;overflow:hidden}
+.gd-h{display:flex;align-items:center;gap:10px;width:100%;font:inherit;text-align:start;
+  cursor:pointer;border:0;background:var(--tile-bg);color:var(--fg);
+  padding:clamp(14px,2.2vw,18px);border-bottom:1px solid var(--card-line)}
+.gd-h h2{flex:1;min-width:0;font-size:clamp(17px,2vw,20px);font-weight:800;margin:0}
+.gd-c{color:var(--fg-3);font-size:22px;flex:0 0 auto}
+.gd-body{display:grid;gap:10px;padding:clamp(14px,2.2vw,18px)}
+
+.gd{display:flex;align-items:flex-start;gap:12px;min-width:0;
+  border:1px solid var(--card-line);border-radius:var(--rt);
+  padding:clamp(13px,2vw,16px);background:var(--surface)}
+.gd-i{flex:0 0 auto;width:40px;height:40px;border-radius:12px;display:grid;
+  place-items:center;background:color-mix(in srgb,var(--gc,var(--accent)) 14%,transparent);
+  color:var(--gc,var(--accent))}
+.gd-i .ms{font-size:21px}
+.gd-t{min-width:0;flex:1}
+.gd-t b{display:block;font-size:15px;font-weight:800;line-height:1.5;margin-bottom:5px}
+.gd-t p{font-size:13px;color:var(--fg-2);line-height:1.9;margin:0;overflow-wrap:anywhere}
+
+.gd.blue  {--gc:var(--accent)}
+.gd.green {--gc:#16A34A}
+.gd.violet{--gc:#7C3AED}
+.gd.amber {--gc:#D97706}
+.gd.rose  {--gc:#E11D48}
+.gd.teal  {--gc:#0D9488}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .gd.green {--gc:#4ADE80}
+  :root:not([data-theme="light"]) .gd.violet{--gc:#A78BFA}
+  :root:not([data-theme="light"]) .gd.amber {--gc:#FBBF24}
+  :root:not([data-theme="light"]) .gd.rose  {--gc:#FB7185}
+  :root:not([data-theme="light"]) .gd.teal  {--gc:#2DD4BF}
+}
+:root[data-theme="dark"] .gd.green {--gc:#4ADE80}
+:root[data-theme="dark"] .gd.violet{--gc:#A78BFA}
+:root[data-theme="dark"] .gd.amber {--gc:#FBBF24}
+:root[data-theme="dark"] .gd.rose  {--gc:#FB7185}
+:root[data-theme="dark"] .gd.teal  {--gc:#2DD4BF}
+
+/* بطاقة الهدف الختامية */
+.gd.is-goal{background:linear-gradient(255deg,
+    color-mix(in srgb,var(--gc,var(--accent)) 11%,var(--surface)),var(--surface) 64%);
+  border-color:color-mix(in srgb,var(--gc,var(--accent)) 32%,var(--card-line))}
+.gd.is-goal .gd-t b{font-size:16px}
