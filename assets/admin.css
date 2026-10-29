@@ -250,3 +250,12 @@ body.adm-body::after{opacity:.35}
 .sl-n{color:var(--a-fg-3)!important;font-style:italic}
 .sl-a{font-size:11.5px;color:var(--a-fg-3);display:block;margin-top:5px}
 @media (max-width:620px){.sub-now{grid-template-columns:1fr 1fr}}
+
+/* .chk معرّف أعلاه؛ هنا الهامش داخل اللوحات وحده */
+.sheet .chk{margin:4px 0 14px}
+.sub-warn{color:var(--a-fg-3)!important;border-inline-start:2px solid var(--a-line);
+  padding-inline-start:10px;margin-bottom:14px!important}
+.pay{font-size:10.5px;font-weight:600;border-radius:999px;padding:2px 8px;margin-inline-start:6px}
+.pay.yes{background:color-mix(in srgb,var(--a-ok,#2C8A68) 20%,transparent);color:var(--a-ok,#6FD3A8)}
+.pay.no{background:rgba(141,172,205,.14);color:var(--a-fg-3)}
+.tbl td .bt-sm + .bt-sm{margin-inline-start:6px}

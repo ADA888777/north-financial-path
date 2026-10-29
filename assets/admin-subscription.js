@@ -15,6 +15,14 @@
 
   var host = null, current = null, onDone = null, busy = false, plans = [];
 
+  /* العربية تميّز المفرد والمثنّى وجمع القلّة. «4 جلسة» ركيك. */
+  function plural(n, one, two, many) {
+    if (n === 1) return one;
+    if (n === 2) return two;
+    if (n >= 3 && n <= 10) return n + ' ' + many;
+    return n + ' ' + one;
+  }
+
   function shell() {
     if (host) return host;
     host = document.createElement('div');
@@ -42,14 +50,29 @@
 
   function date(iso) { return iso ? A.fmtDate(iso) : '—'; }
 
+  /* الباقات تأتي كائنات من جدول الباقات. الباقة الحالية تُضاف ولو
+     عُطِّلت، وإلا اختفت من القائمة وبدا أن العضو بلا باقة. */
   function planOptions(selected) {
     var seen = {}, out = '';
-    plans.concat(selected ? [selected] : []).forEach(function (p) {
-      if (!p || seen[p]) return;
-      seen[p] = 1;
-      out += '<option value="' + esc(p) + '"' +
-             (p === selected ? ' selected' : '') + '>' + esc(p) + '</option>';
+    plans.forEach(function (p) {
+      if (!p || !p.name || seen[p.name]) return;
+      if (!p.active && p.name !== selected) return;
+      seen[p.name] = 1;
+      var extra = [];
+      if (p.private_quota) extra.push(plural(p.private_quota, 'جلسة خاصة', 'جلستان خاصتان', 'جلسات خاصة'));
+      if (p.duration_months) extra.push(plural(p.duration_months, 'شهر', 'شهران', 'أشهر'));
+      out += '<option value="' + esc(p.name) + '"' +
+             (p.name === selected ? ' selected' : '') + '>' + esc(p.name) +
+             (extra.length ? ' — ' + esc(extra.join(' · ')) : '') +
+             (p.active ? '' : ' (معطّلة)') + '</option>';
     });
+    if (selected && !seen[selected]) {
+      out = '<option value="' + esc(selected) + '" selected>' + esc(selected) +
+            ' (غير معتمدة)</option>' + out;
+    }
+    if (!out) {
+      out = '<option value="">لا توجد باقات — أضفها من تبويب الباقات</option>';
+    }
     return out;
   }
 
@@ -89,7 +112,13 @@
             '<select id="r-plan">' + planOptions(m.plan) + '</select></div>' +
         '</div>' +
         '<div class="fld"><label for="r-note">ملاحظة (اختيارية)</label>' +
-          '<input id="r-note" type="text" maxlength="200" placeholder="رقم الطلب في سلة مثلاً"></div>' +
+          '<input id="r-note" type="text" maxlength="200" placeholder="سبب التجديد"></div>' +
+        '<label class="chk"><input type="checkbox" id="r-paid">' +
+          '<span>وصلني الدفع عن هذه المدة</span></label>' +
+        '<div class="fld" id="r-ref-wrap" hidden><label for="r-ref">مرجع الدفع</label>' +
+          '<input id="r-ref" type="text" maxlength="100" placeholder="رقم الطلب في سلة"></div>' +
+        '<p class="sub-h sub-warn">التجديد يفتح المحتوى في الحالتين. علامة الدفع ' +
+          'تميّز «وصلني المبلغ» عن «فتحتُ له إدارياً»، ويبقى الفرق في السجل.</p>' +
         '<button class="bt bt-primary" type="button" id="do-renew">جدّد الاشتراك</button>' +
       '</div>' +
 
@@ -102,6 +131,8 @@
           '<div class="fld"><label for="p-note">ملاحظة</label>' +
             '<input id="p-note" type="text" maxlength="200"></div>' +
         '</div>' +
+        '<p class="sub-h sub-warn">تغيير الباقة قرار إداري ولا يُسجَّل دفعاً. ' +
+          'لتسجيل دفعة استخدم التجديد مع علامة الدفع.</p>' +
         '<button class="bt bt-ghost" type="button" id="do-plan">احفظ الباقة</button>' +
       '</div>' +
 
@@ -135,6 +166,10 @@
       exp.value = String(m.subscription_expires_at).slice(0, 10);
     }
 
+    var paid = el('r-paid');
+    paid.addEventListener('change', function () {
+      el('r-ref-wrap').hidden = !paid.checked;
+    });
     el('do-renew').addEventListener('click', renew);
     el('do-plan').addEventListener('click', setPlan);
     el('do-status').addEventListener('click', setStatus);
@@ -157,7 +192,12 @@
                     ' ← ' + (STATUS[e.status_after] || e.status_after || '—'));
       }
       if (e.expires_at) detail.push('ينتهي ' + date(e.expires_at));
-      return '<li><div class="sl-h"><b>' + esc(KIND[e.kind] || e.kind) + '</b>' +
+      if (e.payment_ref) detail.push('مرجع ' + e.payment_ref);
+      return '<li><div class="sl-h"><b>' + esc(KIND[e.kind] || e.kind) +
+        (e.kind === 'renew'
+          ? ' <span class="pay ' + (e.paid ? 'yes' : 'no') + '">' +
+            (e.paid ? 'مدفوع' : 'بلا دفع') + '</span>'
+          : '') + '</b>' +
         '<span>' + esc(date(e.created_at)) + '</span></div>' +
         (detail.length ? '<p>' + esc(detail.join(' · ')) + '</p>' : '') +
         (e.note ? '<p class="sl-n">' + esc(e.note) + '</p>' : '') +
@@ -196,7 +236,9 @@
         p_user: current.id,
         p_months: parseInt(el('r-months').value, 10),
         p_plan: el('r-plan').value || null,
-        p_note: el('r-note').value || null
+        p_note: el('r-note').value || null,
+        p_paid: el('r-paid').checked,
+        p_payment_ref: el('r-paid').checked ? (el('r-ref').value || null) : null
       });
     });
   }
@@ -239,6 +281,9 @@
 
     db.rpc('admin_plans').then(function (r) {
       plans = (!r.error && r.data) || [];
+      if (plans.length && typeof plans[0] === 'string') {
+        plans = plans.map(function (n) { return { name: n, active: true }; });
+      }
     }).catch(function () { plans = []; })
       .then(function () { return reload(id); })
       .catch(function (e) {
