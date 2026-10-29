@@ -33,19 +33,22 @@
       kpis(); return;
     }
     box.innerHTML = '<div class="tbl-wrap"><table class="tbl"><thead><tr>' +
-      '<th>الباقة</th><th>السعر</th><th>المدة</th><th>الجلسات الخاصة</th>' +
+      '<th>الباقة</th><th>الرتبة</th><th>السعر</th><th>المدة</th><th>الجلسات</th>' +
       '<th>الأعضاء</th><th>الحالة</th><th></th></tr></thead><tbody>' +
       rows.map(function (p) {
         return '<tr>' +
           '<td><b>' + esc(p.name) + '</b>' +
             (p.description ? '<br><span class="muted">' + esc(p.description) + '</span>' : '') + '</td>' +
+          '<td class="num">' + esc(p.tier || 1) + '</td>' +
           '<td class="num">' + esc(money(p.price_sar)) + '</td>' +
-          '<td>' + (p.duration_months ? esc(p.duration_months) + ' شهراً' : '<span class="muted">غير محددة</span>') + '</td>' +
+          '<td>' + (p.duration_days ? esc(p.duration_days) + ' يوماً' : '<span class="muted">غير محددة</span>') + '</td>' +
           '<td class="num">' + (p.private_quota ? esc(p.private_quota) : '<span class="muted">0</span>') + '</td>' +
           '<td class="num">' + esc(p.members || 0) + '</td>' +
           '<td>' + (p.active ? '<span class="tag tag-ok">مفعّلة</span>'
                              : '<span class="tag tag-off">معطّلة</span>') + '</td>' +
-          '<td><button class="bt bt-ghost bt-sm" type="button" data-pl="' + esc(p.id) + '">تعديل</button>' +
+          '<td class="row-acts">' +
+            '<button class="bt bt-ghost bt-sm" type="button" data-pl-f="' + esc(p.id) + '">المميزات والروابط</button>' +
+            '<button class="bt bt-ghost bt-sm" type="button" data-pl="' + esc(p.id) + '">تعديل</button>' +
             '<button class="bt bt-ghost bt-sm" type="button" data-pl-del="' + esc(p.id) + '">حذف</button></td>' +
         '</tr>';
       }).join('') + '</tbody></table></div>';
@@ -82,8 +85,13 @@
           '<input id="pl-name" type="text" maxlength="60" placeholder="ماسية"></div>' +
         '<div class="fld"><label for="pl-price">السعر بالريال</label>' +
           '<input id="pl-price" type="number" min="0" step="0.01" placeholder="اتركه فارغاً إن لم يُحدَّد"></div>' +
-        '<div class="fld"><label for="pl-dur">مدة الاشتراك بالأشهر</label>' +
-          '<input id="pl-dur" type="number" min="1" max="60" placeholder="غير محددة"></div>' +
+        '<div class="fld"><label for="pl-days">مدة الاشتراك بالأيام</label>' +
+          '<input id="pl-days" type="number" min="1" max="1830" placeholder="60">' +
+          '<span class="hint">هي المدة الافتراضية عند التجديد.</span></div>' +
+        '<div class="fld"><label for="pl-tier">الرتبة</label>' +
+          '<input id="pl-tier" type="number" min="1" max="9" value="1">' +
+          '<span class="hint">١ للأساسية و٢ للأعلى. المحتوى يُفتح لمن رتبته ' +
+            'تساوي أدنى رتبة الدرس أو تزيد — فلا تُربط الصلاحيات باسم الباقة.</span></div>' +
         '<div class="fld"><label for="pl-quota">رصيد الجلسات الخاصة شهرياً</label>' +
           '<input id="pl-quota" type="number" min="0" max="99" value="0">' +
           '<span class="hint">هذا ما يظهر للمشتركة كـ «٤/٤» في صفحة الكلاسات الخاصة.</span></div>' +
@@ -123,7 +131,8 @@
     el('pl-err').style.display = 'none';
     el('pl-name').value = p ? (p.name || '') : '';
     el('pl-price').value = p && p.price_sar != null ? p.price_sar : '';
-    el('pl-dur').value = p && p.duration_months != null ? p.duration_months : '';
+    el('pl-days').value = p && p.duration_days != null ? p.duration_days : 60;
+    el('pl-tier').value = p && p.tier != null ? p.tier : 1;
     el('pl-quota').value = p ? (p.private_quota || 0) : 0;
     el('pl-desc').value = p ? (p.description || '') : '';
     el('pl-url').value = p ? (p.checkout_url || '') : '';
@@ -148,21 +157,32 @@
       p_name: name,
       p_description: el('pl-desc').value || '',
       p_price: el('pl-price').value === '' ? null : Number(el('pl-price').value),
-      p_duration: el('pl-dur').value === '' ? null : parseInt(el('pl-dur').value, 10),
+      p_duration: null,
       p_quota: parseInt(el('pl-quota').value, 10) || 0,
       p_checkout: el('pl-url').value || null,
       p_sort: parseInt(el('pl-sort').value, 10) || 0,
       p_active: el('pl-active').checked
     }).then(function (r) {
-      busy = false; b.disabled = false; b.textContent = 'حفظ';
       var d = (r && r.data) || {};
       if (r.error || d.error) {
+        busy = false; b.disabled = false; b.textContent = 'حفظ';
         el('pl-err').textContent = d.error || r.error.message;
         el('pl-err').style.display = 'block';
         return;
       }
-      A.toast(d.message || 'حُفظت الباقة', 'ok');
-      close(); load();
+      /* الرتبة والمدة بالأيام عمودان مباشران؛ سياسة الجدول تقصرهما
+         على الأدمن، والدالة لا تأخذهما. */
+      var extra = {
+        tier: parseInt(el('pl-tier').value, 10) || 1,
+        duration_days: el('pl-days').value === '' ? null : parseInt(el('pl-days').value, 10),
+        updated_at: new Date().toISOString()
+      };
+      return db.from('plans').update(extra).eq('id', d.id || (editing && editing.id))
+        .then(function () {
+          busy = false; b.disabled = false; b.textContent = 'حفظ';
+          A.toast(d.message || 'حُفظت الباقة', 'ok');
+          close(); load();
+        });
     }).catch(function (e) {
       busy = false; b.disabled = false; b.textContent = 'حفظ';
       el('pl-err').textContent = (e && e.message) || 'تعذّر الحفظ';
@@ -188,6 +208,12 @@
     if (ed) {
       var id = ed.getAttribute('data-pl');
       open(rows.filter(function (x) { return x.id === id; })[0]);
+      return;
+    }
+    var fx = e.target.closest('[data-pl-f]');
+    if (fx && window.northPlanFeatures) {
+      var pf = rows.filter(function (x) { return x.id === fx.getAttribute('data-pl-f'); })[0];
+      window.northPlanFeatures.open(pf, load);
       return;
     }
     var dl = e.target.closest('[data-pl-del]');

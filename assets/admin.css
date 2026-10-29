@@ -299,3 +299,26 @@ body.adm-body::after{opacity:.35}
 .danger-btn{border-color:color-mix(in srgb,var(--a-bad,#BE5F3F) 45%,var(--a-line))!important;
   color:var(--a-bad,#E08B6A)!important}
 .danger-btn:hover{background:color-mix(in srgb,var(--a-bad,#BE5F3F) 14%,transparent)!important}
+
+/* مميزات الباقة */
+.pf-list{margin-bottom:20px}
+.pf-row{display:flex;align-items:center;gap:12px;padding:12px 0;flex-wrap:wrap}
+.pf-row + .pf-row{border-top:1px solid var(--a-line)}
+.pf-row.off{opacity:.55}
+.pf-i{font-size:20px;color:var(--a-accent);flex-shrink:0}
+.pf-b{flex:1;min-width:160px}
+.pf-b b{font-size:14.5px;color:var(--a-fg);display:block}
+.pf-k{font-size:11.5px;color:var(--a-fg-3);display:block;margin-top:3px}
+.pf-u{font-size:11.5px;color:var(--a-fg-2);display:block;margin-top:4px;
+  direction:ltr;word-break:break-all}
+.pf-warn{font-size:11.5px;color:var(--a-bad,#E08B6A);display:block;margin-top:4px}
+
+/* حالة الاشتراكات */
+.sb-plans{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.sb-plan{flex:1;min-width:150px;background:var(--a-bg-2,#0B1B2E);border:1px solid var(--a-line);
+  border-radius:12px;padding:14px 16px}
+.sb-plan b{display:block;font-size:14.5px;color:var(--a-fg)}
+.sb-plan span{display:block;font-size:11.5px;color:var(--a-fg-3);margin-top:5px}
+.tag-warn{background:color-mix(in srgb,#C98A3C 24%,transparent);color:#E8B872}
+tr.sb-expired td:first-child{box-shadow:inset 2px 0 0 var(--a-bad,#BE5F3F)}
+tr.sb-soon td:first-child{box-shadow:inset 2px 0 0 #C98A3C}

@@ -43,6 +43,7 @@
     <button class="tab" type="button" data-tab="me">الملف الشخصي والإعدادات</button>
     <button class="tab" type="button" data-tab="vocab">المفردات</button>
     <button class="tab" type="button" data-tab="plans">الباقات</button>
+    <button class="tab" type="button" data-tab="subs">الاشتراكات</button>
     <button class="tab" type="button" data-tab="stories">قصص النجاح</button>
   </nav>
 
@@ -209,6 +210,31 @@
     </div>
   </section>
 
+  <!-- ===================== الاشتراكات ===================== -->
+  <section data-panel="subs" hidden>
+    <div class="kpis" id="sb-kpis">
+      <div class="kpi"><span>نافذ</span><b>—</b></div>
+      <div class="kpi"><span>ينتهي قريباً</span><b>—</b></div>
+      <div class="kpi"><span>منتهٍ</span><b>—</b></div>
+      <div class="kpi"><span>غير مفعّل</span><b>—</b></div>
+    </div>
+    <div class="panel-box">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:16px">
+        <h2 style="margin:0">حالة الاشتراكات</h2>
+        <div class="fld" style="margin:0;max-width:200px">
+          <label for="sb-days">«قريباً» تعني خلال</label>
+          <select id="sb-days">
+            <option value="7">٧ أيام</option>
+            <option value="14" selected>١٤ يوماً</option>
+            <option value="30">٣٠ يوماً</option>
+          </select>
+        </div>
+      </div>
+      <div id="sb-plans"></div>
+      <div id="sb-list"></div>
+    </div>
+  </section>
+
   <!-- ===================== المفردات ===================== -->
   <section data-panel="vocab" hidden>
     <div class="kpis" id="vc-kpis">
@@ -352,6 +378,14 @@
             <p class="hint">المستوى بلا مسار لا يظهر في خارطة التقدم ولا في دليل المبتدئين.</p>
           </div>
           <div class="fld">
+            <label for="lv-tier">أدنى باقة تفتح المستوى</label>
+            <select id="lv-tier">
+              <option value="1">كل المشتركين</option>
+              <option value="2">الباقة الأعلى فقط</option>
+              <option value="3">الرتبة ٣</option>
+            </select>
+          </div>
+          <div class="fld">
             <label for="lv-code">رمز المستوى</label>
             <input type="text" id="lv-code" maxlength="10" placeholder="A1">
             <p class="hint">يظهر للمتعلم في الخارطة بجانب اسم المستوى.</p>
@@ -451,6 +485,15 @@
             <label for="ls-week">الأسبوع</label>
             <input type="text" inputmode="numeric" id="ls-week" value="0" placeholder="0">
             <p class="hint">صفر يعني بلا تقسيم أسابيع. الخارطة تجمع الدروس تحت رقم الأسبوع.</p>
+          </div>
+          <div class="fld">
+            <label for="ls-tier">أدنى باقة تفتح الدرس</label>
+            <select id="ls-tier">
+              <option value="1">كل المشتركين (الرتبة ١ فأعلى)</option>
+              <option value="2">الباقة الأعلى فقط (الرتبة ٢)</option>
+              <option value="3">الرتبة ٣</option>
+            </select>
+            <p class="hint">الاستراتيجيات المتاحة للبرونزية تُترك على الرتبة ١، والبقية على ٢.</p>
           </div>
           <div class="fld">
             <label for="ls-access">الإتاحة</label>
@@ -727,6 +770,8 @@
 <script src="assets/admin-account.js"></script>
 <script src="assets/admin-me.js"></script>
 <script src="assets/admin-plans.js"></script>
+<script src="assets/admin-plan-features.js"></script>
+<script src="assets/admin-subs.js"></script>
 <script src="assets/admin-vocab.js"></script>
 <script src="assets/admin-coaches.js"></script>
 <script src="assets/admin-stories.js"></script>

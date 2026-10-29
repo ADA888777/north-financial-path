@@ -163,6 +163,7 @@
     el('ls-order').value = l.sort_order;
     if (el('ls-week')) el('ls-week').value = l.week_no == null ? '0' : l.week_no;
     if (el('ls-access')) el('ls-access').value = l.access || 'auto';
+    if (el('ls-tier')) el('ls-tier').value = l.min_tier == null ? '1' : String(l.min_tier);
     el('ls-pub').checked = !!l.published;
     el('ls-free').checked = !!l.free_preview;
     resetBtn.hidden = false;
@@ -177,6 +178,7 @@
     el('ls-order').value = '0';
     if (el('ls-week')) el('ls-week').value = '0';
     if (el('ls-access')) el('ls-access').value = 'auto';
+    if (el('ls-tier')) el('ls-tier').value = '1';
     levelSel.value = '';
     resetBtn.hidden = true;
     F.clearErrs(form);
@@ -207,6 +209,7 @@
       duration_min: dur ? F.int(dur, null) : null,
       week_no: el('ls-week') ? F.int(el('ls-week').value, 0) : 0,
       access: el('ls-access') ? el('ls-access').value : 'auto',
+      min_tier: el('ls-tier') ? (parseInt(el('ls-tier').value, 10) || 1) : 1,
       sort_order: F.int(el('ls-order').value, 0),
       published: el('ls-pub').checked,
       free_preview: el('ls-free').checked
