@@ -580,3 +580,26 @@ img{max-width:100%;display:block}
 }
 .stories-disc .ms{font-size:18px;color:var(--fg-3);flex-shrink:0}
 .stories-disc a{color:var(--accent);text-decoration:underline;text-underline-offset:3px}
+
+/* ============================================================
+   شاشات ضيقة جداً (≤ 380 بكسل)
+   مجموع الشعار وبطاقة الحساب والأزرار يتجاوز عرض الشاشة، فيظهر
+   تمرير أفقي. تُقلَّص العناصر القابلة للتقليص بدل كسر الصف.
+   ============================================================ */
+@media (max-width:380px){
+  .rail{padding-inline:12px}
+  .brand img{width:30px;height:30px}
+  .brand span b{font-size:15px;letter-spacing:.14em}
+  .brand span i{font-size:9.5px}
+  .nav-act{gap:6px}
+  /* بطاقة الحساب: الصورة الحرفية تكفي، والاسم في القائمة المنسدلة */
+  .acct-id{display:none}
+  .acct-btn{padding-inline:6px}
+}
+
+/* أهداف اللمس على الأجهزة اللمسية: أربع وأربعون بكسل هو الحد المريح.
+   تُوسَّع بالحشو لا بالارتفاع الصريح حتى لا تتمدّد الصفوف. */
+@media (hover:none) and (pointer:coarse){
+  .nav-links a{padding-block:11px}
+  .lnav-item{padding-block:15px}
+}

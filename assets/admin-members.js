@@ -108,8 +108,12 @@
           '<td>' + subTag(p) + '</td>' +
           '<td class="muted">' + (p.subscription_expires_at ? esc(A.fmtDate(p.subscription_expires_at)) : '—') + '</td>' +
           '<td>' + (p._role === 'admin' ? '<span class="tag tag-admin">إدارة</span>' : '<span class="muted">مشترك</span>') + '</td>' +
-          '<td><button class="bt bt-ghost bt-sm" type="button" data-sub="' + esc(p.id) +
-            '">إدارة الاشتراك</button></td>' +
+          '<td class="row-acts">' +
+            '<button class="bt bt-ghost bt-sm" type="button" data-acc="' + esc(p.id) +
+              '">بيانات الحساب</button>' +
+            '<button class="bt bt-ghost bt-sm" type="button" data-sub="' + esc(p.id) +
+              '">الاشتراك</button>' +
+          '</td>' +
         '</tr>';
       }).join('') +
       '</tbody></table></div>';
@@ -120,13 +124,17 @@
   /* تعديل الباقة والتجديد. التفويض على الحاوية لأن الصفوف تُعاد بناؤها
      بعد كل حفظ، فمستمع على كل زر يضيع مع صفّه. */
   el('members-list').addEventListener('click', function (e) {
+    function refresh() { loaded = false; load(); kpis(); }
+
+    var a = e.target.closest('[data-acc]');
+    if (a && window.northAccount) {
+      window.northAccount.open(a.getAttribute('data-acc'), refresh);
+      return;
+    }
     var b = e.target.closest('[data-sub]');
-    if (!b || !window.northSub) return;
-    window.northSub.open(b.getAttribute('data-sub'), function () {
-      loaded = false;
-      load();
-      kpis();
-    });
+    if (b && window.northSub) {
+      window.northSub.open(b.getAttribute('data-sub'), refresh);
+    }
   });
 
   /* ---------- دالة الخادم ---------- */

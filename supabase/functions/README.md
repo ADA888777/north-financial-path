@@ -66,3 +66,28 @@ supabase functions deploy notify-booking --project-ref ukdcdbbbzeqztoqctnxb
 supabase functions delete assistant --project-ref ukdcdbbbzeqztoqctnxb
 supabase secrets unset ANTHROPIC_API_KEY
 ```
+
+## update-member-email
+
+تغيير بريد عضو من لوحة الإدارة.
+
+**لماذا من الخادم؟** البريد هوية الدخول في `auth.users` ومعها صفّ في
+`auth.identities`. تحديث `profiles.email` وحده يترك العميلة تدخل
+ببريدها القديم وترى الجديد في حسابها. `auth.admin.updateUserById`
+يحدّثهما معاً، وهي تتطلب `service_role` الذي لا يوضع في المتصفح.
+
+**ثلاث طبقات تحقّق** كما في `create-member`:
+
+1. قراءة جلسة المنادي بمفتاحه هو لا بالمفتاح السري.
+2. سؤال القاعدة `is_admin()` بجلسته — لا يُوثق بما يرسله المتصفح.
+3. عندها فقط يُستعمل المفتاح السري.
+
+**الترتيب يهمّ:** المصادقة أولاً ثم الجدول. لو فشل الجدول تُعاد
+المصادقة إلى ما كانت، فلا يبقى حسابٌ ببريدين.
+
+`confirm_now` يعتمد البريد فوراً فتدخل به العميلة بكلمة مرورها نفسها.
+بإلغائه تُرسَل رسالة تأكيد ولا يعمل للدخول قبل أن تؤكّده.
+
+```bash
+supabase functions deploy update-member-email --project-ref ukdcdbbbzeqztoqctnxb
+```

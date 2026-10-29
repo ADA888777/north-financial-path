@@ -288,3 +288,7 @@ body.adm-body::after{opacity:.35}
 .av-add{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .av-add select,.av-add input{font:inherit;font-size:13px;padding:7px 10px;border-radius:8px;
   border:1px solid var(--a-line);background:var(--a-bg-2,#0B1B2E);color:var(--a-fg)}
+
+/* أزرار الصف في جدول الأعضاء */
+.row-acts{white-space:nowrap}
+.row-acts .bt + .bt{margin-inline-start:6px}

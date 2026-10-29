@@ -114,3 +114,11 @@ div.locked > .ms{font-size:32px;color:var(--fg-3);display:block;margin-bottom:12
 .st-pill{font-size:12px;font-weight:600;border-radius:999px;padding:3px 11px;display:inline-block}
 .st-on{background:color-mix(in srgb,var(--up) 15%,transparent);color:var(--up)}
 .st-off{background:color-mix(in srgb,var(--dn) 14%,transparent);color:var(--dn)}
+
+/* تلميح تحت الحقل، ورسالة نجاح الحفظ */
+.fld-hint{font-size:12px;color:var(--fg-3);line-height:1.7;margin-top:6px}
+.ok-note{display:flex;align-items:flex-start;gap:8px;margin-top:14px;padding:11px 14px;
+  border-radius:var(--rb);font-size:13px;line-height:1.7;
+  background:color-mix(in srgb,var(--up) 12%,transparent);
+  border:1px solid color-mix(in srgb,var(--up) 40%,transparent);color:var(--up)}
+.ok-note .ms{font-size:17px;flex-shrink:0;margin-top:1px}

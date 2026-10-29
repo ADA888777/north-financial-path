@@ -104,13 +104,16 @@
       </dl>
 
       <button class="btn btn-ghost btn-sm" id="edit-open" type="button" style="margin-top:18px">
-        تعديل الاسم والجوال
+        تعديل الاسم الظاهر والجوال
       </button>
+      <p class="ok-note" id="save-ok" hidden><span class="ms sm">check_circle</span><span></span></p>
 
       <form class="auth-form" id="edit-form" hidden style="margin-top:18px">
         <div class="field" data-field="fname">
-          <label for="f-name">الاسم الكامل</label>
-          <div class="inp-wrap"><input type="text" id="f-name" placeholder="الاسم كاملاً"></div>
+          <label for="f-name">الاسم الظاهر</label>
+          <div class="inp-wrap"><input type="text" id="f-name" maxlength="80" placeholder="الاسم كما تريدينه"></div>
+          <p class="fld-hint">هذا ما يظهر في لوحتك وفي أعلى الصفحات وفي كل مكان يُذكر فيه اسمك.
+            اكتبيه بالعربية أو اللاتينية كما تفضّلين.</p>
           <p class="err" id="err-fname"><span class="ms">error</span><span></span></p>
         </div>
         <div class="field" data-field="fphone">
@@ -120,7 +123,9 @@
         </div>
         <p class="hint-note">
           <span class="ms sm">lock</span>
-          رقم العضوية واسم المستخدم والباقة وحالة الاشتراك تُعدَّل من إدارة المنصة فقط.
+          رقم العضوية والبريد والباقة وحالة الاشتراك تُعدَّل من إدارة المنصة.
+          البريد هو اسم دخولك، ولتغييره تواصلي مع الإدارة. ولتغيير كلمة المرور
+          استخدمي «نسيت كلمة المرور» في صفحة الدخول.
         </p>
         <div style="display:flex;gap:10px">
           <button class="btn btn-primary" type="submit" style="flex:1">

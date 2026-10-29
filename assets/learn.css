@@ -355,7 +355,8 @@ a.dt-i:hover{border-color:color-mix(in srgb,var(--accent) 45%,var(--line));backg
 .vq-h{display:flex;align-items:center;justify-content:space-between;gap:12px;
   flex-wrap:wrap;margin-bottom:22px}
 .vq-n{font-size:12.5px;color:var(--fg-3);font-family:var(--mono)}
-.vq-lesson{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--accent)}
+.vq-lesson{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;
+  color:var(--accent);min-height:34px;padding-inline:4px}
 .vq-lesson .ms{font-size:16px}
 .vq-lesson:hover{text-decoration:underline;text-underline-offset:3px}
 .vq-lbl{font-size:12.5px;color:var(--fg-2);text-align:center}
@@ -593,3 +594,19 @@ a.dt-i:hover{border-color:color-mix(in srgb,var(--accent) 45%,var(--line));backg
 @keyframes hit{0%,100%{border-color:var(--line)}25%{border-color:var(--accent)}}
 @media (prefers-reduced-motion:reduce){.slot.hit{animation:none;border-color:var(--accent)}}
 @media (max-width:900px){.lgrid-live{grid-template-columns:1fr}}
+
+/* أهداف لمس مريحة في عناصر التحكم الصغيرة */
+.seg button{min-height:34px;padding:7px 13px}
+.cal-nav button{width:34px;height:34px}
+.sl-t{min-height:38px}
+.mp-f a,.lvl-f a{display:inline-block;padding-block:7px}
+.ln-q{width:34px;height:34px}
+@media (hover:none) and (pointer:coarse){
+  .seg button{min-height:38px}
+  .mp-f a,.lvl-f a{padding-block:9px}
+}
+
+/* أبناء الشبكة بلا min-width:0 يمنعهم محتواهم من التقلّص دون عرضه
+   الأدنى، فيتجاوز الصفُّ الشاشة على العروض الضيقة جداً. */
+.lgrid > *{min-width:0}
+.sum > *,.ch,.week,.dt,.co-grid,.st-grid,.cd-grid{min-width:0}

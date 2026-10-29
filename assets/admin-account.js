@@ -1,0 +1,239 @@
+/* بيانات حساب العضو: الاسم الظاهر واسم المستخدم والبريد وكلمة المرور.
+   البريد يمرّ بدالة الخادم لأنه هوية الدخول في نظام المصادقة، لا عمود
+   في جدول الملفات وحده. وكلمة المرور لا تُعرض ولا تُخزَّن ولا تُغيَّر
+   من هنا: يُرسَل رابط إعادة تعيين إلى العميلة. */
+(function () {
+  'use strict';
+  var A = window.northAdmin;
+  if (!A) return;
+  var db = A.db, el = A.el, esc = A.esc;
+
+  var cur = null, onDone = null, busy = false, sheet = null;
+
+  function shell() {
+    if (sheet) return sheet;
+    sheet = document.createElement('div');
+    sheet.className = 'sheet';
+    sheet.id = 'acc-sheet';
+    sheet.innerHTML = '<div class="sheet-in" role="dialog" aria-modal="true" ' +
+      'aria-labelledby="acc-title"><div class="sheet-h">' +
+      '<h2 id="acc-title">بيانات الحساب</h2>' +
+      '<button class="bt bt-ghost bt-sm" type="button" id="acc-x">إغلاق</button>' +
+      '</div><div id="acc-body"></div></div>';
+    document.body.appendChild(sheet);
+    sheet.addEventListener('click', function (e) { if (e.target === sheet) close(); });
+    el('acc-x').addEventListener('click', close);
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && sheet.classList.contains('on')) close();
+    });
+    return sheet;
+  }
+
+  function close() { if (sheet) sheet.classList.remove('on'); cur = null; }
+
+  function render(m, events) {
+    cur = m;
+    el('acc-title').textContent = 'بيانات الحساب: ' + (m.full_name || '');
+
+    el('acc-body').innerHTML =
+      '<div class="sub-now">' +
+        '<div><span>رقم العضوية</span><b class="num">' + esc(m.membership_no || '—') + '</b></div>' +
+        '<div><span>الحساب</span><b>' +
+          (m.account_status === 'active'
+            ? '<span class="tag tag-ok">فعّال</span>'
+            : '<span class="tag tag-off">موقوف</span>') + '</b></div>' +
+        '<div><span>الباقة</span><b>' + esc(m.plan || '—') + '</b></div>' +
+      '</div>' +
+
+      '<div class="sub-act">' +
+        '<h3>الاسم الظاهر</h3>' +
+        '<p class="sub-h">هذا ما تراه العميلة في لوحتها وفي شريط الموقع وفي كل مكان ' +
+          'يُذكر فيه اسمها. يُكتب كما تريده هي، بالعربية أو اللاتينية.</p>' +
+        '<div class="fld"><label for="a-name">الاسم الظاهر</label>' +
+          '<input id="a-name" type="text" maxlength="80"></div>' +
+        '<div class="fld"><label for="a-phone">الجوال</label>' +
+          '<input id="a-phone" type="text" dir="ltr" maxlength="20" placeholder="05XXXXXXXX"></div>' +
+        '<button class="bt bt-main" type="button" id="do-name">احفظ الاسم والجوال</button>' +
+      '</div>' +
+
+      '<div class="sub-act">' +
+        '<h3>اسم المستخدم</h3>' +
+        '<p class="sub-h"><b>ليس اسم الدخول.</b> الدخول بالبريد وكلمة المرور وحدهما. ' +
+          'اسم المستخدم معرّف تنظيمي اختياري للإدارة، ويبقى فارغاً بلا أي أثر على ' +
+          'العميلة. تغييره لا يغيّر الاسم الظاهر.</p>' +
+        '<div class="fld"><label for="a-user">اسم المستخدم</label>' +
+          '<input id="a-user" type="text" dir="ltr" maxlength="32" placeholder="اتركه فارغاً لمحوه">' +
+          '<span class="hint">حروف لاتينية وأرقام ونقطة وشرطة، من ٣ إلى ٣٢ خانة. لا يتكرّر بين عضوين.</span></div>' +
+        '<button class="bt bt-ghost" type="button" id="do-user">احفظ اسم المستخدم</button>' +
+      '</div>' +
+
+      '<div class="sub-act">' +
+        '<h3>البريد الإلكتروني</h3>' +
+        '<p class="sub-h">البريد هو هوية الدخول. تغييره يحدّث نظام المصادقة والجدول معاً، ' +
+          'ولا يمكن تغييره من الجدول وحده.</p>' +
+        '<div class="fld"><label for="a-email">البريد</label>' +
+          '<input id="a-email" type="email" dir="ltr" maxlength="120"></div>' +
+        '<label class="chk"><input type="checkbox" id="a-confirm" checked>' +
+          '<span>اعتمد البريد فوراً (تدخل به مباشرة بكلمة مرورها نفسها)</span></label>' +
+        '<p class="sub-h sub-warn">بإلغاء الاعتماد تُرسَل رسالة تأكيد إلى البريد الجديد، ' +
+          'ولا يعمل للدخول قبل أن تؤكّده العميلة.</p>' +
+        '<button class="bt bt-ghost" type="button" id="do-email">غيّر البريد</button>' +
+      '</div>' +
+
+      '<div class="sub-act">' +
+        '<h3>كلمة المرور</h3>' +
+        '<p class="sub-h">كلمة المرور مخزّنة مُعمّاة في نظام المصادقة، فلا يمكن عرضها ' +
+          'لا لكِ ولا لأحد، وهذا هو الصحيح. المتاح إرسال رابط إعادة تعيين إلى بريد ' +
+          'العميلة لتختار كلمة جديدة بنفسها.</p>' +
+        '<button class="bt bt-ghost" type="button" id="do-reset">أرسل رابط إعادة التعيين</button>' +
+        '<p class="sub-h" id="reset-note" hidden></p>' +
+      '</div>' +
+
+      '<div class="sub-act">' +
+        '<h3>سجل التعديلات</h3>' + history(events) +
+      '</div>';
+
+    el('a-name').value = m.full_name || '';
+    el('a-phone').value = m.phone || '';
+    el('a-user').value = m.username || '';
+    el('a-email').value = m.email || '';
+
+    el('do-name').addEventListener('click', saveName);
+    el('do-user').addEventListener('click', saveUser);
+    el('do-email').addEventListener('click', saveEmail);
+    el('do-reset').addEventListener('click', sendReset);
+  }
+
+  var LABEL = { full_name: 'الاسم الظاهر', username: 'اسم المستخدم',
+                phone: 'الجوال', email: 'البريد' };
+
+  function history(ev) {
+    if (!ev || !ev.length) return '<p class="sub-h">لا توجد تعديلات مسجّلة.</p>';
+    return '<ol class="sub-log">' + ev.map(function (e) {
+      return '<li><div class="sl-h"><b>' + esc(LABEL[e.field] || e.field) + '</b>' +
+        '<span>' + esc(A.fmtDate(e.at)) + '</span></div>' +
+        '<p>' + esc(e.old_value || '(فارغ)') + ' ← ' + esc(e.new_value || '(فارغ)') + '</p>' +
+        (e.actor ? '<span class="sl-a">بواسطة ' + esc(e.actor) + '</span>'
+                 : '<span class="sl-a">من الخادم</span>') +
+        '</li>';
+    }).join('') + '</ol>';
+  }
+
+  function run(btn, call) {
+    if (busy || !cur) return;
+    busy = true;
+    var txt = btn.textContent;
+    btn.disabled = true; btn.textContent = 'جارٍ الحفظ…';
+    call().then(function (r) {
+      busy = false; btn.disabled = false; btn.textContent = txt;
+      var d = (r && r.data) || {};
+      if (r.error) { A.toast(r.error.message || 'تعذّر الحفظ', 'bad'); return; }
+      if (d.error) { A.toast(d.error, 'bad'); return; }
+      A.toast(d.message || 'تم الحفظ', 'ok');
+      if (onDone) onDone();
+      reload(cur.id);
+    }).catch(function (e) {
+      busy = false; btn.disabled = false; btn.textContent = txt;
+      A.toast((e && e.message) || 'تعذّر الحفظ', 'bad');
+    });
+  }
+
+  function saveName() {
+    run(el('do-name'), function () {
+      return db.rpc('admin_update_member', {
+        p_user: cur.id,
+        p_full_name: el('a-name').value,
+        p_phone: el('a-phone').value,
+        p_set_phone: true
+      });
+    });
+  }
+
+  function saveUser() {
+    run(el('do-user'), function () {
+      return db.rpc('admin_update_member', {
+        p_user: cur.id,
+        p_username: el('a-user').value,
+        p_set_username: true
+      });
+    });
+  }
+
+  function saveEmail() {
+    var e = (el('a-email').value || '').trim();
+    if (!/^[^@\s]+@[^@\s.]+\.[^@\s]{2,}$/.test(e)) {
+      A.toast('صيغة البريد غير صحيحة', 'bad');
+      return;
+    }
+    if (e.toLowerCase() === String(cur.email || '').toLowerCase()) {
+      A.toast('البريد كما هو، لم يُغيَّر شيء.', 'ok');
+      return;
+    }
+    if (!window.confirm('تغيير بريد الدخول إلى ' + e + '؟\n' +
+      'ستدخل العميلة بالبريد الجديد بعد الحفظ.')) return;
+
+    run(el('do-email'), function () {
+      return db.functions.invoke('update-member-email', {
+        body: { user_id: cur.id, email: e, confirm_now: el('a-confirm').checked }
+      }).then(function (r) {
+        // دالة الخادم تردّ الخطأ في الجسم لا في r.error
+        if (r.error && !r.data) {
+          return { data: { error: 'تعذّر الوصول إلى دالة الخادم. تأكد من نشر update-member-email.' } };
+        }
+        return { data: r.data || {} };
+      });
+    });
+  }
+
+  function sendReset() {
+    var b = el('do-reset');
+    var mail = (cur.email || '').trim();
+    if (!mail) { A.toast('لا يوجد بريد لهذا العضو', 'bad'); return; }
+    if (!window.confirm('إرسال رابط إعادة تعيين كلمة المرور إلى ' + mail + '؟')) return;
+
+    b.disabled = true; b.textContent = 'جارٍ الإرسال…';
+    db.auth.resetPasswordForEmail(mail, {
+      redirectTo: window.location.origin + '/reset.html'
+    }).then(function (r) {
+      b.disabled = false; b.textContent = 'أرسل رابط إعادة التعيين';
+      var note = el('reset-note');
+      note.hidden = false;
+      if (r.error) {
+        note.textContent = 'تعذّر الإرسال: ' + r.error.message;
+        A.toast(r.error.message, 'bad');
+        return;
+      }
+      note.textContent = 'أُرسل الرابط إلى ' + mail +
+        '. صلاحيته محدودة، وتختار العميلة كلمتها بنفسها.';
+      A.toast('أُرسل رابط إعادة التعيين', 'ok');
+    }).catch(function (e) {
+      b.disabled = false; b.textContent = 'أرسل رابط إعادة التعيين';
+      A.toast((e && e.message) || 'تعذّر الإرسال', 'bad');
+    });
+  }
+
+  function reload(id) {
+    return Promise.all([
+      db.rpc('admin_member', { p_user: id }),
+      db.rpc('admin_member_events', { p_user: id })
+    ]).then(function (r) {
+      if (r[0].error) { A.toast(r[0].error.message, 'bad'); return; }
+      var d = r[0].data || {};
+      if (d.error) { A.toast(d.error, 'bad'); return; }
+      render(d, (!r[1].error && r[1].data) || []);
+    });
+  }
+
+  function open(id, after) {
+    onDone = after || null;
+    shell().classList.add('on');
+    el('acc-body').innerHTML =
+      '<div class="state"><span class="ms">hourglass_top</span>جارٍ التحميل…</div>';
+    reload(id).catch(function (e) {
+      el('acc-body').innerHTML = '<div class="state"><span class="ms">error</span>' +
+        esc((e && e.message) || 'تعذّر التحميل') + '</div>';
+    });
+  }
+
+  window.northAccount = { open: open, close: close };
+})();

@@ -94,8 +94,13 @@
 }
 .back:hover{color:var(--accent)}
 .back .ms{font-size:18px}
+/* هدف لمس مريح: الرابط النصي وحده أقصر من أن يُضغط بإصبع */
+.back{display:inline-flex;align-items:center;min-height:34px;padding-inline:4px}
 
 @media (max-width:640px){
   .auth-card{box-shadow:none;border:none;padding-inline:0;background:transparent}
   .auth-wrap{padding-block:28px}
 }
+
+/* روابط النماذج هدف لمس لا نص داخل فقرة */
+.link{display:inline-flex;align-items:center;min-height:34px;padding-inline:2px}

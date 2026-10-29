@@ -184,23 +184,43 @@
       btn.setAttribute('aria-busy', 'true'); btn.disabled = true;
       label.textContent = 'جارٍ الحفظ';
 
-      /* الأعمدة المسموحة فقط. أي حقل آخر ترفضه قاعدة البيانات. */
-      db.from('profiles')
-        .update({ full_name: name, phone: phone || null })
-        .eq('id', p.id)
+      /* الدالة تتحقق وتسجّل التغيير. الكتابة المباشرة في الجدول تبقى
+         ممكنة بصلاحية العمودين، لكنها تتخطّى التحقق والسجل. */
+      db.rpc('update_my_profile', { p_full_name: name, p_phone: phone || null })
         .then(function (r) {
           busy = false;
           btn.removeAttribute('aria-busy'); btn.disabled = false;
           label.textContent = 'حفظ';
 
+          var d = (r && r.data) || {};
           if (r.error) { fieldErr('fname', 'تعذّر الحفظ: ' + r.error.message); return; }
+          if (d.error) { fieldErr('fname', d.error); return; }
 
-          p.full_name = name; p.phone = phone || null;
-          put('d-name', name); put('d-phone', phone);
-          put('hdr-name', name); put('menu-name', name);
-          put('hero-name', 'أهلاً، ' + name);
-          put('ava', (name || '؟').trim().charAt(0));
+          var saved = d.full_name || name;
+          p.full_name = saved; p.phone = d.phone || null;
+
+          /* الاسم يُحدَّث في كل موضع يظهر فيه فوراً، فلا يحتاج تحديث
+             الصفحة ليستوي ما تراه العميلة. */
+          put('d-name', saved); put('d-phone', p.phone);
+          put('hdr-name', saved); put('menu-name', saved);
+          put('hero-name', 'أهلاً، ' + saved);
+          put('ava', (saved || '؟').trim().charAt(0));
+          document.title = saved + ' — نورث للمسار المالي';
+
+          var ok = document.getElementById('save-ok');
+          if (ok) {
+            ok.hidden = false;
+            ok.querySelector('span:last-child').textContent =
+              d.message || 'حُفظت بياناتك.';
+            clearTimeout(ok._t);
+            ok._t = setTimeout(function () { ok.hidden = true; }, 6000);
+          }
           show(false);
+        }).catch(function (e) {
+          busy = false;
+          btn.removeAttribute('aria-busy'); btn.disabled = false;
+          label.textContent = 'حفظ';
+          fieldErr('fname', (e && e.message) || 'تعذّر الحفظ');
         });
     });
   }
