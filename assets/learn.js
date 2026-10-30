@@ -87,24 +87,31 @@
            nc ? (nc.kind === 'live' ? 'live.html' : 'classes.html') : 'live.html');
   }
 
-  /* ---------- 6) تابع التعلم ---------- */
-  function resume(d, x) {
-    var r = x.resume;
-    var l = r || d.last_lesson || d.next_lesson;
+  /* ---------- 6) تابع التعلم ----------
+     الدرس الذي وقفت عنده فعلاً: أول درس مفتوح لم يكتمل بترتيب
+     المنهج. تعريفه في my_next_lesson() لا هنا — كانت الواجهة
+     تختار بين resume و last_lesson و next_lesson، فتعيدها أحياناً
+     إلى درسٍ فرغت منه أو إلى أول المنهج. */
+  function resume(nx) {
     var head = '<div class="nhead"><span class="ms">play_circle</span><h2>تابع التعلم</h2></div>';
+    nx = nx || {};
 
-    if (!l) {
+    if (nx.done_all || !nx.lesson_id) {
       el('resume-box').innerHTML = head +
-        '<p class="n-sub">لم تفتح أي درس بعد.</p>' +
-        '<a class="nbtn nbtn-p" href="map.html">اختر مرحلتك</a>';
+        '<p class="n-sub">' +
+          (nx.done_all && nx.any_open
+            ? 'أنهيت كل الدروس المتاحة في باقتك.'
+            : 'لم يُفتح لك درس بعد.') + '</p>' +
+        '<a class="nbtn nbtn-p" href="map.html">افتحي الخارطة</a>';
       return;
     }
-    var id = r ? r.lesson_id : l.id;
-    var pos = r ? r.pos : 0;
+
+    var pos = Number(nx.pos) || 0;
     el('resume-box').innerHTML = head +
-      '<p class="rsm-t">' + esc(l.title) + '</p>' +
+      '<p class="rsm-t">' + esc(nx.title) + '</p>' +
+      (nx.level ? '<p class="n-mut">' + esc(nx.level) + '</p>' : '') +
       (pos > 0 ? '<p class="n-mut">توقفت عند ' + num(pos) + '% من الدرس</p>' : '') +
-      '<a class="nbtn nbtn-p" href="lesson.html?id=' + encodeURIComponent(id) +
+      '<a class="nbtn nbtn-p" href="lesson.html?id=' + encodeURIComponent(nx.lesson_id) +
         (pos > 0 ? '&at=' + pos : '') + '">متابعة التعلم</a>';
   }
 
@@ -210,19 +217,25 @@
       '<p class="n-mut hm-s">' + num(total) + ' نشاطاً في ' + num(days) + ' يوماً</p>';
   }
 
-  /* ---------- 7) آخر إشعار ---------- */
+  /* ---------- 7) الإشعارات ----------
+     سطر واحد لا أكثر: كم ينتظرها، ومتى آخر ما وصل. النصّ الكامل
+     يُقرأ في لوحة الإشعارات — عرضه هنا يكرّره ويزحم الصفحة. */
   function lastNote(x) {
     var n = x.latest_notification;
+    var u = x.unread_count || 0;
+    var word = u === 1 ? 'إشعار جديد واحد'
+             : u === 2 ? 'إشعاران جديدان'
+             : u <= 10 ? num(u) + ' إشعارات جديدة'
+                       : num(u) + ' إشعاراً جديداً';
+
+    var line = u > 0 ? 'لديك ' + word + '.'
+             : n     ? 'لا جديد. آخر إشعار وصلك ' + esc(when(n.created_at)) + '.'
+                     : 'لا توجد إشعارات بعد.';
+
     el('last-note').innerHTML =
-      (n
-        ? '<div class="note-last' + (n.read ? '' : ' new') + '">' +
-            '<b>' + esc(n.title) + '</b>' +
-            (n.body ? '<p>' + esc(n.body) + '</p>' : '') +
-            '<span class="when">' + esc(when(n.created_at)) + '</span>' +
-          '</div>'
-        : '<p class="n-sub">لا توجد إشعارات بعد</p>') +
-      '<a class="n-link" href="notifications.html">عرض الإشعارات' +
-      (x.unread_count > 0 ? ' (' + num(x.unread_count) + ')' : '') + '</a>';
+      '<p class="n-sub' + (u > 0 ? ' n-new' : '') + '">' + line + '</p>' +
+      '<a class="n-link" href="notifications.html">الإشعارات' +
+      '<span class="ms">chevron_left</span></a>';
   }
 
   /* ---------- 3) دليل المبتدئين ----------
@@ -294,25 +307,7 @@
       '</div>';
   }
 
-  /* ---------- الاختبارات ---------- */
-  function quizzes(d) {
-    var rows = d.quizzes || [];
-    if (!rows.length) {
-      el('quizzes').innerHTML = '<p class="n-sub">لا توجد اختبارات منشورة بعد.</p>';
-      return;
-    }
-    el('quizzes').innerHTML = '<div class="nrows">' + rows.map(function (q) {
-      return '<a class="nrow" href="quiz.html?id=' + encodeURIComponent(q.id) + '">' +
-        '<span class="ntile sm' + (q.passed ? ' ok' : '') + '">' +
-          '<span class="ms">' + (q.passed ? 'task_alt' : 'quiz') + '</span></span>' +
-        '<span class="nrow-b"><b>' + esc(q.title) + '</b>' +
-          '<span>' + (q.best == null ? 'النجاح ' + num(q.pass_score) + '%'
-                                     : 'أفضل نتيجة ' + num(q.best) + '%') + '</span></span>' +
-        (q.passed ? '<span class="nchip ok">مجتاز</span>' : '<span class="ms n-go">chevron_left</span>') +
-      '</a>';
-    }).join('') + '</div>';
-  }
-
+  
   /* ---------- التشغيل ---------- */
   L.guard().then(function (s) {
     if (!s) return;
@@ -325,13 +320,15 @@
       db.rpc('my_dashboard'),
       db.rpc('my_learn_extra'),
       db.rpc('my_map'),
-      db.rpc('beginner_guide')
+      db.rpc('beginner_guide'),
+      db.rpc('my_next_lesson')
     ]).then(function (r) {
       var err = r.find(function (x) { return x.error; });
       var d = (r[0] && r[0].data) || {};
       var x = (r[1] && r[1].data) || {};
       var m = (r[2] && r[2].data) || {};
       var g = (r[3] && r[3].data) || [];
+      var nx = (r[4] && r[4].data) || {};
 
       if (err || d.error) {
         L.deny('تعذّر تحميل اللوحة',
@@ -343,13 +340,12 @@
 
       streak(d, x);
       summary(d, x);
-      resume(d, x);
+      resume(nx);
       tasks(d, x);
       chart();
       lastNote(x);
       guide(g);
       mapMini(m);
-      quizzes(d);
     });
   }).catch(function (e) {
     L.deny('تعذّر تحميل اللوحة', (e && e.message) || '', false);

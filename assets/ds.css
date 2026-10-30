@@ -648,3 +648,7 @@ a.pip:hover{transform:translateY(-1px)}
 .up-link{text-decoration:none;cursor:pointer;transition:filter .18s}
 .up-link:hover{filter:brightness(.94)}
 .up-link .ms:last-child{font-size:13px;opacity:.8}
+
+/* الإشعارات في اللوحة: سطر واحد، ويتلوّن حين ينتظرها جديد */
+.n-sub.n-new{color:var(--fg);font-weight:600}
+.n-link .ms{font-size:17px;margin-inline-start:2px}
