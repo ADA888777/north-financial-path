@@ -527,3 +527,15 @@
 /* درس جاء إليه المتعلم من تحدّي المفردات */
 .qz.hit{border-color:var(--accent);background:var(--accent-wash);
   box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 16%,transparent)}
+
+/* باقة لا تتضمّن الجلسات الخاصة: مزاياها تُعرض، وأدوات الحجز لا */
+.pc-lock{text-align:center;display:flex;flex-direction:column;align-items:center;gap:14px}
+.pc-lock .ntile{width:52px;height:52px;border-radius:var(--rb)}
+.pc-lock .ntile .ms{font-size:26px}
+.pc-lock h2{font-size:clamp(18px,2.4vw,23px);font-weight:700;line-height:1.5;margin:0}
+.pc-lock-l{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px;
+  text-align:start;width:min(420px,100%)}
+.pc-lock-l li{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--fg-2);
+  padding:11px 13px;border:1px solid var(--line);border-radius:var(--rb);background:var(--bg)}
+.pc-lock-l .ms{font-size:19px;color:var(--accent);flex:0 0 auto}
+.pc-lock .nbtn .ms{font-size:15px;margin-inline-start:5px;opacity:.85}

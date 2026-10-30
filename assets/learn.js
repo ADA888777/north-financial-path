@@ -100,9 +100,9 @@
       el('resume-box').innerHTML = head +
         '<p class="n-sub">' +
           (nx.done_all && nx.any_open
-            ? 'أنهيت كل الدروس المتاحة في باقتك.'
-            : 'لم يُفتح لك درس بعد.') + '</p>' +
-        '<a class="nbtn nbtn-p" href="map.html">افتحي الخارطة</a>';
+            ? 'أنهيتِ كل الدروس المتاحة في باقتك. راجعي أي درس متى شئتِ.'
+            : 'لم يُفتح لكِ درس بعد.') + '</p>' +
+        '<a class="nbtn nbtn-p" href="map.html">كل المستويات والدروس</a>';
       return;
     }
 
@@ -111,8 +111,12 @@
       '<p class="rsm-t">' + esc(nx.title) + '</p>' +
       (nx.level ? '<p class="n-mut">' + esc(nx.level) + '</p>' : '') +
       (pos > 0 ? '<p class="n-mut">توقفت عند ' + num(pos) + '% من الدرس</p>' : '') +
-      '<a class="nbtn nbtn-p" href="lesson.html?id=' + encodeURIComponent(nx.lesson_id) +
-        (pos > 0 ? '&at=' + pos : '') + '">متابعة التعلم</a>';
+      '<div class="rsm-act">' +
+        '<a class="nbtn nbtn-p" href="lesson.html?id=' + encodeURIComponent(nx.lesson_id) +
+          (pos > 0 ? '&at=' + pos : '') + '">متابعة التعلم</a>' +
+        '<a class="n-link" href="map.html">كل المستويات والدروس' +
+          '<span class="ms">chevron_left</span></a>' +
+      '</div>';
   }
 
   /* ---------- 4) مهام اليوم ---------- */

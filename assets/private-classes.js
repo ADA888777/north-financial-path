@@ -6,6 +6,7 @@
 
   var DAYS = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
   var coaches = [], quota = {}, mine = [], picked = null, slots = [], busy = false;
+  var upgradePlan = null;   // أدنى باقة نشطة تمنح جلسات خاصة
 
   /* '18:00:00' → '٦ مساءً' */
   function hour12(t) {
@@ -34,7 +35,18 @@
      كان الصفر يُقرأ مرّتين فيُستنتج منه حكمان متناقضان: «باقتك لا
      تتضمّن جلسات» في بطاقة الرصيد، و«استنفدتِ رصيدك» في لوحة الحجز.
      الآن state واحدة تحكم الرسالتين، فلا يجتمع نقيضان. */
+  /* الاستحقاق يُقرأ من القاعدة، وغيابه ليس إذناً.
+     كانت الصفحة تفحص الحالات السيّئة واحدة واحدة ثم تسقط إلى لوحة
+     الحجز فيما عداها — فحسابٌ تردّ عنه القاعدة حالةً لا تعرفها
+     الواجهة (قاعدة لم تُحدَّث، أو خطأ) كان يرى نموذج الحجز كاملاً.
+     الآن: لا تُفتح اللوحة إلا بحالة 'ok' صريحة. */
+  function entitled() { return quota.entitled === true; }
+  function canBook()  { return quota.state === 'ok'; }
+
   function quotaLine() {
+    if (quota.state === undefined) {
+      return 'تعذّرت قراءة رصيد جلساتك. حدّثي الصفحة، وإن تكرّر أبلغي الإدارة.';
+    }
     switch (quota.state) {
       case 'no_plan':
         return 'باقتك «' + (quota.plan || '—') + '» غير مُعدّة في المنصة. ' +
@@ -77,8 +89,48 @@
               '<p>' + esc(dayLabel(next.starts_at)) +
                 (next.coach ? ' · مع ' + esc(next.coach) : '') + '</p>'
             : '<b style="font-size:clamp(16px,2vw,19px);color:var(--fg-2)">ما عندك جلسة قادمة</b>' +
-              '<p>اختاري كوتشاً وموعداً من الأسفل.</p>') +
+              '<p>' + (canBook() ? 'اختاري كوتشاً وموعداً من الأسفل.'
+                                 : 'لا يتضمّن اشتراكك الحالي حجز جلسات خاصة.') + '</p>') +
         '</span>' +
+      '</section>';
+  }
+
+  /* ---------- باقة لا تتضمّن الجلسات ----------
+     تُعرض المزايا كما هي في القاعدة — عدد الجلسات واسم الباقة
+     ورابط شرائها — ولا يُعرض أيٌّ من أدوات الحجز. المنع نفسه في
+     القاعدة: book_private ترفض الطلب ولو نُودي الـAPI مباشرة. */
+  function lockedCard() {
+    var grid = document.querySelector('.ngrid-r');
+    if (!grid) return;
+
+    var p = upgradePlan;
+    var q = (p && Number(p.private_quota)) || 0;
+    var word = q === 1 ? 'جلسة فردية شهرياً'
+             : q === 2 ? 'جلستان فرديتان شهرياً'
+             : q <= 10 ? 'جلسات فردية شهرياً' : 'جلسة فردية شهرياً';
+
+    var items = q
+      ? '<li><span class="ms">event_available</span>' + num(q) + ' ' + word + ' مع الكوتش</li>' +
+        '<li><span class="ms">schedule</span>تختارين الكوتش والموعد المناسب لكِ</li>' +
+        '<li><span class="ms">forum</span>تنسيق الجلسة مع الكوتش على تيليجرام</li>'
+      : '';
+
+    grid.style.display = 'block';
+    grid.innerHTML =
+      '<section class="ncard pc-lock">' +
+        '<span class="ntile"><span class="ms">lock</span></span>' +
+        '<h2>' + (p ? 'الكلاسات الخاصة ضمن باقة «' + esc(p.name) + '»'
+                    : 'الكلاسات الخاصة غير متاحة في باقتك') + '</h2>' +
+        (items ? '<ul class="pc-lock-l">' + items + '</ul>' : '') +
+        '<p class="n-sub">' +
+          (p ? 'رقّي باقتك لفتح الحجز.'
+             : 'لم تُحدَّد بعد باقةٌ تتضمّن الجلسات الخاصة. أبلغي الإدارة.') +
+        '</p>' +
+        (p && p.checkout_url
+          ? '<a class="nbtn nbtn-p" href="' + esc(p.checkout_url) +
+            '" target="_blank" rel="noopener">الترقية إلى ' + esc(p.name) +
+            '<span class="ms">open_in_new</span></a>'
+          : (p ? '<p class="n-mut">للترقية تواصلي مع إدارة المنصة.</p>' : '')) +
       '</section>';
   }
 
@@ -444,12 +496,19 @@
       db.rpc('active_coaches'),
       db.rpc('my_private_quota'),
       db.rpc('my_sessions', { p_kind: 'private' }),
-      db.rpc('my_ratable_sessions')
+      db.rpc('my_ratable_sessions'),
+      db.rpc('public_plans')
     ]).then(function (r) {
       coaches = (r[0] && r[0].data) || [];
       quota = (r[1] && r[1].data) || {};
       mine = (r[2] && r[2].data) || [];
       drawRate((r[3] && r[3].data) || []);
+
+      /* الباقات تعود مرتّبة بالرتبة، فأوّل ما يمنح جلسات هو الأدنى
+         — لا اسم باقة ولا عدد جلسات مكتوب في هذا الملف. */
+      ((r[4] && !r[4].error && r[4].data) || []).forEach(function (pl) {
+        if (!upgradePlan && Number(pl && pl.private_quota) > 0) upgradePlan = pl;
+      });
       // المدّة والنافذة من القاعدة: الصفحة لا تعلن ساعاتٍ لا تطبّقها
       var mins = quota.slot_min || (coaches[0] && coaches[0].slot_min);
       if (mins) el('pc-min').textContent = num(mins);
@@ -461,7 +520,12 @@
             : '') +
           ' ' + hour12(quota.open_from) + ' إلى ' + hour12(quota.open_to);
       }
-      top(); drawCoaches(); drawMine();
+      top(); drawMine();
+
+      /* باقتها لا تتضمّن الجلسات: لا قائمة كوتشات ولا نموذج حجز */
+      if (!entitled()) { lockedCard(); return; }
+
+      drawCoaches();
       // أول كوتش مختار تلقائياً حتى تظهر المواعيد فوراً بلا نقرة إضافية
       if (coaches.length) pick(coaches[0].id); else drawBook();
     });

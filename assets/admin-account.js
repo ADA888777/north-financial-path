@@ -111,15 +111,29 @@
       '</div>' +
 
       '<div class="sub-act">' +
+        '<h3>رقم العضوية</h3>' +
+        '<p class="sub-h">الرقم الذي تراه العميلة في حسابها. يُولَّد تلقائياً عند ' +
+          'إنشاء الحساب، ويمكن تغييره هنا. لا يتكرّر بين عضوتين — ترفض القاعدة ' +
+          'الرقم المستعمل. والمعروض لها يُقرأ ‎#165 أياً كانت صيغته هنا.</p>' +
+        '<div class="fld"><label for="a-no">رقم العضوية</label>' +
+          '<input id="a-no" type="text" dir="ltr" maxlength="32">' +
+          '<span class="hint">حتى 32 خانة، ولا يصحّ فارغاً.</span></div>' +
+        '<button class="bt bt-ghost" type="button" id="do-no">احفظ رقم العضوية</button>' +
+      '</div>' +
+
+      '<div class="sub-act">' +
         '<h3>البريد الإلكتروني</h3>' +
-        '<p class="sub-h">البريد هو هوية الدخول. تغييره يحدّث نظام المصادقة والجدول معاً، ' +
-          'ولا يمكن تغييره من الجدول وحده.</p>' +
+        '<p class="sub-h">بهذا البريد تسجّل العميلة دخولها. تغييره هنا يغيّره في ' +
+          'نظام الدخول وفي بياناتها معاً.</p>' +
         '<div class="fld"><label for="a-email">البريد</label>' +
           '<input id="a-email" type="email" dir="ltr" maxlength="120"></div>' +
         '<label class="chk"><input type="checkbox" id="a-confirm" checked>' +
-          '<span>اعتمد البريد فوراً (تدخل به مباشرة بكلمة مرورها نفسها)</span></label>' +
-        '<p class="sub-h sub-warn">بإلغاء الاعتماد تُرسَل رسالة تأكيد إلى البريد الجديد، ' +
-          'ولا يعمل للدخول قبل أن تؤكّده العميلة.</p>' +
+          '<span>فعّلي البريد الجديد فوراً</span></label>' +
+        '<p class="sub-h">الخيار مفعّل: تدخل العميلة ببريدها الجديد مباشرة، ' +
+          'بكلمة المرور نفسها — لا شيء إضافي عليها.</p>' +
+        '<p class="sub-h sub-warn">الخيار مُلغى: نرسل رسالة تأكيد إلى البريد الجديد، ' +
+          'ولا تستطيع الدخول حتى تفتح الرسالة وتضغط التأكيد. اتركيه مفعّلاً ' +
+          'إلا إن أردتِ التأكّد أن البريد الذي كتبتِه يصلها فعلاً.</p>' +
         '<button class="bt bt-ghost" type="button" id="do-email">غيّر البريد</button>' +
       '</div>' +
 
@@ -159,10 +173,12 @@
     el('a-name').value = m.full_name || '';
     el('a-phone').value = m.phone || '';
     el('a-user').value = m.username || '';
+    el('a-no').value = m.membership_no || '';
     el('a-email').value = m.email || '';
 
     el('do-name').addEventListener('click', saveName);
     el('do-user').addEventListener('click', saveUser);
+    el('do-no').addEventListener('click', saveNo);
     el('do-email').addEventListener('click', saveEmail);
     el('do-reset').addEventListener('click', sendReset);
 
@@ -243,7 +259,8 @@
   }
 
   var LABEL = { full_name: 'الاسم الظاهر', username: 'اسم المستخدم',
-                phone: 'الجوال', email: 'البريد' };
+                phone: 'الجوال', email: 'البريد',
+                membership_no: 'رقم العضوية' };
 
   function history(ev) {
     if (!ev || !ev.length) return '<p class="sub-h">لا توجد تعديلات مسجّلة.</p>';
@@ -293,6 +310,14 @@
         p_user: cur.id,
         p_username: el('a-user').value,
         p_set_username: true
+      });
+    });
+  }
+
+  function saveNo() {
+    run(el('do-no'), function () {
+      return db.rpc('admin_set_membership_no', {
+        p_user: cur.id, p_no: el('a-no').value
       });
     });
   }
