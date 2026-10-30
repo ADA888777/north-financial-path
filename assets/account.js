@@ -16,7 +16,7 @@
   }
   function fmt(iso) {
     if (!iso) return '—';
-    try { return new Intl.DateTimeFormat('ar-SA', { dateStyle: 'long' }).format(new Date(iso)); }
+    try { return new Intl.DateTimeFormat('ar-SA-u-nu-latn', { dateStyle: 'long' }).format(new Date(iso)); }
     catch (e) { return String(iso).slice(0, 10); }
   }
   function put(id, v) { var n = el(id); if (n) n.textContent = (v == null || v === '') ? '—' : v; }

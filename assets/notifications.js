@@ -12,7 +12,7 @@
 
   function when(iso) {
     try {
-      return new Intl.DateTimeFormat('ar-SA', { dateStyle: 'medium', timeStyle: 'short' })
+      return new Intl.DateTimeFormat('ar-SA-u-nu-latn', { dateStyle: 'medium', timeStyle: 'short' })
         .format(new Date(iso));
     } catch (e) { return String(iso).slice(0, 16); }
   }

@@ -12,7 +12,7 @@
   var rows = [], busy = false, sheet = null, editing = null;
 
   var AR = (function () {
-    try { return new Intl.NumberFormat('ar-SA'); } catch (e) { return null; }
+    try { return new Intl.NumberFormat('ar-SA-u-nu-latn'); } catch (e) { return null; }
   })();
   function ar(n) { return AR ? AR.format(Number(n || 0)) : String(n); }
   function plural(n, one, two, many) {
@@ -24,7 +24,7 @@
 
   function money(v) {
     if (v == null || v === '') return '—';
-    try { return new Intl.NumberFormat('ar-SA').format(v) + ' ر.س'; }
+    try { return new Intl.NumberFormat('ar-SA-u-nu-latn').format(v) + ' ر.س'; }
     catch (e) { return v + ' ر.س'; }
   }
 
@@ -207,11 +207,11 @@
           '<span class="hint">هي المدة الافتراضية عند التجديد.</span></div>' +
         '<div class="fld"><label for="pl-tier">الرتبة</label>' +
           '<input id="pl-tier" type="number" min="1" max="9" value="1">' +
-          '<span class="hint">١ للأساسية و٢ للأعلى. المحتوى يُفتح لمن رتبته ' +
+          '<span class="hint">1 للأساسية و2 للأعلى. المحتوى يُفتح لمن رتبته ' +
             'تساوي أدنى رتبة الدرس أو تزيد — فلا تُربط الصلاحيات باسم الباقة.</span></div>' +
         '<div class="fld"><label for="pl-quota">رصيد الجلسات الخاصة شهرياً</label>' +
           '<input id="pl-quota" type="number" min="0" max="99" value="0">' +
-          '<span class="hint">هذا ما يظهر للمشتركة كـ «٤/٤» في صفحة الكلاسات الخاصة.</span></div>' +
+          '<span class="hint">هذا ما يظهر للمشتركة كـ «4/4» في صفحة الكلاسات الخاصة.</span></div>' +
       '</div>' +
       '<div class="fld"><label for="pl-desc">وصف مختصر</label>' +
         '<input id="pl-desc" type="text" maxlength="160"></div>' +

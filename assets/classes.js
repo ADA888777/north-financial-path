@@ -19,9 +19,9 @@
   function when(iso, mins) {
     try {
       var d = new Date(iso);
-      var date = new Intl.DateTimeFormat('ar-SA', {
+      var date = new Intl.DateTimeFormat('ar-SA-u-nu-latn', {
         dateStyle: 'full', timeZone: 'Asia/Riyadh' }).format(d);
-      var time = new Intl.DateTimeFormat('ar-SA', {
+      var time = new Intl.DateTimeFormat('ar-SA-u-nu-latn', {
         hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Riyadh' }).format(d);
       return date + ' — ' + time + (mins ? ' · ' + num(mins) + ' دقيقة' : '');
     } catch (e) { return String(iso); }

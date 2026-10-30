@@ -21,12 +21,12 @@
 
   function fmt(iso) {
     if (!iso) return '—';
-    try { return new Intl.DateTimeFormat('ar-SA', { dateStyle: 'long' }).format(new Date(iso)); }
+    try { return new Intl.DateTimeFormat('ar-SA-u-nu-latn', { dateStyle: 'long' }).format(new Date(iso)); }
     catch (e) { return String(iso).slice(0, 10); }
   }
 
   function num(n) {
-    try { return new Intl.NumberFormat('ar-SA').format(n); } catch (e) { return String(n); }
+    try { return new Intl.NumberFormat('ar-SA-u-nu-latn').format(n); } catch (e) { return String(n); }
   }
 
   function qs(key) {
@@ -97,7 +97,7 @@
     .then(function (r) {
       if (r === LATE) {
         deny('خادم المنصة لا يستجيب',
-             'لم يردّ الخادم خلال ١٢ ثانية. تحقّق من اتصالك وحدّث الصفحة، ' +
+             'لم يردّ الخادم خلال 12 ثانية. تحقّق من اتصالك وحدّث الصفحة، ' +
              'وإن تكرّر فأبلغ إدارة المنصة. [GATE-TIMEOUT]', false);
         return null;
       }

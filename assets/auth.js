@@ -232,7 +232,7 @@
         if (done) return;
         done = true;
         resolve({ ok: false, code: 'TIMEOUT', diag: true, probe: true,
-                  message: 'لم يردّ خادم المنصة خلال ١٥ ثانية.' });
+                  message: 'لم يردّ خادم المنصة خلال 15 ثانية.' });
       }, REQ_MS);
 
       promise.then(function (r) {

@@ -24,8 +24,8 @@ var storyRows = [];
     var c = document.querySelectorAll('#story-kpis .kpi b');
     if (!c.length) return;
     var pub = rows.filter(function (s) { return s.published; }).length;
-    c[0].textContent = new Intl.NumberFormat('ar-SA').format(pub);
-    c[1].textContent = new Intl.NumberFormat('ar-SA').format(rows.length - pub);
+    c[0].textContent = new Intl.NumberFormat('ar-SA-u-nu-latn').format(pub);
+    c[1].textContent = new Intl.NumberFormat('ar-SA-u-nu-latn').format(rows.length - pub);
   }
 
   /* ---------------- القائمة ---------------- */

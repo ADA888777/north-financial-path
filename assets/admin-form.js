@@ -5,7 +5,7 @@
   var A = window.northAdmin;
   if (!A) return;
 
-  var AR = new Intl.NumberFormat('ar-SA');
+  var AR = new Intl.NumberFormat('ar-SA-u-nu-latn');
 
   function num(n) { return AR.format(Number(n || 0)); }
 
@@ -47,7 +47,7 @@
   function fmtDateTime(iso) {
     if (!iso) return '—';
     try {
-      return new Intl.DateTimeFormat('ar-SA', {
+      return new Intl.DateTimeFormat('ar-SA-u-nu-latn', {
         dateStyle: 'medium', timeStyle: 'short'
       }).format(new Date(iso));
     } catch (e) { return String(iso).slice(0, 16).replace('T', ' '); }

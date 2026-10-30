@@ -19,7 +19,7 @@
       if (h < 24) return 'قبل ' + h + ' ساعة';
       var d = Math.round(h / 24);
       if (d < 30) return 'قبل ' + d + ' يوم';
-      return new Intl.DateTimeFormat('ar-SA', { dateStyle: 'medium' }).format(new Date(iso));
+      return new Intl.DateTimeFormat('ar-SA-u-nu-latn', { dateStyle: 'medium' }).format(new Date(iso));
     } catch (e) { return ''; }
   }
 
@@ -87,7 +87,7 @@
           dot.className = 'bell-dot';
           btn.appendChild(dot);
         }
-        dot.textContent = unread > 9 ? '٩+' : new Intl.NumberFormat('ar-SA').format(unread);
+        dot.textContent = unread > 9 ? '9+' : new Intl.NumberFormat('ar-SA-u-nu-latn').format(unread);
       } else if (dot) dot.remove();
 
       var list = document.getElementById('bell-list');

@@ -17,7 +17,7 @@
 .chip-i.ok .ms{color:var(--up)}
 .chip-i.off{background:color-mix(in srgb,var(--dn) 12%,transparent);border-color:transparent;color:var(--dn)}
 .chip-i.off .ms{color:var(--dn)}
-.chip-i .num{font-family:var(--mono);direction:ltr}
+.chip-i .num{font-variant-numeric:tabular-nums;direction:ltr}
 
 /* شريط التقدّم */
 .bar{height:7px;border-radius:999px;background:var(--surface-2);overflow:hidden}
@@ -54,7 +54,7 @@
 .lvl:hover{border-color:color-mix(in srgb,var(--accent) 42%,var(--line))}
 .lvl-h{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:10px;flex-wrap:wrap}
 .lvl-h b{font-size:15.5px}
-.lvl-h span{font-size:12.5px;color:var(--fg-2);font-family:var(--mono)}
+.lvl-h span{font-size:12.5px;color:var(--fg-2);font-variant-numeric:tabular-nums}
 .lvl-f{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:10px;flex-wrap:wrap}
 .lvl-f a{font-size:13px;font-weight:600;color:var(--accent)}
 .lvl-f a:hover{text-decoration:underline;text-underline-offset:3px}
@@ -80,7 +80,7 @@
 .qz{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 0;border-bottom:1px solid var(--line);flex-wrap:wrap}
 .qz:last-child{border-bottom:none}
 .qz b{font-size:14.5px}
-.qz .meta{font-size:12.5px;color:var(--fg-2);margin-top:3px;font-family:var(--mono)}
+.qz .meta{font-size:12.5px;color:var(--fg-2);margin-top:3px;font-variant-numeric:tabular-nums}
 
 .empty{text-align:center;color:var(--fg-2);font-size:14px;line-height:1.9;padding:26px 14px}
 .empty .ms{font-size:30px;color:var(--fg-3);display:block;margin-bottom:10px}
@@ -180,7 +180,7 @@
 .bell-dot{
   position:absolute;top:-5px;inset-inline-end:-5px;min-width:18px;height:18px;
   border-radius:999px;background:var(--dn);color:#fff;font-size:11px;font-weight:700;
-  display:grid;place-items:center;padding:0 5px;font-family:var(--mono);
+  display:grid;place-items:center;padding:0 5px;font-variant-numeric:tabular-nums;
 }
 .bell-menu{
   position:absolute;inset-inline-end:0;top:calc(100% + 10px);z-index:60;width:min(340px,calc(100vw - 32px));
@@ -221,7 +221,7 @@
 .lhead-hi{display:block;font-size:11.5px;color:var(--fg-3);line-height:1.5}
 .lhead-who{display:block;font-size:14.5px;font-weight:700;color:var(--fg);
   line-height:1.5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.lhead-who .num{font-family:var(--mono);font-weight:500;color:var(--accent);
+.lhead-who .num{font-variant-numeric:tabular-nums;font-weight:600;color:var(--accent);
   font-size:13px;margin-inline-start:5px}
 
 @media (max-width:420px){
@@ -288,7 +288,7 @@
 .gstep:last-of-type{border-bottom:none}
 .gs-n{flex-shrink:0;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;
   background:var(--accent-wash);color:var(--accent);font-size:12.5px;font-weight:600;
-  font-style:normal;font-family:var(--mono)}
+  font-style:normal;font-variant-numeric:tabular-nums}
 .gstep div{flex:1;min-width:0}
 .gstep b{font-size:14.5px;display:block;line-height:1.5}
 .gstep p{font-size:12.5px;color:var(--fg-2);margin-top:4px;line-height:1.7}
@@ -305,7 +305,7 @@
   flex-wrap:wrap;padding:clamp(18px,3vw,24px);background:var(--tile-bg);
   border-bottom:1px solid var(--card-line)}
 .vq-t{min-width:0;flex:1 1 220px}
-.vq-n{display:block;font-size:12.5px;color:var(--fg-3);font-family:var(--mono);
+.vq-n{display:block;font-size:12.5px;color:var(--fg-3);font-variant-numeric:tabular-nums;
   margin-bottom:8px}
 .vq-term{display:block;font-size:clamp(26px,4.2vw,38px);font-family:var(--display);
   font-weight:900;letter-spacing:-.02em;line-height:1.35;margin:0 0 8px;
@@ -344,7 +344,7 @@
 .vq-res.mid .vr-h{color:var(--warn-title,#9A4A24)}
 .vq-res.no .vr-h{color:var(--dn)}
 .vr-h b{font-size:15.5px}
-.vr-p{font-size:11.5px;color:var(--fg-3);font-family:var(--mono);margin-inline-start:auto}
+.vr-p{font-size:11.5px;color:var(--fg-3);font-variant-numeric:tabular-nums;margin-inline-start:auto}
 .vq-res p{font-size:14px;color:var(--fg);line-height:1.9}
 .vr-l{display:block;font-size:11.5px;color:var(--fg-3);margin-bottom:3px}
 .vr-n{font-size:12.5px;color:var(--fg-2)!important;margin-top:8px}
@@ -370,7 +370,7 @@
 .slot-w{display:flex;align-items:center;gap:6px;margin-top:9px;font-size:12.5px;color:var(--fg-2)}
 .slot-w .ms{font-size:16px}
 .slot-a{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.seats{font-size:12px;color:var(--up);font-family:var(--mono)}
+.seats{font-size:12px;color:var(--up);font-variant-numeric:tabular-nums}
 .seats.none{color:var(--fg-3)}
 .slot-err{flex-basis:100%;font-size:12.5px;color:var(--dn);margin-top:4px}
 
@@ -398,7 +398,7 @@
 .st-img{aspect-ratio:16/10;background:var(--surface-2)}
 .st-img img{width:100%;height:100%;object-fit:cover;display:block}
 .st-b{padding:18px;flex:1}
-.st-amt{display:inline-block;font-family:var(--mono);font-size:12.5px;font-weight:600;
+.st-amt{display:inline-block;font-variant-numeric:tabular-nums;font-size:12.5px;font-weight:600;
   color:var(--up);background:color-mix(in srgb,var(--up) 13%,transparent);
   border-radius:999px;padding:4px 11px;margin-bottom:10px}
 .st-b h3{font-size:16px;line-height:1.5}
@@ -415,7 +415,7 @@
   transition:border-color .2s,background .2s}
 .cd:hover{border-color:color-mix(in srgb,var(--accent) 48%,var(--line))}
 .cd-i{position:absolute;inset-block-start:10px;inset-inline-start:12px;font-size:11.5px;
-  color:var(--fg-3);font-family:var(--mono)}
+  color:var(--fg-3);font-variant-numeric:tabular-nums}
 .cd-f b{font-size:17px;display:block;line-height:1.5}
 .cd-f i{font-size:11.5px;color:var(--fg-3);font-style:normal;display:block;margin-top:9px}
 .cd-bk{display:none;font-size:14.5px;line-height:1.8;color:var(--fg)}
@@ -447,7 +447,7 @@
    مُسمّى .cdn لا .cd: الأخير يملكه عنصر البطاقات التعليمية
    ============================================================ */
 .cdn{display:inline-flex;align-items:center;gap:5px;margin-top:9px;font-size:12px;
-  font-family:var(--mono);color:var(--dn);background:color-mix(in srgb,var(--dn) 10%,transparent);
+  font-variant-numeric:tabular-nums;color:var(--dn);background:color-mix(in srgb,var(--dn) 10%,transparent);
   border-radius:999px;padding:4px 10px}
 .cdn .ms{font-size:15px}
 .cdn.now{color:var(--up);background:color-mix(in srgb,var(--up) 12%,transparent)}

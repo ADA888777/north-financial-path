@@ -15,7 +15,7 @@
   }
   function dayShort(iso) {
     try {
-      return new Intl.DateTimeFormat('ar-SA', { weekday: 'short' })
+      return new Intl.DateTimeFormat('ar-SA-u-nu-latn', { weekday: 'short' })
         .format(new Date(iso + 'T00:00:00')).slice(0, 3);
     } catch (e) { return ''; }
   }
@@ -24,14 +24,14 @@
   }
   function shortDate(iso) {
     try {
-      return new Intl.DateTimeFormat('ar-SA', { day: 'numeric', month: 'short' })
+      return new Intl.DateTimeFormat('ar-SA-u-nu-latn', { day: 'numeric', month: 'short' })
         .format(new Date(iso + 'T00:00:00'));
     } catch (e) { return iso; }
   }
   function when(iso) {
     if (!iso) return '—';
     try {
-      return new Intl.DateTimeFormat('ar-SA', {
+      return new Intl.DateTimeFormat('ar-SA-u-nu-latn', {
         dateStyle: 'medium', timeStyle: 'short'
       }).format(new Date(iso));
     } catch (e) { return String(iso).slice(0, 16); }

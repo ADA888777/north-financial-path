@@ -30,11 +30,19 @@
     return esc(c) + ' - ' + esc(t);
   }
 
-  /* شارة الترقية: اسم الباقة من القاعدة لا نصّ مكتوب هنا */
+  /* شارة الترقية: اسم الباقة ورابط شرائها من القاعدة لا من الكود.
+     الرابط يُضبط من لوحة الإدارة (الباقات ← رابط الشراء)، فتغييره
+     لا يحتاج نشراً. وبلا رابط تبقى الشارة نصّاً لا وعداً معطّلاً. */
+  var PLAN_URL = {};
   function upBadge(x) {
-    if (!x.required_plan) return '<span class="up-badge">الترقية لفتحه</span>';
-    return '<span class="up-badge"><span class="ms">workspace_premium</span>' +
-      'الترقية لـ«' + esc(x.required_plan) + '»</span>';
+    var name = x.required_plan;
+    if (!name) return '<span class="up-badge">الترقية لفتحه</span>';
+    var body = '<span class="ms">workspace_premium</span>الترقية لـ«' + esc(name) + '»';
+    var url = PLAN_URL[name];
+    if (!url) return '<span class="up-badge">' + body + '</span>';
+    return '<a class="up-badge up-link" href="' + esc(url) +
+      '" target="_blank" rel="noopener">' + body +
+      '<span class="ms">open_in_new</span></a>';
   }
 
   function lesson(ls, i) {
@@ -145,7 +153,7 @@
             '</div>' +
             // الرقم الكبير إجمالي دروس المستوى دائماً، والنسبة تحته
             '<div class="lv-o-n"><b>' + num(l.total || 0) + '</b>' +
-              '<span>' + (num(l.total || 0) === '١' ? 'درس' : 'درساً') + '</span></div>' +
+              '<span>' + ((l.total || 0) === 1 ? 'درس' : 'درساً') + '</span></div>' +
           '</div>' +
           (tl ? ''
               : '<div class="nbar-row"><span>' + num(l.percent || 0) + '% مكتمل</span>' +
@@ -182,11 +190,18 @@
   L.guard().then(function (s) {
     if (!s) return;
     // الأعداد بنداء موازٍ: دالة لكل غرض، والنداءان يمضيان معاً
-    return Promise.all([db.rpc('my_map'), db.rpc('my_map_counts')])
+    return Promise.all([db.rpc('my_map'), db.rpc('my_map_counts'), db.rpc('public_plans')])
       .then(function (rr) {
       var r = rr[0];
       var m = (r && r.data) || {};
       var cnt = (rr[1] && !rr[1].error && rr[1].data) || {};
+
+      /* الباقات مرتّبة بالرتبة، فأول اسم مطابق هو الأدنى الذي يفتح */
+      ((rr[2] && !rr[2].error && rr[2].data) || []).forEach(function (pl) {
+        if (pl && pl.name && pl.checkout_url && !PLAN_URL[pl.name]) {
+          PLAN_URL[pl.name] = pl.checkout_url;
+        }
+      });
       if (cnt && !cnt.error) {
         m.level_remaining      = cnt.level_remaining;
         m.upcoming_in_plan     = cnt.upcoming_in_plan;

@@ -643,3 +643,8 @@ a.pip:hover{transform:translateY(-1px)}
 .mt.done{display:flex;align-items:center;justify-content:center;gap:8px;
   font-size:13.5px;font-weight:var(--w-bold);line-height:1.5;text-align:center}
 .mt.done .ms{font-size:20px;flex:0 0 auto}
+
+/* شارة الترقية حين تحمل رابط شراء: زرّ لا وسم */
+.up-link{text-decoration:none;cursor:pointer;transition:filter .18s}
+.up-link:hover{filter:brightness(.94)}
+.up-link .ms:last-child{font-size:13px;opacity:.8}

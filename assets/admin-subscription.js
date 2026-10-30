@@ -104,8 +104,8 @@
           '<div class="fld"><label for="r-months">المدة</label>' +
             '<select id="r-months">' +
               '<option value="1">شهر واحد</option>' +
-              '<option value="3" selected>٣ أشهر</option>' +
-              '<option value="6">٦ أشهر</option>' +
+              '<option value="3" selected>3 أشهر</option>' +
+              '<option value="6">6 أشهر</option>' +
               '<option value="12">سنة</option>' +
             '</select></div>' +
           '<div class="fld"><label for="r-plan">الباقة بعد التجديد</label>' +

@@ -9,7 +9,7 @@
 
   function riyadh(iso, opts) {
     try {
-      return new Intl.DateTimeFormat('ar-SA', Object.assign(
+      return new Intl.DateTimeFormat('ar-SA-u-nu-latn', Object.assign(
         { timeZone: 'Asia/Riyadh' }, opts)).format(new Date(iso));
     } catch (e) { return String(iso).slice(0, 16); }
   }
@@ -126,7 +126,7 @@
     });
 
     el('cal-m').textContent =
-      new Intl.DateTimeFormat('ar-SA', { month: 'long', year: 'numeric' }).format(first);
+      new Intl.DateTimeFormat('ar-SA-u-nu-latn', { month: 'long', year: 'numeric' }).format(first);
 
     var inMonth = rows.filter(function (s) {
       return dayKey(s.starts_at).slice(0, 7) === monthKey(first);

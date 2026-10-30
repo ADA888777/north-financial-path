@@ -15,7 +15,7 @@
   if (!db || !figs) return;
 
   var AR = (function () {
-    try { return new Intl.NumberFormat('ar-SA'); } catch (e) { return null; }
+    try { return new Intl.NumberFormat('ar-SA-u-nu-latn'); } catch (e) { return null; }
   })();
   function n(v) { return AR ? AR.format(v) : String(v); }
 

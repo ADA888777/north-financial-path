@@ -49,7 +49,7 @@
   function fmtDate(iso) {
     if (!iso) return '—';
     try {
-      return new Intl.DateTimeFormat('ar-SA', { dateStyle: 'medium' }).format(new Date(iso));
+      return new Intl.DateTimeFormat('ar-SA-u-nu-latn', { dateStyle: 'medium' }).format(new Date(iso));
     } catch (e) { return String(iso).slice(0, 10); }
   }
 

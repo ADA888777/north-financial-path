@@ -23,7 +23,7 @@
       return '<span class="co-meta">لا توجد تقييمات بعد</span>';
     }
     return '<span class="co-meta co-rt"><span class="ms">star</span>' +
-      esc(r.avg) + ' من ٥ · ' + esc(r.count) + ' تقييماً</span>';
+      esc(r.avg) + ' من 5 · ' + esc(r.count) + ' تقييماً</span>';
   }
 
   function showRatings(id, host) {
@@ -38,7 +38,7 @@
       return;
     }
     host.innerHTML =
-      '<p class="sub" style="margin:10px 0">المتوسط ' + esc(r.avg) + ' من ٥، محسوب من ' +
+      '<p class="sub" style="margin:10px 0">المتوسط ' + esc(r.avg) + ' من 5، محسوب من ' +
         esc(r.count) + ' تقييماً مرتبطاً بجلسات حضرها أصحابها — لا يُعدَّل يدوياً.</p>' +
       '<div class="tbl-wrap"><table class="tbl"><thead><tr>' +
         '<th>العضو</th><th>رقم العضوية</th><th>التقييم</th><th>الملاحظة</th><th>التاريخ</th>' +

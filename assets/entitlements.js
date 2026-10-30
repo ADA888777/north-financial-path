@@ -20,7 +20,7 @@
       .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   }
   function num(n) {
-    try { return new Intl.NumberFormat('ar-SA').format(n); } catch (e) { return String(n); }
+    try { return new Intl.NumberFormat('ar-SA-u-nu-latn').format(n); } catch (e) { return String(n); }
   }
 
   var ICO = { feature: 'check_circle', channel: 'campaign', group: 'groups',

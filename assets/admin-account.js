@@ -50,7 +50,7 @@
     if (live(m)) return '';
     return '<p class="warn-line"><span class="ms">report</span>' +
       'اشتراك هذه العضوة غير نافذ الآن، فتغيير الباقة وحده لن يفتح لها شيئاً. ' +
-      'استعملي «غيّر الباقة وفعّل ٦٠ يوماً»، أو غيّري الباقة ثم جدّدي من ' +
+      'استعملي «غيّر الباقة وفعّل 60 يوماً»، أو غيّري الباقة ثم جدّدي من ' +
       '«الاشتراك».</p>';
   }
 
@@ -85,7 +85,7 @@
         '<button class="bt bt-main" type="button" id="do-plan">غيّر الباقة</button>' +
         (live(m) ? '' :
           '<button class="bt bt-soft" type="button" id="do-plan-renew" style="margin-inline-start:8px">' +
-            'غيّر الباقة وفعّل ٦٠ يوماً</button>') +
+            'غيّر الباقة وفعّل 60 يوماً</button>') +
       '</div>' +
 
       '<div class="sub-act">' +
@@ -106,7 +106,7 @@
           'العميلة. تغييره لا يغيّر الاسم الظاهر.</p>' +
         '<div class="fld"><label for="a-user">اسم المستخدم</label>' +
           '<input id="a-user" type="text" dir="ltr" maxlength="32" placeholder="اتركه فارغاً لمحوه">' +
-          '<span class="hint">حروف لاتينية وأرقام ونقطة وشرطة، من ٣ إلى ٣٢ خانة. لا يتكرّر بين عضوين.</span></div>' +
+          '<span class="hint">حروف لاتينية وأرقام ونقطة وشرطة، من 3 إلى 32 خانة. لا يتكرّر بين عضوين.</span></div>' +
         '<button class="bt bt-ghost" type="button" id="do-user">احفظ اسم المستخدم</button>' +
       '</div>' +
 

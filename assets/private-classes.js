@@ -18,7 +18,7 @@
 
   function riyadh(iso, opts) {
     try {
-      return new Intl.DateTimeFormat('ar-SA', Object.assign(
+      return new Intl.DateTimeFormat('ar-SA-u-nu-latn', Object.assign(
         { timeZone: 'Asia/Riyadh' }, opts)).format(new Date(iso));
     } catch (e) { return String(iso).slice(0, 16); }
   }
@@ -226,7 +226,7 @@
           '<input id="bk-note" type="text" maxlength="200"></div>' +
 
         '<p class="bk-note"><span class="ms">schedule</span>' +
-          'الإلغاء قبل ١٢ ساعة فأكثر لا يُحتسب من رصيدك. الإلغاء المتأخر أو عدم الحضور يُحتسب.</p>' +
+          'الإلغاء قبل 12 ساعة فأكثر لا يُحتسب من رصيدك. الإلغاء المتأخر أو عدم الحضور يُحتسب.</p>' +
 
         '<button class="nbtn nbtn-p nbtn-wide" type="button" id="bk-go">' +
           'أكّدي الحجز مع ' + esc(c.name || 'الكوتش') + '</button>' +
@@ -341,7 +341,7 @@
       b.addEventListener('click', function () {
         var late = b.getAttribute('data-late') === '1';
         if (!window.confirm(late
-          ? 'بقي أقل من ١٢ ساعة على الجلسة، وإلغاؤها الآن يُحتسب من رصيدك. متأكدة؟'
+          ? 'بقي أقل من 12 ساعة على الجلسة، وإلغاؤها الآن يُحتسب من رصيدك. متأكدة؟'
           : 'إلغاء هذه الجلسة؟ لن يُحتسب من رصيدك.')) return;
         b.disabled = true;
         db.rpc('cancel_booking', { p_booking: b.getAttribute('data-cancel') })
@@ -369,11 +369,11 @@
         '<span class="ss-b"><b>' + esc(x.coach) + '</b>' +
           '<span>' + esc(dayLabel(x.starts_at)) + ' · ' +
             esc(timeLabel(x.starts_at)) + '</span></span>' +
-        '<span class="stars" role="group" aria-label="التقييم من ١ إلى ٥">' +
+        '<span class="stars" role="group" aria-label="التقييم من 1 إلى 5">' +
           [1, 2, 3, 4, 5].map(function (n) {
             var on = x.my_stars && n <= x.my_stars;
             return '<button type="button" class="star' + (on ? ' on' : '') +
-              '" data-stars="' + n + '" aria-label="' + n + ' من ٥">' +
+              '" data-stars="' + n + '" aria-label="' + n + ' من 5">' +
               '<span class="ms">star</span></button>';
           }).join('') +
         '</span>' +

@@ -124,7 +124,7 @@ img{max-width:100%;display:block}
   color:var(--accent);background:var(--accent-wash);border-radius:999px;padding:6px 15px;margin-bottom:18px;
   letter-spacing:.01em;
 }
-.num{font-family:var(--mono);font-variant-numeric:tabular-nums;font-feature-settings:'tnum'}
+.num{font-variant-numeric:tabular-nums;font-feature-settings:'tnum'}
 
 /* buttons */
 .btn{

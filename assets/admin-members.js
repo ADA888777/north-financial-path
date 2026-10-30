@@ -36,7 +36,7 @@
     ]).then(function (res) {
       res.forEach(function (r, i) {
         if (r.error) fail(i);
-        else set(i, new Intl.NumberFormat('ar-SA').format(r.count || 0));
+        else set(i, new Intl.NumberFormat('ar-SA-u-nu-latn').format(r.count || 0));
       });
     }).catch(function () { [0, 1, 2, 3].forEach(fail); });
   }

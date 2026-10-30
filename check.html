@@ -120,7 +120,7 @@
       clearTimeout(late);
       var aborted = e && e.name === 'AbortError';
       row('خادم القاعدة', aborted
-        ? 'لم يردّ خلال ١٢ ثانية — غالباً المشروع موقوف (paused) [SRV-TIMEOUT]'
+        ? 'لم يردّ خلال 12 ثانية — غالباً المشروع موقوف (paused) [SRV-TIMEOUT]'
         : 'لا يمكن الوصول إليه إطلاقاً [NET-2]', false);
     });
   })();
@@ -128,7 +128,7 @@
   /* هل المشروع مستيقظ ويقبل المفتاح؟ */
   if (dbOK) {
     var sessLate = setTimeout(function () {
-      row('جلسة حالية', 'لم يردّ الخادم خلال ١٢ ثانية', false);
+      row('جلسة حالية', 'لم يردّ الخادم خلال 12 ثانية', false);
     }, 12000);
     window.northDB.auth.getSession().then(function (r) {
       clearTimeout(sessLate);
@@ -153,7 +153,7 @@
 
     var hung = setTimeout(function () {
       btn.removeAttribute('aria-busy'); btn.disabled = false;
-      out.textContent = 'لم يردّ الخادم خلال ٢٠ ثانية. [SIGNIN-TIMEOUT]\n' +
+      out.textContent = 'لم يردّ الخادم خلال 20 ثانية. [SIGNIN-TIMEOUT]\n' +
         'هذا يطابق مشروع قاعدة موقوفاً أو شبكة تحجب الاتصال.';
     }, 20000);
 
