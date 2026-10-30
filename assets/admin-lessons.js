@@ -76,6 +76,14 @@
         rows = r.data || [];
         kpis();
         render();
+
+        /* الدرس المفتوح للتعديل يُحدَّث بصفّه الجديد: بعد رفع
+           ملفٍ أو حذفه تُعاد القائمة، ولو بقي النموذج على نسخةٍ
+           قديمة لعرض ملفاً حُذف أو أخفى ملفاً رُفع. */
+        if (editing) {
+          var fresh = rows.filter(function (x) { return x.id === editing.id; })[0];
+          if (fresh) { editing = fresh; upPaint(fresh); }
+        }
       });
   }
 
@@ -149,6 +157,135 @@
     });
   }
 
+  /* ---------- رفع ملف الفيديو ----------
+     الرفع يحتاج معرّف الدرس — المجلّد هو المعرّف، وعليه تبني
+     سياسةُ التخزين حكمها — فلا يُفتح إلا لدرس محفوظ.
+
+     ولا يمرّ عبر supabase-js: دالته لا تعطي تقدّماً، وملفٌ بمئات
+     الميجابايت بلا شريط تقدّم يبدو معلّقاً فتُغلق الصفحة في
+     منتصفه. XHR على نفس نقطة التخزين، بنفس رمز الجلسة. */
+  var upFor = null;          // الدرس المفتوح للتعديل
+  var upBusy = false;
+
+  function upErr(msg) {
+    var n = el('ls-up-err');
+    if (!n) return;
+    n.textContent = msg || '';
+    n.style.display = msg ? 'block' : 'none';
+  }
+
+  function upBar(pct) {
+    var b = el('ls-up-bar');
+    if (!b) return;
+    b.hidden = pct == null;
+    if (pct == null) return;
+    b.querySelector('i').style.width = pct + '%';
+    b.querySelector('span').textContent = pct + '%';
+  }
+
+  function upPaint(l) {
+    var box = el('ls-up'), note = el('ls-up-note');
+    if (!box) return;
+    upFor = l;
+    box.hidden = !l;
+    if (note) note.hidden = !!l;
+    upErr(''); upBar(null);
+    var now = el('ls-up-now'), del = el('ls-up-del');
+    var has = !!(l && l.video_path);
+    if (now) {
+      now.hidden = !has;
+      now.textContent = has
+        ? 'الملف الحالي: ' + String(l.video_path).split('/').slice(1).join('/')
+        : '';
+    }
+    if (del) del.hidden = !has;
+    if (el('ls-file')) el('ls-file').value = '';
+  }
+
+  /* اسم الملف يُعاد بناؤه: ما يكتبه النظام في اسم الملف لا يصلح
+     مفتاحاً في التخزين، والامتداد وحده ما نحتاجه منه. */
+  function safeName(name) {
+    var m = String(name || '').match(/\.([A-Za-z0-9]{2,5})$/);
+    return Date.now() + '.' + (m ? m[1].toLowerCase() : 'mp4');
+  }
+
+  function upload() {
+    if (upBusy || !upFor) return;
+    var f = el('ls-file').files[0];
+    if (!f) { upErr('اختاري ملفاً أولاً.'); return; }
+    if (f.size > 524288000) {
+      upErr('الملف ' + Math.round(f.size / 1048576) + ' ميجابايت، والحدّ 500.');
+      return;
+    }
+
+    var lesson = upFor, old = lesson.video_path || null;
+    var path = lesson.id + '/' + safeName(f.name);
+
+    upBusy = true; upErr(''); upBar(0);
+    var go = el('ls-up-go'); go.disabled = true; go.textContent = 'جارٍ الرفع…';
+
+    function done(msg, bad) {
+      upBusy = false;
+      go.disabled = false; go.textContent = 'ارفعي الفيديو';
+      upBar(null);
+      if (bad) { upErr(msg); return; }
+      A.toast(msg, 'ok');
+      load();
+    }
+
+    db.auth.getSession().then(function (r) {
+      var token = r && r.data && r.data.session && r.data.session.access_token;
+      if (!token) { done('انتهت جلستك. حدّثي الصفحة.', true); return; }
+
+      var x = new XMLHttpRequest();
+      x.open('POST', window.northConfig.url +
+        '/storage/v1/object/lesson-videos/' + encodeURI(path), true);
+      x.setRequestHeader('Authorization', 'Bearer ' + token);
+      x.setRequestHeader('apikey', window.northConfig.key);
+      x.setRequestHeader('x-upsert', 'true');
+      if (f.type) x.setRequestHeader('Content-Type', f.type);
+
+      x.upload.onprogress = function (e) {
+        if (e.lengthComputable) upBar(Math.round((e.loaded / e.total) * 100));
+      };
+      x.onerror = function () { done('انقطع الاتصال أثناء الرفع.', true); };
+      x.onload = function () {
+        if (x.status < 200 || x.status >= 300) {
+          var m = '';
+          try { m = (JSON.parse(x.responseText) || {}).message || ''; } catch (e) {}
+          done('تعذّر الرفع (' + x.status + ')' + (m ? ': ' + m : ''), true);
+          return;
+        }
+        /* الصفّ يُحدَّث بعد نجاح الرفع لا قبله: لو عُكس الترتيب
+           لأشار الدرس إلى ملفٍ قد لا يصل. */
+        db.from('lessons').update({ video_path: path }).eq('id', lesson.id)
+          .then(function (q) {
+            if (q.error) { done('رُفع الملف ولم يُحفظ مساره: ' + F.why(q.error), true); return; }
+            if (old && old !== path) db.storage.from('lesson-videos').remove([old]);
+            done('رُفع الفيديو.');
+          });
+      };
+      x.send(f);
+    });
+  }
+
+  function dropVideo() {
+    if (upBusy || !upFor || !upFor.video_path) return;
+    if (!window.confirm('حذف ملف الفيديو من هذا الدرس؟')) return;
+    var lesson = upFor, path = lesson.video_path;
+    upBusy = true;
+    db.from('lessons').update({ video_path: null }).eq('id', lesson.id).then(function (q) {
+      upBusy = false;
+      if (q.error) { upErr(F.why(q.error)); return; }
+      db.storage.from('lesson-videos').remove([path]);
+      A.toast('حُذف الملف.', 'ok');
+      load();
+    });
+  }
+
+  if (el('ls-up-go')) el('ls-up-go').addEventListener('click', upload);
+  if (el('ls-up-del')) el('ls-up-del').addEventListener('click', dropVideo);
+
   /* ---------- النموذج ---------- */
   function edit(l) {
     editing = l;
@@ -166,6 +303,7 @@
     if (el('ls-tier')) el('ls-tier').value = l.min_tier == null ? '1' : String(l.min_tier);
     el('ls-pub').checked = !!l.published;
     el('ls-free').checked = !!l.free_preview;
+    upPaint(l);
     resetBtn.hidden = false;
     F.clearErrs(form);
     form.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -180,6 +318,7 @@
     if (el('ls-access')) el('ls-access').value = 'auto';
     if (el('ls-tier')) el('ls-tier').value = '1';
     levelSel.value = '';
+    upPaint(null);
     resetBtn.hidden = true;
     F.clearErrs(form);
   }

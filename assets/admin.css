@@ -360,3 +360,19 @@ tr.sb-soon td:first-child{box-shadow:inset 2px 0 0 #C98A3C}
   background:color-mix(in srgb,#C9A227 13%,transparent);
   border:1px solid color-mix(in srgb,#C9A227 40%,transparent);color:#E8CF7A}
 .warn-line .ms{font-size:18px;flex:0 0 auto;margin-top:1px}
+
+/* رفع ملف فيديو الدرس */
+.ls-up{border:1px solid var(--a-line);border-radius:10px;padding:14px;
+  display:flex;flex-direction:column;gap:10px;background:var(--a-bg)}
+.ls-up[hidden]{display:none}
+.ls-up-now{font-size:12.5px;color:var(--a-fg-2);font-family:var(--mono);
+  direction:ltr;text-align:left;overflow-wrap:anywhere}
+.ls-up input[type="file"]{font-size:13px;color:var(--a-fg-2)}
+.ls-up-act{display:flex;gap:8px;flex-wrap:wrap}
+.ls-bar{position:relative;height:10px;border-radius:999px;background:var(--a-line);
+  overflow:hidden}
+.ls-bar[hidden]{display:none}
+.ls-bar i{display:block;height:100%;width:0;background:var(--a-accent);
+  transition:width .2s}
+.ls-bar span{position:absolute;inset-inline-end:8px;inset-block-start:-18px;
+  font-size:11px;color:var(--a-fg-2)}

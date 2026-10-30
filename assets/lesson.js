@@ -48,18 +48,47 @@
     return null;
   }
 
+  function shell(inner) {
+    return '<div class="vid-h"><h2><span class="ms">play_circle</span> شاهد وتعلّم</h2>' +
+      (curDur ? '<span class="vid-t"><span class="ms">schedule</span>' +
+        num(curDur) + ' دقيقة</span>' : '') + '</div>' + inner;
+  }
+
+  var curDur = 0;
+
+  /* الملف المرفوع يُقدَّم على الرابط: هو محتوى المنصة نفسه،
+     والدلو خاصّ — العنوان يُوقَّع لساعتين ولا يُمنح التوقيع إلا
+     لمن تفتح لها القاعدة هذا الدرس. */
+  function uploaded(d, box) {
+    box.innerHTML = shell('<div class="video-wrap vid-load">' +
+      '<span class="ms">hourglass_top</span><span>جارٍ تجهيز الفيديو…</span></div>');
+
+    db.storage.from('lesson-videos').createSignedUrl(d.video_path, 7200)
+      .then(function (r) {
+        var u = r && r.data && r.data.signedUrl;
+        if (r.error || !u) {
+          box.innerHTML = shell('<div class="video-wrap vid-load">' +
+            '<span class="ms">error</span><span>تعذّر تحميل الفيديو. حدّثي الصفحة.</span></div>');
+          return;
+        }
+        box.innerHTML = shell('<div class="video-wrap"><video src="' + esc(u) +
+          '" controls preload="metadata" playsinline controlsList="nodownload"></video></div>');
+      })
+      .catch(function () {
+        box.innerHTML = shell('<div class="video-wrap vid-load">' +
+          '<span class="ms">error</span><span>تعذّر تحميل الفيديو. حدّثي الصفحة.</span></div>');
+      });
+  }
+
   function video(d) {
     var box = el('l-video');
     if (!box) return;
+    curDur = d.duration_min || 0;
+
+    if (d.video_path) { uploaded(d, box); return; }
     if (!d.video_url) { box.innerHTML = ''; return; }
 
     var p = player(d.video_url);
-    var head = '<div class="vid-h"><h2><span class="ms">play_circle</span> شاهد وتعلّم</h2>' +
-      (d.duration_min
-        ? '<span class="vid-t"><span class="ms">schedule</span>' +
-          num(d.duration_min) + ' دقيقة</span>'
-        : '') + '</div>';
-
     var body;
     if (p && p.frame) {
       body = '<div class="video-wrap"><iframe src="' + esc(p.frame) + '" title="فيديو الدرس" ' +
@@ -76,7 +105,7 @@
         '<span class="ms">play_circle</span><span>افتح فيديو الدرس</span>' +
         '<i>يُفتح في تبويب جديد</i></a></div>';
     }
-    box.innerHTML = head + body;
+    box.innerHTML = shell(body);
   }
 
   /* ---------- التبويبات ----------
@@ -100,7 +129,7 @@
 
   function tabs(d) {
     var bar = el('l-tabs');
-    var hasVideo = !!d.video_url;
+    var hasVideo = !!(d.video_url || d.video_path);
     var hasText  = !!(d.content && d.content.trim());
     var items = [];
 
