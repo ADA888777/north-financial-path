@@ -18,27 +18,9 @@
 </head>
 <body>
 
-<header class="nav">
-  <div class="rail nav-in">
-    <a class="brand" href="index.html" aria-label="نورث للمسار المالي، الرئيسية">
-      <img class="logo-light" src="assets/north-mark.png" alt="">
-      <img class="logo-dark" src="assets/north-mark-white.png" alt="">
-      <span><b>NORTH</b><i>للمسار المالي</i></span>
-    </a>
-    <nav class="nav-links" aria-label="التنقل">
-      <a href="learn.html">لوحتي</a>
-      <a href="classes.html">الكلاسات</a>
-      <a href="assistant.html">المساعد</a>
-      <a href="account.html">حسابي</a>
-    </nav>
-    <div class="nav-act">
-      <button class="icon-btn" id="theme-toggle" type="button" aria-label="تبديل المظهر"><span class="ms" id="theme-ico">dark_mode</span></button>
-      <a class="btn btn-ghost btn-sm" href="login.html">تسجيل الدخول</a>
-    </div>
-  </div>
-</header>
+<header class="lhead" id="lhead"></header>
 
-<nav class="lnav" id="lnav" aria-label="أقسام المتعلم"></nav>
+<div class="lmenu" id="lnav" hidden></div>
 
 <div class="rail gate" id="gate" hidden></div>
 
@@ -63,10 +45,9 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js"></script>
 <script src="assets/supabase.js"></script>
-<script src="assets/nav-session.js"></script>
+<script src="assets/learn-nav.js"></script>
 <script src="assets/bell.js"></script>
 <script src="assets/learn-core.js"></script>
-<script src="assets/learn-nav.js"></script>
 <script src="assets/quiz.js"></script>
 </body>
 </html>

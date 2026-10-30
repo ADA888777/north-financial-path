@@ -16,6 +16,18 @@
   /* نحفظ العنوان كما وصل قبل أن تنظّفه المكتبة، لتعرف صفحة الاستعادة مصدر الزيارة */
   window.northEntryURL = { hash: window.location.hash || '', search: window.location.search || '' };
 
+  /* رقم العضوية للعرض: «N-2026-0165» يُقرأ ‎#165.
+     عرضٌ لا تخزين — القاعدة تحتفظ بالصيغة الكاملة، فبحث الإدارة
+     وسجلّ العمليات وتأكيد الحذف تظلّ على ما هي عليه. العدّاد
+     تسلسلي لا يعيد رقماً، فالمقطع الأخير وحده يكفي للتمييز. */
+  window.northNo = function (raw) {
+    var s = String(raw == null ? '' : raw).trim();
+    if (!s) return '';
+    var m = s.match(/(\d+)\s*$/);
+    if (!m) return s;
+    return '#' + m[1].replace(/^0+(?=\d)/, '');
+  };
+
   if (!window.supabase || typeof window.supabase.createClient !== 'function') {
     console.error('[north] لم تُحمَّل مكتبة supabase-js. تحقق من وسم <script> في الصفحة.');
     window.northDB = null;

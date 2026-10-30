@@ -48,6 +48,7 @@ function esc(s: unknown): string {
 type Row = {
   id: string; kind: 'analyst' | 'member'; to_email: string | null;
   member_name: string | null; member_phone: string | null; membership_no: string | null;
+  telegram: string | null;
   slot_title: string; starts_at: string; duration_min: number; booked_at: string;
 };
 
@@ -64,6 +65,7 @@ function build(row: Row): { subject: string; html: string } {
         <p style="margin:0 0 6px"><b>المشترك:</b> ${esc(row.member_name ?? '—')}</p>
         <p style="margin:0 0 6px"><b>رقم العضوية:</b> ${esc(row.membership_no ?? '—')}</p>
         ${row.member_phone ? `<p style="margin:0 0 6px"><b>الجوال:</b> ${esc(row.member_phone)}</p>` : ''}
+        ${row.telegram ? `<p style="margin:0 0 6px"><b>تيليجرام:</b> <span dir="ltr">@${esc(String(row.telegram).replace(/^@+/, ''))}</span></p>` : ''}
         <p style="margin:14px 0 0;color:#51657D;font-size:13px">
           أُرسلت هذه الرسالة آلياً من منصة نورث للمسار المالي.</p>
       </div>`,

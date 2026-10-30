@@ -6,7 +6,7 @@
   function img(path) {
     if (!path) return '';
     try {
-      var u = db.storage.from('stories').getPublicUrl(path);
+      var u = db.storage.from('story-images').getPublicUrl(path);
       var url = u && u.data && u.data.publicUrl;
       return url ? '<div class="st-img"><img src="' + esc(url) + '" alt="" loading="lazy"></div>' : '';
     } catch (e) { return ''; }

@@ -31,7 +31,7 @@
     if (!act || document.getElementById('acct')) return;
 
     var name = p.full_name || session.user.email;
-    var no = p.membership_no || '';
+    var no = (window.northNo || String)(p.membership_no || '');
     var initial = (name || '؟').trim().charAt(0);
 
     var wrap = document.createElement('div');
@@ -47,7 +47,7 @@
       '</button>' +
       '<div class="acct-menu" id="acct-menu" hidden>' +
         '<div class="acct-head"><b>' + esc(name) + '</b>' +
-          '<span class="num">' + esc(p.membership_no || session.user.email) + '</span></div>' +
+          '<span class="num">' + esc(no || session.user.email) + '</span></div>' +
         '<div class="acct-foot">' +
           (role === 'admin'
             ? '<a class="btn btn-ghost btn-sm btn-wide" href="admin.html">لوحة الإدارة</a>'

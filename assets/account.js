@@ -6,23 +6,8 @@
   var db = window.northDB;
   var el = function (id) { return document.getElementById(id); };
 
-  /* ---------- المظهر ---------- */
-  var root = document.documentElement;
-  var tb = el('theme-toggle'), ti = el('theme-ico');
-  function theme() {
-    return root.getAttribute('data-theme') ||
-      (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-  }
-  try { var sv = localStorage.getItem('north-theme'); if (sv) root.setAttribute('data-theme', sv); } catch (e) {}
-  if (tb && ti) {
-    ti.textContent = theme() === 'dark' ? 'light_mode' : 'dark_mode';
-    tb.addEventListener('click', function () {
-      var n = theme() === 'dark' ? 'light' : 'dark';
-      root.setAttribute('data-theme', n);
-      try { localStorage.setItem('north-theme', n); } catch (e) {}
-      ti.textContent = n === 'dark' ? 'light_mode' : 'dark_mode';
-    });
-  }
+  /* رقم العضوية يُعرض ‎#165 — القاعدة تحتفظ بصيغته الكاملة */
+  var no = window.northNo || function (v) { return v == null ? '' : String(v); };
 
   function esc(s) {
     return String(s == null ? '' : s)
@@ -63,38 +48,21 @@
   function render(p, session) {
     el('shell').hidden = false;
     el('gate').hidden = true;
-    el('acct').hidden = false;
-
-    var name = p.full_name || session.user.email;
-    var initial = (name || '؟').trim().charAt(0);
-
-    put('hdr-name', p.full_name || 'حسابي');
-    put('hdr-no', p.membership_no);
-    put('ava', initial);
-    put('menu-name', p.full_name || '—');
-    put('menu-email', p.email || session.user.email);
-    put('menu-no', p.membership_no);
-    put('menu-user', p.username);
-    put('menu-plan', p.plan);
-
     put('hero-name', 'أهلاً، ' + (p.full_name || ''));
     put('hero-sub', p.plan ? ('أنت مشترك في ' + p.plan + '.') : 'مرحباً بك في منصة نورث.');
-    put('hero-no', p.membership_no);
+    put('hero-no', no(p.membership_no));
 
     put('d-name', p.full_name);
     put('d-email', p.email || session.user.email);
     put('d-user', p.username);
-    put('d-no', p.membership_no);
+    put('d-no', no(p.membership_no));
     put('d-phone', p.phone);
     var on = p.status === 'active';
-    var pill = '<span class="st-pill ' + (on ? 'st-on">فعّال' : 'st-off">موقوف') + '</span>';
-    el('d-status').innerHTML = pill;
-    el('menu-status').innerHTML = pill;
+    el('d-status').innerHTML =
+      '<span class="st-pill ' + (on ? 'st-on">فعّال' : 'st-off">موقوف') + '</span>';
     put('d-joined', fmt(p.created_at));
     put('d-plan', p.plan);
     put('d-expires', p.subscription_expires_at ? fmt(p.subscription_expires_at) : 'بلا تاريخ انتهاء');
-
-    if (p.must_change_password) el('pw-note').hidden = false;
 
     /* ---------- حالة الاشتراك ---------- */
     var expired = p.subscription_expires_at && new Date(p.subscription_expires_at) <= new Date();
@@ -108,7 +76,6 @@
       put('sub-note', p.subscription_expires_at
         ? ('ينتهي في ' + fmt(p.subscription_expires_at) + '.')
         : 'بلا تاريخ انتهاء محدد.');
-      put('menu-sub', 'نافذ');
     } else {
       box.className = 'sub-state off';
       el('sub-ico').textContent = 'lock';
@@ -118,13 +85,11 @@
               : 'لا يوجد اشتراك نافذ على حسابك.';
       put('sub-title', 'الاشتراك غير نافذ');
       put('sub-note', why);
-      put('menu-sub', 'غير نافذ');
       if (p.status === 'active') el('renew').hidden = false;
     }
 
     /* ---------- المحتوى: البوابة من قاعدة البيانات لا من الواجهة ---------- */
     wireEdit();
-    wireTelegram(p);
 
     db.rpc('has_active_subscription').then(function (r) {
       var ok = !r.error && r.data === true;
@@ -144,72 +109,4 @@
      جاء الطلب مباشرة إلى الـAPI. ما هنا عرضٌ صادق لذلك المنع. */
   function wireEdit() { /* لا أزرار تعديل لبيانات الحساب في الصفحة */ }
 
-  /* ---------- معرّف تيليجرام ----------
-     الاستثناء الوحيد من قاعدة «العرض فقط»: هذا معرّف تواصلها هي،
-     لا بيانات حساب. الحفظ يمرّ بدالة set_my_telegram التي تتحقّق من
-     الصيغة وتوحّدها — وحارس القاعدة يمنع ما عدا هذا العمود. */
-  function wireTelegram(p) {
-    var inp = el('tg-in'), btn = el('tg-save'), msg = el('tg-msg');
-    if (!inp || !btn) return;
-
-    inp.value = p.telegram ? '@' + String(p.telegram).replace(/^@+/, '') : '';
-
-    function say(text, bad) {
-      msg.hidden = false;
-      msg.textContent = text;
-      msg.classList.toggle('bad', !!bad);
-      clearTimeout(msg._t);
-      msg._t = setTimeout(function () { msg.hidden = true; }, 7000);
-    }
-
-    btn.addEventListener('click', function () {
-      if (btn.disabled) return;
-      btn.disabled = true;
-      var was = btn.textContent;
-      btn.textContent = 'جارٍ الحفظ…';
-
-      db.rpc('set_my_telegram', { p_handle: inp.value })
-        .then(function (r) {
-          btn.disabled = false; btn.textContent = was;
-          var d = (r && r.data) || {};
-          if (r.error) { say('تعذّر الحفظ: ' + r.error.message, true); return; }
-          if (d.error) { say(d.error, true); return; }
-          p.telegram = d.telegram ? String(d.telegram).replace(/^@+/, '') : null;
-          inp.value = d.telegram || '';
-          say(d.message || 'حُفظ.');
-        })
-        .catch(function (e) {
-          btn.disabled = false; btn.textContent = was;
-          say((e && e.message) || 'تعذّر الحفظ', true);
-        });
-    });
-
-    inp.addEventListener('keydown', function (e) {
-      if (e.key === 'Enter') { e.preventDefault(); btn.click(); }
-    });
-  }
-
-  /* ---------- القائمة الشخصية ---------- */
-  var btn = el('acct-btn'), menu = el('acct-menu');
-  function closeMenu() { menu.hidden = true; btn.setAttribute('aria-expanded', 'false'); }
-  btn.addEventListener('click', function (e) {
-    e.stopPropagation();
-    var open = menu.hidden;
-    menu.hidden = !open;
-    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
-  });
-  document.addEventListener('click', function (e) {
-    if (!menu.hidden && !menu.contains(e.target) && e.target !== btn) closeMenu();
-  });
-  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeMenu(); });
-
-  el('logout').addEventListener('click', function () {
-    /* global: يُبطل رموز الجلسة على الخادم لا في هذا المتصفح فقط */
-    db.auth.signOut({ scope: 'global' })
-      .catch(function () {})
-      .then(function () {
-        try { localStorage.removeItem('north-auth'); } catch (e) {}
-        window.location.replace('index.html');
-      });
-  });
 })();

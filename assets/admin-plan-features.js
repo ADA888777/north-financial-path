@@ -42,7 +42,10 @@
   }
 
   function render() {
-    el('pf-title').textContent = 'مميزات باقة: ' + (plan.name || '');
+    /* الاسم والرتبة في الرأس: ميزة تُكتب تحت باقة غير المقصودة
+       تظهر للمشتركة في البطاقة الخطأ، ولا شيء في الواجهة يكشفها. */
+    el('pf-title').textContent = 'مميزات باقة: ' + (plan.name || '') +
+      (plan.tier != null ? ' (رتبة ' + plan.tier + ')' : '');
 
     var list = rows.length
       ? rows.map(function (f) {

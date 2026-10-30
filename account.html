@@ -18,55 +18,9 @@
 </head>
 <body>
 
-<header class="nav">
-  <div class="rail nav-in">
-    <a class="brand" href="index.html" aria-label="نورث للمسار المالي، الرئيسية">
-      <img class="logo-light" src="assets/north-mark.png" alt="">
-      <img class="logo-dark" src="assets/north-mark-white.png" alt="">
-      <span><b>NORTH</b><i>للمسار المالي</i></span>
-    </a>
+<header class="lhead" id="lhead"></header>
 
-    <nav class="nav-links" aria-label="التنقل الرئيسي">
-      <a href="index.html#classes">الكلاسات الخاصة</a>
-    </nav>
-
-    <div class="nav-act">
-      <button class="icon-btn" id="theme-toggle" type="button" aria-label="تبديل المظهر"><span class="ms" id="theme-ico">dark_mode</span></button>
-
-      <div class="acct" id="acct" hidden>
-        <button class="acct-btn" id="acct-btn" type="button" aria-expanded="false" aria-controls="acct-menu">
-          <span class="acct-ava" id="ava">؟</span>
-          <span class="acct-id">
-            <b id="hdr-name">—</b>
-            <span class="num" id="hdr-no">—</span>
-          </span>
-          <span class="ms sm acct-chev">expand_more</span>
-        </button>
-
-        <div class="acct-menu" id="acct-menu" hidden>
-          <div class="acct-head">
-            <b id="menu-name">—</b>
-            <span class="num" id="menu-email">—</span>
-          </div>
-          <dl class="acct-rows">
-            <div><dt>رقم العضوية</dt><dd class="num" id="menu-no">—</dd></div>
-            <div><dt>اسم المستخدم</dt><dd class="num" id="menu-user">—</dd></div>
-            <div><dt>الباقة</dt><dd id="menu-plan">—</dd></div>
-            <div><dt>الاشتراك</dt><dd id="menu-sub">—</dd></div>
-            <div><dt>الحساب</dt><dd id="menu-status">—</dd></div>
-          </dl>
-          <div class="acct-foot">
-            <a class="btn btn-ghost btn-sm btn-wide" href="account.html">حسابي</a>
-            <a class="btn btn-ghost btn-sm btn-wide" href="reset.html">تغيير كلمة المرور</a>
-            <button class="btn btn-ghost btn-sm btn-wide" id="logout" type="button">تسجيل الخروج</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</header>
-
-<nav class="lnav" id="lnav" aria-label="أقسام المتعلم"></nav>
+<div class="lmenu" id="lnav" hidden></div>
 
 <div class="rail gate" id="gate" hidden></div>
 
@@ -84,12 +38,6 @@
     </div>
   </div>
 
-  <div class="note-strip" id="pw-note" hidden>
-    <span class="ms">key</span>
-    <span>تستخدم كلمة المرور الأولية التي أنشأتها الإدارة.
-      <a href="reset.html">عيّن كلمة مرور خاصة بك</a> لحماية حسابك.</span>
-  </div>
-
   <div class="acct-grid">
     <section class="acct-box">
       <h2>بيانات الحساب</h2>
@@ -103,26 +51,6 @@
         <div><dt>تاريخ الانضمام</dt><dd id="d-joined">—</dd></div>
       </dl>
 
-      <!-- الاستثناء الوحيد: معرّف تواصلها هي، تكتبه بنفسها -->
-      <div class="tg-box">
-        <label for="tg-in">اسم المستخدم في تيليجرام</label>
-        <div class="tg-row">
-          <input type="text" id="tg-in" dir="ltr" placeholder="@username" maxlength="60">
-          <button class="nbtn nbtn-p nbtn-sm" type="button" id="tg-save">حفظ</button>
-        </div>
-        <p class="tg-hint">المطلوب <b>اسم المستخدم</b> مثل ‎@username — لا الاسم الظاهر
-          في حسابك ولا رقم الجوال. به يتواصل معك الكوتش لتنسيق جلستك الخاصة،
-          ولا يظهر لغيره.</p>
-        <p class="tg-msg" id="tg-msg" hidden></p>
-      </div>
-
-      <p class="ro-note" id="ro-note">
-        <span class="ms sm">lock</span>
-        <span>بياناتك معروضة للاطّلاع. تعديل الاسم أو البريد أو اسم المستخدم
-          أو رقم العضوية أو الباقة أو الاشتراك يتم من إدارة المنصة —
-          <a href="index.html#faq">تواصلي معها</a> لأي تغيير.
-          ولتغيير كلمة المرور استخدمي «نسيت كلمة المرور» في صفحة الدخول.</span>
-      </p>
     </section>
 
     <section class="acct-box" id="ent-box" hidden>
@@ -154,9 +82,9 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js"></script>
 <script src="assets/supabase.js"></script>
+<script src="assets/learn-nav.js"></script>
 <script src="assets/bell.js"></script>
 <script src="assets/account.js"></script>
 <script src="assets/entitlements.js"></script>
-<script src="assets/learn-nav.js"></script>
 </body>
 </html>
