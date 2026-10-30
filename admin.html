@@ -554,14 +554,17 @@
             الملف المرفوع يُشغَّل داخل الدرس ويُقدَّم على الرابط أعلاه.</p>
           <div class="ls-up" id="ls-up" hidden>
             <div class="ls-up-now" id="ls-up-now" hidden></div>
-            <input type="file" id="ls-file" accept="video/mp4,video/webm,video/ogg,video/quicktime">
+            <input type="file" id="ls-file" accept="video/*">
+            <p class="ls-up-pick" id="ls-up-pick" hidden></p>
             <div class="ls-up-act">
-              <button class="bt bt-main bt-sm" type="button" id="ls-up-go">ارفعي الفيديو</button>
+              <button class="bt bt-main bt-sm" type="button" id="ls-up-go" disabled>اختاري ملفاً أولاً</button>
               <button class="bt bt-ghost bt-sm" type="button" id="ls-up-del" hidden>احذفي الملف</button>
             </div>
             <div class="ls-bar" id="ls-up-bar" hidden><i></i><span></span></div>
-            <p class="hint">mp4 أو webm. الحدّ ٥٠٠ ميجابايت، وقد يكون حدّ مشروعك أقلّ —
-              تظهر رسالة الخادم إن تجاوزتِه. الملف لا يُفتح إلا لمن تفتح لها القاعدة الدرس.</p>
+            <p class="hint"><b>خطوتان:</b> اختاري الملف، ثم اضغطي زرّ الرفع.
+              الأفضل <b>mp4</b> — صيغة mov من الماك والآيفون لا تعمل في كروم وفايرفوكس.
+              الحدّ هنا ٥٠٠ ميجابايت، وقد يكون حدّ مشروعك في Supabase أقلّ.
+              الملف لا يُفتح إلا لمن تفتح لها القاعدة الدرس.</p>
             <p class="bad-msg" id="ls-up-err" style="display:none"></p>
           </div>
         </div>

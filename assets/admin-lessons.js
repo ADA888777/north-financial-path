@@ -200,6 +200,9 @@
     }
     if (del) del.hidden = !has;
     if (el('ls-file')) el('ls-file').value = '';
+    var pick = el('ls-up-pick'); if (pick) { pick.hidden = true; pick.textContent = ''; }
+    var go = el('ls-up-go');
+    if (go) { go.disabled = true; go.textContent = 'اختاري ملفاً أولاً'; }
   }
 
   /* اسم الملف يُعاد بناؤه: ما يكتبه النظام في اسم الملف لا يصلح
@@ -226,7 +229,7 @@
 
     function done(msg, bad) {
       upBusy = false;
-      go.disabled = false; go.textContent = 'ارفعي الفيديو';
+      go.textContent = 'اختاري ملفاً أولاً'; go.disabled = true;
       upBar(null);
       if (bad) { upErr(msg); return; }
       A.toast(msg, 'ok');
@@ -283,6 +286,39 @@
     });
   }
 
+  /* اختيار الملف خطوة، ورفعه خطوة. ومن لا يرى أن اختياره وقع
+     يظنّ الزرّ لا يعمل — فالاسم والحجم يظهران فور الاختيار،
+     ويتبدّل نصّ الزرّ إليهما. */
+  function picked() {
+    var f = el('ls-file').files[0];
+    var pick = el('ls-up-pick'), go = el('ls-up-go');
+    upErr('');
+
+    if (!f) {
+      pick.hidden = true; pick.textContent = '';
+      go.disabled = true; go.textContent = 'اختاري ملفاً أولاً';
+      return;
+    }
+
+    var mb = Math.round(f.size / 1048576);
+    pick.hidden = false;
+    pick.textContent = 'اخترتِ: ' + f.name + ' — ' + mb + ' ميجابايت';
+    go.disabled = false;
+    go.textContent = 'ارفعي الفيديو الآن';
+
+    if (f.size > 524288000) {
+      upErr('الملف ' + mb + ' ميجابايت والحدّ 500. صغّري الملف أو ارفعيه على يوتيوب والصقي رابطه.');
+      go.disabled = true;
+      return;
+    }
+    /* mov يُقبل رفعاً ولا يُشغَّل في كروم وفايرفوكس غالباً */
+    if (/\.mov$/i.test(f.name) || f.type === 'video/quicktime') {
+      upErr('تنبيه: صيغة mov لا تعمل في كروم وفايرفوكس. حوّليها إلى mp4 قبل الرفع ' +
+            '(على الماك: QuickTime ← File ← Export As ← 720p).');
+    }
+  }
+
+  if (el('ls-file')) el('ls-file').addEventListener('change', picked);
   if (el('ls-up-go')) el('ls-up-go').addEventListener('click', upload);
   if (el('ls-up-del')) el('ls-up-del').addEventListener('click', dropVideo);
 

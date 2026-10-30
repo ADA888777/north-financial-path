@@ -376,3 +376,6 @@ tr.sb-soon td:first-child{box-shadow:inset 2px 0 0 #C98A3C}
   transition:width .2s}
 .ls-bar span{position:absolute;inset-inline-end:8px;inset-block-start:-18px;
   font-size:11px;color:var(--a-fg-2)}
+.ls-up-pick{font-size:13px;font-weight:600;color:var(--a-fg);margin:0;
+  overflow-wrap:anywhere}
+.ls-up-pick[hidden]{display:none}
