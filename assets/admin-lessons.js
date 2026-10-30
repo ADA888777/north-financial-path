@@ -212,6 +212,31 @@
     return Date.now() + '.' + (m ? m[1].toLowerCase() : 'mp4');
   }
 
+  /* رسائل الخادم تقول ما حدث لا ما يُفعل. هذه تترجمها إلى خطوة:
+     الحدّ في إعدادات المشروع لا في المنصة، وصاحبة اللوحة لا
+     تعرف ذلك من نصٍّ إنجليزي عن «الحجم الأقصى». */
+  function upWhy(status, msg, f) {
+    var mb = f ? Math.round(f.size / 1048576) : 0;
+    var txt = String(msg || '');
+
+    if (status === 413 || /exceeded the maximum allowed size|Payload too large/i.test(txt)) {
+      return 'رفضه الخادم: الملف ' + mb + ' ميجابايت وأكبر من حدّ مشروعك في Supabase. ' +
+             'ارفعي الحدّ من Supabase ← Settings ← Storage (الخطة المجانية سقفها 50 ميجابايت ' +
+             'ولا تُرفع)، أو صغّري الملف، أو ارفعيه على يوتيوب «غير مُدرج» والصقي رابطه أعلاه.';
+    }
+    if (status === 404 || /Bucket not found/i.test(txt)) {
+      return 'دلو التخزين غير موجود: الهجرة 38 لم تُطبَّق على القاعدة بعد. ' +
+             'أبلغي مبرمجة قاعدة البيانات.';
+    }
+    if (status === 403 || /row-level security|Unauthorized|new row violates/i.test(txt)) {
+      return 'رفض الخادم الصلاحية. تأكدي أنك داخلة بحساب الإدارة، ثم حدّثي الصفحة.';
+    }
+    if (/mime type|not supported/i.test(txt)) {
+      return 'نوع الملف غير مقبول في الدلو. استعملي mp4 أو webm.';
+    }
+    return 'تعذّر الرفع (' + status + ')' + (txt ? ': ' + txt : '');
+  }
+
   function upload() {
     if (upBusy || !upFor) return;
     var f = el('ls-file').files[0];
@@ -256,7 +281,7 @@
         if (x.status < 200 || x.status >= 300) {
           var m = '';
           try { m = (JSON.parse(x.responseText) || {}).message || ''; } catch (e) {}
-          done('تعذّر الرفع (' + x.status + ')' + (m ? ': ' + m : ''), true);
+          done(upWhy(x.status, m, f), true);
           return;
         }
         /* الصفّ يُحدَّث بعد نجاح الرفع لا قبله: لو عُكس الترتيب
