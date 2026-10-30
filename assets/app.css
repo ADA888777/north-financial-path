@@ -636,3 +636,22 @@ img{max-width:100%;display:block}
 .row[class*="lvc-"] .chip{background:color-mix(in srgb,var(--lv,var(--accent)) 12%,transparent);
   color:var(--lv,var(--accent));font-weight:700}
 .row[class*="lvc-"] .tag .ms{color:var(--lv,var(--accent))}
+
+/* بطاقة الميزة المقفلة: تمييزٌ هادئ بلون كهرماني في الوضعين */
+:root{
+  --pl-1:#FBF3E2; --pl-2:#F7EEDC; --pl-3:#FDF9F1; --pl-row:rgba(255,255,255,.72);
+  --pl-line:#E6D4AE; --pl-ink:#8A6418; --pl-fg:#6B5526;
+  --pl-chip:rgba(255,255,255,.78); --pl-btn:#D8A72C; --pl-btn-ink:#2B1F05;
+}
+:root[data-theme="dark"]{
+  --pl-1:#241B0B; --pl-2:#1A1409; --pl-3:#120E07; --pl-row:rgba(255,255,255,.05);
+  --pl-line:rgba(216,167,44,.32); --pl-ink:#F0C860; --pl-fg:#D2BE92;
+  --pl-chip:rgba(216,167,44,.16); --pl-btn:#E8BE4A; --pl-btn-ink:#241B0B;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --pl-1:#241B0B; --pl-2:#1A1409; --pl-3:#120E07; --pl-row:rgba(255,255,255,.05);
+    --pl-line:rgba(216,167,44,.32); --pl-ink:#F0C860; --pl-fg:#D2BE92;
+    --pl-chip:rgba(216,167,44,.16); --pl-btn:#E8BE4A; --pl-btn-ink:#241B0B;
+  }
+}

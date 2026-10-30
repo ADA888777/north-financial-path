@@ -115,22 +115,33 @@
         '<li><span class="ms">forum</span>تنسيق الجلسة مع الكوتش على تيليجرام</li>'
       : '';
 
+    /* كلّه مقفل: لا رصيد يُعرض ولا جلسة قادمة تُنتظر ولا سياسة
+       إلغاء تخصّ حجزاً لا يقع. تبقى «جلساتي» لأن حجزاً قديماً من
+       باقة أعلى يظلّ حقّها. */
+    var hide = ['pc-top', 'pc-policy'];
+    hide.forEach(function (id) { var n = el(id); if (n) n.hidden = true; });
+
+    var intro = document.querySelector('.pg-head .n-sub');
+    if (intro) intro.hidden = true;
+    var brief = el('pc-sub-lock');
+    if (brief) brief.hidden = false;
+
     grid.style.display = 'block';
     grid.innerHTML =
-      '<section class="ncard pc-lock">' +
-        '<span class="ntile"><span class="ms">lock</span></span>' +
-        '<h2>' + (p ? 'الكلاسات الخاصة ضمن باقة «' + esc(p.name) + '»'
+      '<section class="pc-lock">' +
+        '<span class="pc-lock-i"><span class="ms">lock</span></span>' +
+        '<h2>' + (p ? 'الكلاسات الخاصة حصرية لباقة «' + esc(p.name) + '»'
                     : 'الكلاسات الخاصة غير متاحة في باقتك') + '</h2>' +
         (items ? '<ul class="pc-lock-l">' + items + '</ul>' : '') +
-        '<p class="n-sub">' +
-          (p ? 'رقّي باقتك لفتح الحجز.'
+        '<p class="pc-lock-p">' +
+          (p ? 'رقّي اشتراكك لفتح الميزة.'
              : 'لم تُحدَّد بعد باقةٌ تتضمّن الجلسات الخاصة. أبلغي الإدارة.') +
         '</p>' +
         (p && p.checkout_url
-          ? '<a class="nbtn nbtn-p" href="' + esc(p.checkout_url) +
+          ? '<a class="pc-lock-b" href="' + esc(p.checkout_url) +
             '" target="_blank" rel="noopener">الترقية إلى ' + esc(p.name) +
             '<span class="ms">open_in_new</span></a>'
-          : (p ? '<p class="n-mut">للترقية تواصلي مع إدارة المنصة.</p>' : '')) +
+          : (p ? '<p class="pc-lock-n">للترقية تواصلي مع إدارة المنصة.</p>' : '')) +
       '</section>';
   }
 

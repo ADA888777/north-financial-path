@@ -117,7 +117,8 @@
           'الرقم المستعمل. والمعروض لها يُقرأ ‎#165 أياً كانت صيغته هنا.</p>' +
         '<div class="fld"><label for="a-no">رقم العضوية</label>' +
           '<input id="a-no" type="text" dir="ltr" maxlength="32">' +
-          '<span class="hint">حتى 32 خانة، ولا يصحّ فارغاً.</span></div>' +
+          '<span class="hint">حتى 32 خانة، ولا يصحّ فارغاً. ' +
+            '<b id="a-no-view"></b></span></div>' +
         '<button class="bt bt-ghost" type="button" id="do-no">احفظ رقم العضوية</button>' +
       '</div>' +
 
@@ -174,6 +175,16 @@
     el('a-phone').value = m.phone || '';
     el('a-user').value = m.username || '';
     el('a-no').value = m.membership_no || '';
+    /* ما يُخزَّن وما يُعرض ليسا واحداً: «N-2026-0003» تقرؤه العميلة
+       ‎#3. السطر يُظهر الناتج فور الكتابة كي لا تبدو الخانة متناقضة
+       مع ما تراه في حسابها. */
+    function viewNo() {
+      var f = window.northNo || function (v) { return v || ''; };
+      var v = f(el('a-no').value);
+      el('a-no-view').textContent = v ? 'يظهر لها: ' + v : '';
+    }
+    el('a-no').addEventListener('input', viewNo);
+    viewNo();
     el('a-email').value = m.email || '';
 
     el('do-name').addEventListener('click', saveName);
