@@ -26,33 +26,43 @@
 
 <main class="rail lrn" id="shell" hidden>
 
-  <div class="lesson-head">
-    <p class="crumb"><a href="learn.html">لوحتي</a><span class="ms sm">chevron_left</span><span id="crumb-lvl">الدرس</span></p>
+  <section class="lhero">
+    <a class="lhero-back" href="map.html">العودة للخارطة<span class="ms">arrow_back</span></a>
+    <div class="lhero-chips" id="l-chips"></div>
     <h1 id="l-title">—</h1>
-  </div>
+    <div class="lhero-cards" id="l-cards" hidden>
+      <div class="lhero-c" id="l-time" hidden><span>الوقت</span><b id="l-time-v">—</b></div>
+      <div class="lhero-c">
+        <span>هل شاهدت الدرس؟</span>
+        <button class="btn btn-primary" id="l-done" type="button">
+          <span class="spin" aria-hidden="true"></span><span data-label>تحديد كمشاهد</span>
+        </button>
+      </div>
+    </div>
+  </section>
 
   <div id="l-locked" hidden></div>
 
   <div id="l-body" hidden>
-    <div id="l-video"></div>
+    <div class="ltabs" id="l-tabs" role="tablist" aria-label="أقسام الدرس"></div>
 
-    <section class="lbox">
-      <h2><span class="ms">article</span> الشرح</h2>
+    <section class="lbox lpane" id="pane-video" role="tabpanel" hidden>
+      <div id="l-video"></div>
       <div class="prose" id="l-content"></div>
     </section>
 
-    <section class="lbox" id="box-summary" hidden>
-      <h2><span class="ms">summarize</span> الملخص</h2>
-      <div class="summary-box" id="l-summary"></div>
-    </section>
-
-    <section class="lbox" id="box-vocab" hidden>
-      <h2><span class="ms">translate</span> المفردات</h2>
+    <section class="lbox lpane" id="pane-vocab" role="tabpanel" hidden>
+      <h2><span class="ms">menu_book</span> المفردات</h2>
       <div class="vocab" id="l-vocab"></div>
     </section>
 
-    <section class="lbox quiz-cta" id="box-quiz" hidden>
-      <span class="ntile ok"><span class="ms">quiz</span></span>
+    <section class="lbox lpane" id="pane-summary" role="tabpanel" hidden>
+      <h2><span class="ms">description</span> الملخص</h2>
+      <div class="summary-box" id="l-summary"></div>
+    </section>
+
+    <section class="lbox lpane quiz-cta" id="pane-quiz" role="tabpanel" hidden>
+      <span class="ntile ok"><span class="ms">psychology</span></span>
       <h2>جاهز للتأكد من فهمك؟</h2>
       <p>بعد مشاهدة الفيديو ومراجعة المفردات والملخص، اختبر نفسك
         بأسئلة قصيرة مرتبطة بهذا الدرس.</p>
@@ -61,9 +71,6 @@
 
     <div class="lesson-nav">
       <a class="btn btn-ghost" id="l-prev" href="#">الدرس السابق</a>
-      <button class="btn btn-primary" id="l-done" type="button">
-        <span class="spin" aria-hidden="true"></span><span data-label>تحديد كمكتمل</span>
-      </button>
       <a class="btn btn-ghost" id="l-next" href="#">الدرس التالي</a>
     </div>
   </div>

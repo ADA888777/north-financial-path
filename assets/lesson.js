@@ -79,10 +79,71 @@
     box.innerHTML = head + body;
   }
 
+  /* ---------- التبويبات ----------
+     تُبنى ممّا في الدرس فعلاً: درسٌ بلا مفردات لا يُفتح له تبويب
+     فارغ، وتبويب واحد لا يُعرض شريطاً أصلاً. */
+  var PANES = ['video', 'vocab', 'summary', 'quiz'];
+
+  function show(name) {
+    PANES.forEach(function (n) {
+      var p = el('pane-' + n);
+      if (p) p.hidden = (n !== name);
+    });
+    var bar = el('l-tabs');
+    if (!bar) return;
+    bar.querySelectorAll('[data-pane]').forEach(function (b) {
+      var on = b.getAttribute('data-pane') === name;
+      b.classList.toggle('on', on);
+      b.setAttribute('aria-selected', on ? 'true' : 'false');
+    });
+  }
+
+  function tabs(d) {
+    var bar = el('l-tabs');
+    var hasVideo = !!d.video_url;
+    var hasText  = !!(d.content && d.content.trim());
+    var items = [];
+
+    if (hasVideo || hasText) {
+      items.push({ id: 'video',
+                   ico: hasVideo ? 'play_circle' : 'article',
+                   label: hasVideo ? 'الفيديو' : 'الشرح' });
+    }
+    if ((d.vocab || []).length) items.push({ id: 'vocab', ico: 'menu_book', label: 'المفردات' });
+    if (d.summary && d.summary.trim()) items.push({ id: 'summary', ico: 'description', label: 'الملخص' });
+    if (d.quiz_id) items.push({ id: 'quiz', ico: 'psychology', label: 'الاختبار' });
+
+    if (!items.length) { bar.hidden = true; return; }
+
+    if (items.length === 1) { bar.hidden = true; show(items[0].id); return; }
+
+    bar.hidden = false;
+    bar.innerHTML = items.map(function (it) {
+      return '<button class="ltab" type="button" role="tab" aria-selected="false" ' +
+        'data-pane="' + it.id + '"><span class="ms">' + it.ico + '</span>' +
+        '<span>' + it.label + '</span></button>';
+    }).join('');
+    bar.querySelectorAll('[data-pane]').forEach(function (b) {
+      b.addEventListener('click', function () { show(b.getAttribute('data-pane')); });
+    });
+    show(items[0].id);
+  }
+
   function render(d) {
     el('l-title').textContent = d.title || '';
     document.title = (d.title || 'الدرس') + ' — نورث للمسار المالي';
-    el('crumb-lvl').textContent = d.kind === 'strategy' ? 'استراتيجية' : 'درس';
+
+    /* الشارات: المستوى ثم ترتيب الدرس فيه — كلاهما من القاعدة */
+    var chips = [];
+    if (d.level_title) {
+      chips.push('<span class="lchip lchip-a">' +
+        esc((d.level_code ? d.level_code + ' · ' : '') + d.level_title) + '</span>');
+    }
+    if (d.lesson_no) {
+      chips.push('<span class="lchip">' +
+        (d.kind === 'strategy' ? 'استراتيجية ' : 'الدرس ') + num(d.lesson_no) + '</span>');
+    }
+    el('l-chips').innerHTML = chips.join('');
 
     if (!d.allowed) {
       el('l-locked').hidden = false;
@@ -95,19 +156,23 @@
     }
 
     el('l-body').hidden = false;
+    el('l-cards').hidden = false;
+
+    if (d.duration_min) {
+      el('l-time').hidden = false;
+      el('l-time-v').textContent = num(d.duration_min) + ' دقيقة';
+    }
 
     video(d);
 
     el('l-content').innerHTML = L.paras(d.content);
 
     if (d.summary && d.summary.trim()) {
-      el('box-summary').hidden = false;
       el('l-summary').innerHTML = L.paras(d.summary);
     }
 
     var v = d.vocab || [];
     if (v.length) {
-      el('box-vocab').hidden = false;
       el('l-vocab').innerHTML = v.map(function (x) {
         return '<div class="vterm"><b>' + esc(x.term) + '</b>' +
           (x.meaning ? '<span>' + esc(x.meaning) + '</span>' : '') + '</div>';
@@ -117,10 +182,9 @@
         'href="cards.html?lesson=' + encodeURIComponent(id) + '">راجعها كبطاقات</a>');
     }
 
-    if (d.quiz_id) {
-      el('box-quiz').hidden = false;
-      el('l-quiz').href = 'quiz.html?id=' + encodeURIComponent(d.quiz_id);
-    }
+    if (d.quiz_id) el('l-quiz').href = 'quiz.html?id=' + encodeURIComponent(d.quiz_id);
+
+    tabs(d);
 
     var prev = el('l-prev'), next = el('l-next');
     if (d.prev_id) prev.href = 'lesson.html?id=' + encodeURIComponent(d.prev_id);
@@ -135,8 +199,8 @@
   function paintDone(done) {
     var b = el('l-done');
     var label = b.querySelector('[data-label]');
-    label.textContent = done ? 'مكتمل — إلغاء' : 'تحديد كمكتمل';
-    b.className = done ? 'btn btn-ghost' : 'btn btn-primary';
+    label.textContent = done ? 'تمت المشاهدة' : 'تحديد كمشاهد';
+    b.className = done ? 'btn btn-done' : 'btn btn-primary';
   }
 
   var busy = false;

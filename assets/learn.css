@@ -582,3 +582,47 @@
   max-width:46ch}
 .quiz-cta .ntile{width:48px;height:48px}
 .quiz-cta .ntile .ms{font-size:24px}
+
+/* ---------- رأس الدرس ---------- */
+.lhero{background:var(--surface);border:1px solid var(--line);border-radius:var(--rp);
+  padding:clamp(18px,3vw,28px);margin-bottom:clamp(14px,2vw,20px)}
+.lhero-back{display:inline-flex;align-items:center;gap:7px;font-size:13.5px;
+  font-weight:600;color:var(--accent);min-height:34px}
+.lhero-back .ms{font-size:18px}
+.lhero-back:hover{text-decoration:underline;text-underline-offset:3px}
+.lhero-chips{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 10px}
+.lchip{display:inline-flex;align-items:center;font-size:12px;font-weight:600;
+  padding:5px 12px;border-radius:999px;background:var(--surface-2);color:var(--fg-2)}
+.lchip-a{background:var(--accent-wash);color:var(--accent)}
+.lhero h1{font-size:clamp(22px,3.4vw,34px);font-weight:900;line-height:1.45;
+  letter-spacing:-.01em;margin:0}
+.lhero-cards{display:flex;flex-wrap:wrap;gap:12px;margin-top:18px}
+.lhero-c{flex:1 1 180px;border:1px solid var(--line);border-radius:var(--rb);
+  padding:14px 16px;background:var(--bg);text-align:center}
+.lhero-c>span{display:block;font-size:12.5px;color:var(--fg-2);margin-bottom:8px}
+.lhero-c b{display:block;font-size:clamp(17px,2.2vw,21px);font-weight:700;color:var(--accent)}
+.lhero-c .btn{width:100%}
+.btn-done{background:var(--up);border-color:var(--up);color:#fff}
+.btn-done:hover{filter:brightness(.95)}
+
+/* ---------- تبويبات الدرس ---------- */
+.ltabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--rp);
+  padding:6px;margin-bottom:clamp(14px,2vw,20px)}
+.ltabs::-webkit-scrollbar{display:none}
+.ltabs[hidden]{display:none}
+.ltab{flex:1 0 auto;display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  padding:12px 16px;border:0;border-radius:var(--rb);background:none;cursor:pointer;
+  font-family:var(--body);font-size:14px;font-weight:700;color:var(--fg-2);
+  white-space:nowrap;transition:background .18s,color .18s}
+.ltab .ms{font-size:19px}
+.ltab:hover{color:var(--fg)}
+.ltab.on{background:var(--accent);color:var(--on-accent)}
+.lpane[hidden]{display:none}
+
+/* على الجوال تنزل التبويبات تحت بعضها بدل شريطٍ يمرّ أفقياً
+   فيُقصّ آخره — وهي العلّة نفسها التي أُزيلت من شريط الأقسام. */
+@media (max-width:560px){
+  .ltabs{flex-direction:column;gap:4px}
+  .ltab{justify-content:flex-start;flex:1 1 auto}
+}
