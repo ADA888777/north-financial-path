@@ -556,3 +556,29 @@
   transition:filter .18s}
 .pc-lock-b:hover{filter:brightness(.94)}
 .pc-lock-b .ms{font-size:16px;opacity:.85}
+
+/* ---------- فيديو الدرس ----------
+   كان رابطاً يُفتح في تبويب. صار مشغّلاً في الصفحة لمن نعرف
+   مصدره — يوتيوب وVimeo وDrive وملفات الفيديو — ويبقى رابطاً
+   لما عداها. */
+.vid-h{display:flex;align-items:center;justify-content:space-between;
+  gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.vid-h h2{display:flex;align-items:center;gap:8px;font-size:clamp(17px,2.2vw,21px);
+  font-weight:700;margin:0}
+.vid-h h2 .ms{font-size:22px;color:var(--accent)}
+.vid-t{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;
+  color:var(--fg-2);padding:5px 11px;border-radius:999px;
+  border:1px solid var(--line);background:var(--surface)}
+.vid-t .ms{font-size:15px}
+.video-wrap iframe,
+.video-wrap video{position:absolute;inset:0;width:100%;height:100%;border:0;
+  display:block;background:#000}
+.vid-out a i{display:block;font-style:normal;font-size:12px;color:var(--fg-3);margin-top:4px}
+
+/* ---------- دعوة الاختبار ---------- */
+.quiz-cta{text-align:center;display:flex;flex-direction:column;align-items:center;gap:12px}
+.quiz-cta h2{font-size:clamp(18px,2.4vw,23px);font-weight:700;margin:0}
+.quiz-cta p{font-size:14.5px;color:var(--fg-2);line-height:1.9;margin:0;
+  max-width:46ch}
+.quiz-cta .ntile{width:48px;height:48px}
+.quiz-cta .ntile .ms{font-size:24px}

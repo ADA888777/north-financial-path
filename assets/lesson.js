@@ -3,7 +3,7 @@
   'use strict';
   var L = window.northLearn;
   if (!L) return;
-  var db = L.db, el = L.el, esc = L.esc;
+  var db = L.db, el = L.el, esc = L.esc, num = L.num;
 
   var id = L.qs('id');
   var lesson = null;
@@ -25,6 +25,60 @@
     });
   }
 
+  /* ---------- الفيديو ----------
+     الرابط لا يُمرَّر كما هو إلى إطار: يُستخرج منه المعرّف بنمطٍ
+     صارم ثم يُبنى عنوان المشغّل. إطارٌ على عنوانٍ يكتبه أحدٌ في
+     لوحة الإدارة بلا تحقّق ثغرةٌ لا ميزة — وما لا يُعرف نوعه
+     يبقى رابطاً يُفتح في تبويب، فلا يضيع على المتعلمة درس. */
+  function player(url) {
+    var u = String(url == null ? '' : url).trim();
+    if (!/^https:\/\//i.test(u)) return null;
+    var m;
+
+    m = u.match(/(?:youtube\.com\/(?:watch\?(?:[^#]*&)?v=|embed\/|shorts\/|live\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/);
+    if (m) return { frame: 'https://www.youtube-nocookie.com/embed/' + m[1] + '?rel=0' };
+
+    m = u.match(/vimeo\.com\/(?:video\/)?(\d{6,12})/);
+    if (m) return { frame: 'https://player.vimeo.com/video/' + m[1] };
+
+    m = u.match(/drive\.google\.com\/file\/d\/([A-Za-z0-9_-]{10,80})/);
+    if (m) return { frame: 'https://drive.google.com/file/d/' + m[1] + '/preview' };
+
+    if (/\.(mp4|webm|ogv|ogg|m4v)(\?|#|$)/i.test(u)) return { file: u };
+    return null;
+  }
+
+  function video(d) {
+    var box = el('l-video');
+    if (!box) return;
+    if (!d.video_url) { box.innerHTML = ''; return; }
+
+    var p = player(d.video_url);
+    var head = '<div class="vid-h"><h2><span class="ms">play_circle</span> شاهد وتعلّم</h2>' +
+      (d.duration_min
+        ? '<span class="vid-t"><span class="ms">schedule</span>' +
+          num(d.duration_min) + ' دقيقة</span>'
+        : '') + '</div>';
+
+    var body;
+    if (p && p.frame) {
+      body = '<div class="video-wrap"><iframe src="' + esc(p.frame) + '" title="فيديو الدرس" ' +
+        'loading="lazy" referrerpolicy="strict-origin-when-cross-origin" ' +
+        'allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" ' +
+        'allowfullscreen></iframe></div>';
+    } else if (p && p.file) {
+      body = '<div class="video-wrap"><video src="' + esc(p.file) + '" controls preload="metadata" ' +
+        'playsinline></video></div>';
+    } else {
+      /* مصدرٌ لا نعرف كيف نضمّنه: الرابط كما هو، ويُقال ذلك */
+      body = '<div class="video-wrap vid-out">' +
+        '<a href="' + esc(d.video_url) + '" target="_blank" rel="noopener noreferrer">' +
+        '<span class="ms">play_circle</span><span>افتح فيديو الدرس</span>' +
+        '<i>يُفتح في تبويب جديد</i></a></div>';
+    }
+    box.innerHTML = head + body;
+  }
+
   function render(d) {
     el('l-title').textContent = d.title || '';
     document.title = (d.title || 'الدرس') + ' — نورث للمسار المالي';
@@ -42,12 +96,7 @@
 
     el('l-body').hidden = false;
 
-    /* الفيديو: رابط خارجي لا إطار مضمّن */
-    if (d.video_url) {
-      el('l-video').innerHTML =
-        '<div class="video-wrap"><a href="' + esc(d.video_url) + '" target="_blank" rel="noopener noreferrer">' +
-        '<span class="ms">play_circle</span><span>افتح فيديو الدرس</span></a></div>';
-    }
+    video(d);
 
     el('l-content').innerHTML = L.paras(d.content);
 
