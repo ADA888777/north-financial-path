@@ -5,9 +5,12 @@
    ادّعاء، فصارت تُقرأ من public_stats() — وما لا تسنده القاعدة
    لا يُعرض: البطاقة تُخفى، ولا تبقى شرطة ولا صفر.
 
-   والكلمة تتبع الرقم لا تسبقه: «٣ مستويات» و«١٥ مستوى» ليستا
+   والكلمة تتبع الرقم لا تسبقه: «٣ اختبارات» و«١٥ اختباراً» ليستا
    بصيغة واحدة في العربية، فلو ثُبّتت الكلمة في HTML لصار النص
-   غلطاً نحوياً عند أول مستوى تضيفه الإدارة. */
+   غلطاً نحوياً عند أول اختبارٍ تضيفه الإدارة.
+
+   أمّا بطاقة المستويات فرقمها ثابتٌ في الصفحة بطلب العميلة: العرض
+   التسويقي ثلاثة مستويات وإن كان المنشور أكثر. فلا تمرّ من هنا. */
 (function () {
   'use strict';
   var db = window.northDB;
@@ -21,10 +24,7 @@
 
   /* [مفرد، مثنى، جمع ٣-١٠، مفرد منصوب ١١+]
      «اختبارات وتطبيقات» اسم فئة لا معدوداً، فلا تصريف له. */
-  var WORDS = {
-    levels: ['مستوى تعليمي', 'مستويان تعليميان',
-             'مستويات تعليمية', 'مستوى تعليمي']
-  };
+  var WORDS = {};
   function word(key, v) {
     var w = WORDS[key];
     if (!w) return null;
@@ -33,14 +33,18 @@
 
   db.rpc('public_stats').then(function (r) {
     var d = (r && r.data) || {};
-    if (r.error || !d || d.error) { figs.hidden = true; return; }
+    if (r.error || !d || d.error) {
+      figs.querySelectorAll('[data-fig-card]').forEach(function (c) { c.hidden = true; });
+      return;
+    }
 
     /* «اختبارات وتطبيقات»: الاختبارات المنشورة ودروس الاستراتيجيات
        معاً. رقمٌ محسوب من المنشور لا تقريبٌ مكتوب في الصفحة —
        ينمو وحده كلما نشرت الإدارة اختباراً أو استراتيجية. */
     d.practice = (Number(d.quizzes) || 0) + (Number(d.strategies) || 0);
 
-    var any = false;
+    /* البطاقة الفارغة وحدها تُخفى، لا الصفّ كلّه: فيه بطاقتان
+       ثابتتان لا تعتمدان على القاعدة، وإخفاء الصفّ يُذهبهما معاً. */
     figs.querySelectorAll('[data-fig]').forEach(function (el) {
       var key = el.getAttribute('data-fig');
       var v = d[key];
@@ -50,8 +54,8 @@
       var lbl = card && card.querySelector('[data-fig-word="' + key + '"]');
       var w = word(key, v);
       if (lbl && w) lbl.textContent = w;
-      any = true;
     });
-    if (!any) figs.hidden = true;
-  }).catch(function () { figs.hidden = true; });
+  }).catch(function () {
+    figs.querySelectorAll('[data-fig-card]').forEach(function (c) { c.hidden = true; });
+  });
 })();
