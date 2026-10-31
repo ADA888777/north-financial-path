@@ -245,9 +245,9 @@ a.nrow:hover{border-color:color-mix(in srgb,var(--accent) 42%,var(--card-line));
 }
 
 /* تابع التعلم */
-/* اسم الدرس في بطاقة «تابع التعلم» أخفّ: البطاقة سطرٌ واحد
-   وعنوانٌ وزرّ، والعريض الثقيل فيها يصرخ بلا داعٍ. */
-.rsm-t{font-size:clamp(16px,2.2vw,19px);font-weight:600;line-height:1.6;
+/* اسم الدرس في بطاقة «تابع التعلم» أخفّ: العنوان وحده يحمل
+   الثقل، والسطر تحته يُقرأ لا يصرخ. كان ٦٠٠ فبدا عنواناً ثانياً. */
+.rsm-t{font-size:clamp(16px,2.2vw,19px);font-weight:400;line-height:1.6;
   color:var(--prose,var(--fg));margin-bottom:4px}
 #resume-box .nbtn{margin-top:14px}
 
@@ -319,10 +319,15 @@ a.pip:hover{transform:translateY(-1px)}
 .map-meta{font-size:12.5px;color:var(--accent);font-weight:600;margin-top:10px}
 .map-hero .nbar-row{margin-top:20px}
 
-.map-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px}
-.mt{border-radius:var(--rt);padding:16px;text-align:center;border:1px solid transparent}
-.mt b{display:block;font-family:var(--display);font-weight:900;font-size:26px;line-height:1.1}
-.mt span{display:block;font-size:12px;margin-top:6px;opacity:.85}
+/* المربّعات تحت بعضها لا متجاورة: ثلاثة أرقامٍ في صفٍّ تتزاحم
+   على الجوال، والقراءة سطراً سطراً أهدأ. والرقم إلى جانب كلمته
+   في كل سطر — صندوقٌ عريض برقمٍ وحيدٍ في وسطه فراغ. */
+.map-tiles{display:grid;grid-template-columns:1fr;gap:10px}
+.mt{display:flex;align-items:center;gap:14px;border-radius:var(--rt);
+  padding:14px 16px;text-align:start;border:1px solid transparent}
+.mt b{font-family:var(--display);font-weight:900;font-size:26px;line-height:1.1;
+  flex:0 0 auto;min-width:40px;text-align:center}
+.mt span{font-size:13px;line-height:1.6;opacity:.85}
 .mt.ok{background:color-mix(in srgb,var(--up) 11%,transparent);
   border-color:color-mix(in srgb,var(--up) 26%,transparent);color:var(--up)}
 .mt.blue{background:var(--accent-wash);

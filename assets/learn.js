@@ -108,7 +108,7 @@
           (nx.done_all && nx.any_open
             ? 'كل الدروس المتاحة مكتملة حالياً.'
             : 'لم يُفتح لكِ درس بعد.') + '</p>' +
-        '<a class="nbtn nbtn-p" href="map.html#all">متابعة التعلم</a>';
+        '<a class="nbtn nbtn-p" href="lessons.html">متابعة التعلم</a>';
       return;
     }
 
