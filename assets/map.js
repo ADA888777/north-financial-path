@@ -1,15 +1,21 @@
-/* خارطة الطريق: المستويات وحدها. كل رقم من my_map()/my_map_counts()
-   — لا عدد مستويات ولا دروس مكتوب هنا.
-
-   الدروس لا تُعرض في هذه الصفحة: الخارطة تقول أين تقف من الطريق،
-   وصفحة «الدروس» تقول ما الذي تفتحه الآن. كان المستوى يطوي دروسه
-   تحته فصارت الصفحتان تقولان الشيء نفسه مرّتين.
-
+/* خارطة الطريق. كل رقم من my_map(): لا عدد مستويات ولا دروس مكتوب هنا.
    القفل مفروض في القاعدة؛ ما تعرضه الصفحة انعكاسٌ له لا بديلٌ عنه. */
 (function () {
   'use strict';
   var L = window.northLearn, db = L.db, el = L.el, esc = L.esc, num = L.num;
 
+  var LVL = {
+    done:    { t: 'مكتملة',          ico: 'check_circle' },
+    current: { t: 'المستوى الحالي',  ico: 'play_circle' },
+    open:    { t: 'متاح',            ico: 'lock_open' },
+    locked:  { t: 'مقفل',            ico: 'lock' }
+  };
+  var LSN = {
+    done:        { ico: 'check_circle' },
+    open:        { ico: 'local_fire_department' },
+    locked:      { ico: 'lock' },
+    tier_locked: { ico: 'workspace_premium' }
+  };
   /* اللون من قاعدة البيانات لا من ترتيب العرض: الإدارة تختاره لكل
      مستوى من تبويب المستويات، فيبقى ثابتاً مهما تغيّر ترتيب الظهور. */
   function hue(l) { return 'lvc-' + (l && l.color ? l.color : 'slate'); }
@@ -39,12 +45,47 @@
       '<span class="ms">open_in_new</span></a>';
   }
 
-  /* بابُ المستوى إلى صفحة «الدروس» مفتوحاً عليه. يظهر لما أنهته أو
-     تقف فيه الآن: المقفل لا باب له، والدروس لا تُكشف قبل أوانها. */
-  function doorway(l) {
-    if (l.state !== 'done' && l.state !== 'open' && l.state !== 'current') return '';
-    return '<a class="lv-o-more" href="lessons.html?level=' + encodeURIComponent(l.id) + '">' +
-      '<span>دروس هذا المستوى</span><span class="ms">chevron_left</span></a>';
+  function lesson(ls, i) {
+    var s = LSN[ls.state] || LSN.locked;
+    var open = ls.state === 'done' || ls.state === 'open';
+
+    /* النصّ تحت الدرس تكتبه القاعدة: cta للمفتوح، reason للمقفل.
+       كتابته هنا يعني نسخة ثانية تفترق عن القاعدة بعد أول تعديل. */
+    var sub = open
+      ? ((ls.duration_min ? num(ls.duration_min) + ' دقيقة · ' : '') +
+         (ls.cta || 'اضغط لفتح الدرس'))
+      : (ls.reason || 'غير متاح بعد');
+
+    var body =
+      '<i class="ls-n">' + num(i) + '</i>' +
+      '<div class="ls-b"><b>' + esc(ls.title) + '</b>' +
+        '<span>' + esc(sub) + '</span></div>' +
+      (ls.state === 'tier_locked' ? upBadge(ls) : '') +
+      '<span class="ms ls-s">' + s.ico + '</span>';
+
+    return '<li class="ls ' + ls.state +
+      (ls.kind === 'strategy' ? ' is-strategy' : '') + '">' +
+      (open
+        ? '<a href="lesson.html?id=' + encodeURIComponent(ls.id) + '">' + body + '</a>'
+        : '<div>' + body + '</div>') +
+      '</li>';
+  }
+
+  function week(w, start) {
+    var ls = w.lessons || [];
+    var done = ls.filter(function (x) { return x.state === 'done'; }).length;
+    var pct = ls.length ? Math.round(done * 100 / ls.length) : 0;
+    var n = start;
+
+    return '<section class="ncard wk-card">' +
+      '<div class="wk-h">' +
+        '<i class="wk-n">' + num(w.week || 1) + '</i>' +
+        '<div><b>الأسبوع ' + num(w.week || 1) + '</b>' +
+          '<span>' + num(done) + '/' + num(ls.length) + ' مكتمل</span></div>' +
+        '<div class="wk-bar"><div class="nbar sm"><i style="width:' + pct + '%"></i></div></div>' +
+      '</div>' +
+      '<ul class="ls-list">' + ls.map(function (x) { return lesson(x, n++); }).join('') + '</ul>' +
+    '</section>';
   }
 
   function current(l) {
@@ -63,7 +104,6 @@
       '<div class="nbar-row"><span>' + num(l.percent) + '% مكتمل</span>' +
         '<span>تقدمك في ' + esc(l.code || l.title) + '</span></div>' +
       '<div class="nbar"><i style="width:' + num(l.percent) + '%"></i></div>' +
-      doorway(l) +
     '</section>';
   }
 
@@ -86,7 +126,13 @@
   }
 
   /* كل المستويات تُعرض بطاقاتُها: المتعلّمة تريد أن ترى الطريق
-     كاملاً وأين تقف منه. */
+     كاملاً وأين تقف منه. المخفيّ هو دروسُ ما لم يُفتح بعد — زرّ
+     «دروس هذا المستوى» لا يظهر إلا لمستوى أنهته أو تقف فيه الآن.
+     فالبطاقة تقول «هنا مستوى»، والدروس لا تُكشف قبل أوانها. */
+  function expandable(l) {
+    return l.state === 'done' || l.state === 'open' || l.state === 'current';
+  }
+
   function other(levels) {
     if (!levels.length) return '';
     return '<h2 class="n-h2 sec-t">مستوياتك الأخرى</h2>' +
@@ -115,9 +161,68 @@
               : '<div class="nbar-row"><span>' + num(l.percent || 0) + '% مكتمل</span>' +
                   '<span>' + (l.state === 'locked' ? 'يفتح بعد تقدمك' : 'متاح لك') + '</span></div>' +
                 '<div class="nbar sm"><i style="width:' + num(l.percent || 0) + '%"></i></div>') +
-          doorway(l) +
+
+          /* دروس المستوى تحته، مطويّة. كانت لا تظهر إلا للمستوى
+             الحالي، فمن أنهت درساً وانتقلت تلقائياً لم تجد باباً
+             ترجع منه إلى ما قبله. والقاعدة ترسلها أصلاً في my_map
+             — الواجهة وحدها كانت تُسقطها. */
+          (weeksOf(l).length && expandable(l)
+            ? '<button class="lv-o-more" type="button" data-open="' + esc(l.id) + '" ' +
+                'aria-expanded="false"><span class="ms">expand_more</span>' +
+                '<span>دروس هذا المستوى</span></button>' +
+              '<div class="lv-o-wk" id="wk-' + esc(l.id) + '" hidden></div>'
+            : '') +
         '</section>';
       }).join('');
+  }
+
+  function weeksOf(l) { return (l && l.weeks) || []; }
+
+  /* الطيّ يُرسم عند أول فتح لا مع الصفحة: خمسة مستويات بدروسها
+     كلها دفعةً واحدة صفحةٌ طويلة بلا داعٍ. */
+  var PANELS = [];
+
+  function setOpen(o, open) {
+    if (open && !o.box.innerHTML) {
+      var n = 1;
+      o.box.innerHTML = weeksOf(o.lvl).map(function (w) {
+        var html = week(w, n);
+        n += (w.lessons || []).length;
+        return html;
+      }).join('');
+    }
+    o.box.hidden = !open;
+    o.btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    o.btn.querySelector('.ms').textContent = open ? 'expand_less' : 'expand_more';
+    o.btn.querySelector('span:not(.ms)').textContent =
+      open ? 'إخفاء الدروس' : 'دروس هذا المستوى';
+  }
+
+  function wireMore(levels) {
+    var byId = {};
+    levels.forEach(function (l) { byId[l.id] = l; });
+    PANELS = [];
+
+    document.querySelectorAll('[data-open]').forEach(function (b) {
+      var id = b.getAttribute('data-open');
+      var box = document.getElementById('wk-' + id);
+      if (!box) return;
+
+      var o = { btn: b, box: box, lvl: byId[id] };
+      PANELS.push(o);
+      b.addEventListener('click', function () { setOpen(o, o.box.hidden); });
+    });
+  }
+
+  /* «متابعة التعلم» في الخارطة: تفتح المستويات كلها بدروسها دفعةً
+     واحدة ثم تنزل بها إلى أولها. المستوى الحالي معروض أصلاً فوقها،
+     فما يُفتح هنا هو البقيّة. */
+  function openAll() {
+    PANELS.forEach(function (o) { setOpen(o, true); });
+
+    var top = el('m-current');
+    if (!top || !top.innerHTML) top = el('m-other');
+    if (top) top.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   /* ملخّص المحتوى: الأرقام تقيس أسبوعها، والكلمات لا تذكر الأسبوع.
@@ -172,7 +277,7 @@
         m.upcoming_higher_plan = cnt.upcoming_higher_plan;
       }
       if (r.error || m.error) {
-        el('m-other').innerHTML = '<section class="ncard"><p class="n-sub">' +
+        el('map').innerHTML = '<section class="ncard"><p class="n-sub">' +
           esc(m.error || r.error.message || 'تعذّر تحميل الخارطة.') + '</p></section>';
         return;
       }
@@ -199,15 +304,36 @@
 
       el('m-current').innerHTML = current(cur);
 
+      if (cur) {
+        var n = 1;
+        el('map').innerHTML = (cur.weeks || []).map(function (w) {
+          var html = week(w, n);
+          n += (w.lessons || []).length;
+          return html;
+        }).join('') || '<section class="ncard"><p class="n-sub">لا دروس في هذا المستوى بعد.</p></section>';
+      } else {
+        el('map').innerHTML = '';
+      }
+
       var rest = levels.filter(function (l) { return !cur || l.id !== cur.id; });
-      el('m-other').innerHTML = other(rest) ||
-        (cur ? '' : '<section class="ncard"><p class="n-sub">لم تُنشر مستويات بعد.</p></section>');
+      el('m-other').innerHTML = other(rest);
+      wireMore(rest);
 
       el('m-ahead').innerHTML = ahead(m);
 
       /* البطاقة لا تتعلّق بوجود درسٍ تالٍ: بابُ المنهج يُفتح حتى
          لمن أنهت كل شيء — بل هي أحوج ما تكون إليه حينئذٍ. */
-      if (levels.length) el('m-next').hidden = false;
+      if (levels.length) {
+        el('m-next').hidden = false;
+
+        /* قدومٌ بـ#all من الرئيسية: تُفتح مستويات الخارطة فوراً بلا
+           ضغطةٍ ثانية. والمستمع على hashchange لأن الانتقال من
+           map.html إلى map.html#all لا يعيد تحميل الصفحة. */
+        if (location.hash === '#all') openAll();
+        window.addEventListener('hashchange', function () {
+          if (location.hash === '#all') openAll();
+        });
+      }
     });
   }).catch(function (e) {
     L.deny('تعذّر تحميل الخارطة', (e && e.message) || '', false);

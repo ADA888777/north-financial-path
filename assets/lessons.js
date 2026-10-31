@@ -7,11 +7,13 @@
 
   var levels = [], lessons = [], pick = 'all';
 
+  /* الشارة أعلى البطاقة: كلمةٌ ورمزُها. المقفول يحمل قفلاً كما في
+     المرجع — الكلمة وحدها تُقرأ متأخّرة، والرمز يُرى قبلها. */
   var ST = {
-    done:        { t: 'مكتمل',  c: 'done' },
-    open:        { t: '',        c: 'open' },
-    locked:      { t: 'مقفول',  c: 'locked' },
-    tier_locked: { t: 'يتطلب ترقية', c: 'tier' }
+    done:        { t: 'مكتمل',        c: 'done',   i: 'check_circle' },
+    open:        { t: '',              c: 'open',   i: '' },
+    locked:      { t: 'مقفول',        c: 'locked', i: 'lock' },
+    tier_locked: { t: 'يتطلب ترقية', c: 'tier',   i: 'workspace_premium' }
   };
 
   /* اسم المستوى قصيراً: «A1 - المبتدئ» تُقرأ «المبتدئ» في الرقاقة،
@@ -54,7 +56,7 @@
         '<span class="lx-lv">' + esc(lvl ? shortName(lvl) : '—') + '</span>' +
         (s.t
           ? '<span class="lx-st ' + s.c + '">' +
-              (x.state === 'done' ? '<span class="ms">check_circle</span>' : '') +
+              (s.i ? '<span class="ms">' + s.i + '</span>' : '') +
               esc(s.t) + '</span>'
           : '') +
       '</span>' +
@@ -68,7 +70,11 @@
           ? '<span class="lx-min"><span class="ms">schedule</span>' +
             num(x.duration_min) + ' دقيقة</span>'
           : '<span></span>') +
-        (open ? '<span class="ms lx-go">play_circle</span>' : '') +
+        /* ذيل البطاقة: مثلّث التشغيل لما يُفتح، وقفلٌ لما لا يُفتح.
+           الفراغ كان يترك البطاقة المقفلة بلا إشارةٍ في ذيلها. */
+        (open
+          ? '<span class="ms lx-go">play_circle</span>'
+          : '<span class="ms lx-lock">lock</span>') +
       '</span>';
 
     return open
