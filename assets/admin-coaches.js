@@ -18,13 +18,22 @@
   var openDays = [0, 1, 2, 3, 4];
   var ratings = {};
 
+  /* 1 / 0.5 / 0 → كلمةٌ تُقرأ بدل كسرٍ يُفسَّر */
+  function starWord(v) {
+    var n = Number(v);
+    return n >= 1 ? 'نجمة كاملة' : n > 0 ? 'نصف نجمة' : 'بدون نجمة';
+  }
+
   function rateLine(id) {
     var r = ratings[id];
     if (!r || !r.count) {
       return '<span class="co-meta">لا توجد تقييمات بعد</span>';
     }
+    /* الرصيد مجموعُ ما كُسب: كل جلسة نجمة أو نصف أو لا شيء.
+       والمتوسط بجانبه ليُقرأ المجموع في سياق عدد الجلسات. */
     return '<span class="co-meta co-rt"><span class="ms">star</span>' +
-      esc(r.avg) + ' من 5 · ' + esc(r.count) + ' تقييماً</span>';
+      esc(r.total) + ' نجمة من ' + esc(r.count) + ' جلسة · المتوسط ' +
+      esc(r.avg) + '</span>';
   }
 
   function showRatings(id, host) {
@@ -39,15 +48,17 @@
       return;
     }
     host.innerHTML =
-      '<p class="sub" style="margin:10px 0">المتوسط ' + esc(r.avg) + ' من 5، محسوب من ' +
-        esc(r.count) + ' تقييماً مرتبطاً بجلسات حضرها أصحابها — لا يُعدَّل يدوياً.</p>' +
+      '<p class="sub" style="margin:10px 0">الرصيد ' + esc(r.total) + ' نجمة من ' +
+        esc(r.count) + ' جلسة حضرها أصحابها (المتوسط ' + esc(r.avg) + ') — محسوب ' +
+        'من التقييمات ولا يُعدَّل يدوياً. سبب أيّ تقييم دون النجمة الكاملة ' +
+        'يظهر هنا وللكوتش فقط، ولا يراه بقية الأعضاء.</p>' +
       '<div class="tbl-wrap"><table class="tbl"><thead><tr>' +
         '<th>العضو</th><th>التقييم</th><th>الملاحظة</th><th>التاريخ</th>' +
       '</tr></thead><tbody>' +
       list.map(function (x) {
         return '<tr><td>' + esc(x.member || '—') +
             ' <span class="mno">' + esc(no(x.membership_no)) + '</span></td>' +
-          '<td><span class="num">' + esc(x.stars) + '/5</span></td>' +
+          '<td><span class="num">' + esc(starWord(x.stars)) + '</span></td>' +
           '<td>' + esc(x.comment || '—') + '</td>' +
           '<td class="muted">' + esc(A.fmtDate(x.at)) + '</td></tr>';
       }).join('') + '</tbody></table></div>';

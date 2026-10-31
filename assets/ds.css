@@ -346,8 +346,10 @@ a.pip:hover{transform:translateY(-1px)}
 .lv-cur-t .nchip{margin-bottom:10px}
 .lv-cur-t h2{margin:0}
 .lv-cur-n{text-align:center;flex-shrink:0}
+/* الرقم عدّادٌ ينزل: يبدأ بإجمالي دروس المستوى (أسابيعه كلها)
+   وينقص درساً مع كل درسٍ تُنهيه. الأحمر الغامق يجعله يُقرأ. */
 .lv-cur-n b{display:block;font-family:var(--display);font-weight:900;font-size:34px;
-  line-height:1;color:var(--dn)}
+  line-height:1;color:var(--count-dn,var(--dn))}
 .lv-cur-n span{display:block;font-size:11.5px;color:var(--fg-3);margin-top:6px}
 
 /* الأسبوع */
@@ -655,6 +657,44 @@ a.pip:hover{transform:translateY(-1px)}
 
 /* تقييم الكوتش بعد جلسة حضرتها */
 .ss.rt{flex-wrap:wrap}
+/* ---------- تقييم الجلسة: نجمة / نصف / بدون ----------
+   ثلاثة خيارات ظاهرة لا سلّم خمسٍ يُسحب: الجلسة الواحدة حكمٌ
+   صغير، والمجموع عبر الجلسات هو رصيد الكوتش. */
+.rt-pick{display:flex;gap:6px;flex-wrap:wrap;flex:0 1 auto;min-width:0}
+/* على ٣٢٠ بكسل لا يسع الصفُّ الاسمَ والخيارات الثلاثة معاً، فتنزل
+   الخيارات سطراً كاملاً بدل أن تدفع الصفحة إلى تمرير أفقي. */
+@media (max-width:420px){
+  .rt-pick{flex-basis:100%}
+  .rtb{flex:1 1 auto;justify-content:center}
+}
+.rtb{display:inline-flex;align-items:center;gap:5px;font-family:var(--body);
+  font-size:12.5px;font-weight:600;padding:7px 11px;border-radius:999px;
+  border:1px solid var(--line);background:var(--bg);color:var(--fg-2);
+  cursor:pointer;transition:background .18s,border-color .18s,color .18s}
+.rtb .ms{font-size:17px}
+.rtb:hover:not(:disabled){border-color:#F5A623;color:#B8790F}
+.rtb.on{border-color:#F5A623;background:color-mix(in srgb,#F5A623 14%,transparent);
+  color:#8A5A06}
+.rtb.on .ms{font-variation-settings:'FILL' 1}
+.rtb:disabled{opacity:.55;cursor:default}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .rtb.on{color:#F7C66B}
+  :root:not([data-theme="light"]) .rtb:hover:not(:disabled){color:#F7C66B}
+}
+:root[data-theme="dark"] .rtb.on{color:#F7C66B}
+:root[data-theme="dark"] .rtb:hover:not(:disabled){color:#F7C66B}
+
+.rt-why{flex-basis:100%;display:grid;gap:8px;margin-top:10px}
+.rt-why[hidden]{display:none}
+.rt-why label{font-size:12px;color:var(--fg-3);line-height:1.6}
+.rt-why textarea{font-family:var(--body);font-size:13.5px;line-height:1.7;
+  padding:10px 12px;border-radius:var(--rb);border:1px solid var(--line);
+  background:var(--surface);color:var(--fg);resize:vertical}
+.rt-why textarea:focus{outline:2px solid var(--accent);outline-offset:1px}
+.rt-why .rt-send{justify-self:start}
+.rt-err{flex-basis:100%;margin-top:8px}
+.rt-err[hidden]{display:none}
+
 .stars{display:flex;gap:3px;flex:0 0 auto}
 .star{font:inherit;border:0;background:transparent;cursor:pointer;padding:4px;
   line-height:1;color:var(--line-2);min-width:36px;min-height:36px;

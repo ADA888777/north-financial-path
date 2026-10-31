@@ -4,19 +4,9 @@
   'use strict';
   var L = window.northLearn, db = L.db, el = L.el, esc = L.esc, num = L.num;
 
-  var DAYS = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
   var coaches = [], quota = {}, mine = [], picked = null, slots = [], busy = false;
   var moving = null;   // حجزٌ تُعاد جدولته: اللوحة نفسها تخدم الحالتين
   var upgradePlan = null;   // أدنى باقة نشطة تمنح جلسات خاصة
-
-  /* '18:00:00' → '٦ مساءً' */
-  function hour12(t) {
-    var h = parseInt(String(t).slice(0, 2), 10);
-    if (isNaN(h)) return String(t);
-    var am = h < 12;
-    var h12 = h % 12 || 12;
-    return num(h12) + (am ? ' صباحاً' : ' مساءً');
-  }
 
   function riyadh(iso, opts) {
     try {
@@ -158,6 +148,14 @@
     } catch (e) { return ''; }
   }
 
+  /* العدد بصيغته العربية: جلسة، جلستان، ثلاث جلسات، إحدى عشرة جلسة */
+  function sessionsWord(n) {
+    if (n === 1) return 'جلسة واحدة';
+    if (n === 2) return 'جلستين';
+    if (n <= 10) return num(n) + ' جلسات';
+    return num(n) + ' جلسة';
+  }
+
   /* ---------- الكوتشات ---------- */
   function drawCoaches() {
     if (!coaches.length) {
@@ -170,20 +168,17 @@
       /* التقييم بدل الوصف. المتوسط محسوب في القاعدة من تقييمات
          حقيقية مرتبطة بجلسات حضرتها صاحباتها — ولا نجوم بلا تقييم. */
       var n = Number(c.rating_count || 0);
-      var avg = Number(c.rating_avg || 0);
+      var tot = Number(c.stars_total || 0);
 
-      /* خمس نجوم ظاهرة دائماً: الممتلئ منها بقدر المتوسط، والباقي
-         مرسومٌ باهتاً. بلا تقييم تبقى الخمس باهتة والنصّ يقولها —
-         لا نجمة وهمية ولا صفر يُقرأ تقييماً سيئاً. */
-      var stars = '<span class="co-stars" aria-hidden="true">' +
-        [1, 2, 3, 4, 5].map(function (i) {
-          return '<span class="ms' + (i <= Math.round(avg) ? ' on' : '') + '">star</span>';
-        }).join('') + '</span>';
-
+      /* رصيدٌ يتراكم لا متوسّطُ زيارة: كل جلسةٍ تمنح نجمة أو نصفاً
+         أو لا شيء، والمجموع يكبر بعمل الكوتش. العدد بجانبه ليُقرأ
+         المجموع في سياقه. وبلا تقييم نجمةٌ باهتة والنصّ يقولها —
+         لا نجمة وهمية ولا صفر يُقرأ حكماً سيّئاً. */
       var rate = n > 0
-        ? '<span class="co-rate">' + stars +
-            '<b>' + esc(c.rating_avg) + '</b><i>(' + num(n) + ')</i></span>'
-        : '<span class="co-rate none">' + stars +
+        ? '<span class="co-rate"><span class="ms on" aria-hidden="true">star</span>' +
+            '<b>' + num(tot) + '</b>' +
+            '<i>من ' + sessionsWord(n) + '</i></span>'
+        : '<span class="co-rate none"><span class="ms" aria-hidden="true">star</span>' +
             '<i>لا توجد تقييمات بعد</i></span>';
 
       /* الاسم ثم سطر التقييم تحته، بلا صورة ولا علامة اختيار: هكذا
@@ -322,10 +317,6 @@
             : '') +
         '</div>' +
 
-        '<div class="nfld"><label for="bk-note">ما الذي تريدين تغطيته؟ (اختياري)</label>' +
-          '<input id="bk-note" type="text" maxlength="200" ' +
-            'placeholder="مثال: قراءة الشموع وإدارة المخاطر"></div>' +
-
         /* المربع الأصفر: السياسة عند لحظة القرار لا في بطاقةٍ أسفل
            الصفحة وحدها. مطابقة لما تطبّقه cancel_booking فعلاً. */
         '<p class="bk-note"><span class="ms">schedule</span>' +
@@ -435,7 +426,7 @@
       p_coach: picked,
       p_start: at,
       p_telegram: el('bk-tg').value || null,
-      p_note: el('bk-note').value || null
+      p_note: null
     }).then(function (r) {
       busy = false; b.disabled = false; b.textContent = label;
       var d = (r && r.data) || {};
@@ -524,53 +515,104 @@
   /* ---------- تقييم الكوتش ----------
      القائمة من my_ratable_sessions(): جلسات حضرتها فعلاً وانتهت.
      لا تُبنى هنا من التواريخ: انقضاء الوقت ليس حضوراً، والحضور
-     حالةٌ يسجّلها الكوتش أو الإدارة ولا تملك المتعلمة تغييرها. */
+     حالةٌ يسجّلها الكوتش أو الإدارة ولا تملك المتعلمة تغييرها.
+
+     الحكم على الجلسة الواحدة صغير: نجمة، أو نصف، أو لا شيء —
+     لأن العميلة تعود، فمجموع جلساتها هو رصيد الكوتش. وما دون
+     النجمة الكاملة يلزمه سبب: رقمٌ ناقص بلا سبب لا يُصلَح.
+     الشرط نفسه مفروض في rate_coach()، وهذا تيسيرٌ لا حارس. */
+  var RT = [
+    { v: 1,   ico: 'star',        t: 'نجمة كاملة' },
+    { v: 0.5, ico: 'star_half',   t: 'نصف نجمة'  },
+    { v: 0,   ico: 'star_border', t: 'بدون نجمة' }
+  ];
+
   function drawRate(rows) {
     var boxw = el('pc-rate-box');
     if (!rows || !rows.length) { boxw.hidden = true; return; }
     boxw.hidden = false;
 
     el('pc-rate').innerHTML = '<div class="ss-list">' + rows.map(function (x) {
+      var mine2 = x.my_stars == null ? null : Number(x.my_stars);
       return '<div class="ss rt" data-bk="' + esc(x.booking_id) + '">' +
         '<span class="co-av">' + esc((x.coach || '؟').trim().charAt(0)) + '</span>' +
         '<span class="ss-b"><b>' + esc(x.coach) + '</b>' +
           '<span>' + esc(dayLabel(x.starts_at)) + ' · ' +
             esc(timeLabel(x.starts_at)) + '</span></span>' +
-        '<span class="stars" role="group" aria-label="التقييم من 1 إلى 5">' +
-          [1, 2, 3, 4, 5].map(function (n) {
-            var on = x.my_stars && n <= x.my_stars;
-            return '<button type="button" class="star' + (on ? ' on' : '') +
-              '" data-stars="' + n + '" aria-label="' + n + ' من 5">' +
-              '<span class="ms">star</span></button>';
+        '<span class="rt-pick" role="group" aria-label="تقييم الجلسة">' +
+          RT.map(function (o) {
+            return '<button type="button" class="rtb' +
+              (mine2 === o.v ? ' on' : '') + '" data-val="' + o.v + '">' +
+              '<span class="ms">' + o.ico + '</span>' + o.t + '</button>';
           }).join('') +
         '</span>' +
+        '<div class="rt-why" hidden>' +
+          '<label>ليش؟ يصل السبب للكوتش وللإدارة فقط، ولا يظهر لبقية العميلات.</label>' +
+          '<textarea rows="2" maxlength="400" ' +
+            'placeholder="مثال: تأخّرت بداية الجلسة"></textarea>' +
+          '<button type="button" class="nbtn nbtn-p rt-send" disabled>إرسال التقييم</button>' +
+        '</div>' +
+        '<p class="nerr rt-err" hidden></p>' +
       '</div>';
     }).join('') + '</div>';
 
-    el('pc-rate').querySelectorAll('.star').forEach(function (b) {
-      b.addEventListener('click', function () {
-        var row = b.closest('[data-bk]');
-        var n = parseInt(b.getAttribute('data-stars'), 10);
-        row.querySelectorAll('.star').forEach(function (s2, k) {
-          s2.classList.toggle('on', k < n);
-        });
-        row.querySelectorAll('.star').forEach(function (s2) { s2.disabled = true; });
+    el('pc-rate').querySelectorAll('.ss.rt').forEach(wireRow);
+  }
 
-        db.rpc('rate_coach', { p_booking: row.getAttribute('data-bk'), p_stars: n })
-          .then(function (r) {
-            var d = (r && r.data) || {};
-            if (r.error || d.error) {
-              A_toast(d.error || r.error.message, true);
-              row.querySelectorAll('.star').forEach(function (s2) { s2.disabled = false; });
-              return;
-            }
-            row.insertAdjacentHTML('beforeend',
-              '<span class="nchip ok rt-done">' + esc(d.message || 'سُجّل') + '</span>');
-            reload();
-          }).catch(function () {
-            row.querySelectorAll('.star').forEach(function (s2) { s2.disabled = false; });
-          });
+  function wireRow(row) {
+    var why  = row.querySelector('.rt-why');
+    var ta   = why.querySelector('textarea');
+    var send = why.querySelector('.rt-send');
+    var err  = row.querySelector('.rt-err');
+    var val  = null;
+
+    function fail(msg) {
+      err.hidden = false; err.textContent = msg;
+      row.querySelectorAll('.rtb').forEach(function (b) { b.disabled = false; });
+      send.disabled = false; send.textContent = 'إرسال التقييم';
+    }
+
+    function submit() {
+      err.hidden = true;
+      row.querySelectorAll('.rtb').forEach(function (b) { b.disabled = true; });
+      send.disabled = true; send.textContent = 'جارٍ الإرسال…';
+
+      db.rpc('rate_coach', {
+        p_booking: row.getAttribute('data-bk'),
+        p_stars: val,
+        p_comment: val < 1 ? ta.value : null
+      }).then(function (r) {
+        var d = (r && r.data) || {};
+        if (r.error || d.error) { fail(d.error || r.error.message); return; }
+        row.querySelector('.rt-pick').hidden = true;
+        why.hidden = true;
+        row.insertAdjacentHTML('beforeend',
+          '<span class="nchip ok rt-done">' + esc(d.message || 'سُجّل') + '</span>');
+        reload();
+      }).catch(function (e) { fail((e && e.message) || 'تعذّر إرسال التقييم'); });
+    }
+
+    row.querySelectorAll('.rtb').forEach(function (b) {
+      b.addEventListener('click', function () {
+        val = Number(b.getAttribute('data-val'));
+        row.querySelectorAll('.rtb').forEach(function (o) {
+          o.classList.toggle('on', o === b);
+        });
+        err.hidden = true;
+
+        /* النجمة الكاملة لا سبب لها فتُرسَل فوراً. وما دونها يفتح
+           خانة السبب، ويبقى الزر معطّلاً حتى تُكتب. */
+        if (val === 1) { why.hidden = true; submit(); return; }
+        why.hidden = false;
+        send.disabled = !ta.value.trim();
+        ta.focus();
       });
+    });
+
+    ta.addEventListener('input', function () { send.disabled = !ta.value.trim(); });
+    send.addEventListener('click', function () {
+      if (!ta.value.trim()) { fail('اكتبي السبب أولاً.'); return; }
+      submit();
     });
   }
 
@@ -627,17 +669,9 @@
       // المدّة والنافذة من القاعدة: الصفحة لا تعلن ساعاتٍ لا تطبّقها
       var mins = quota.slot_min || (coaches[0] && coaches[0].slot_min);
       if (mins) el('pc-min').textContent = num(mins);
-      var w = el('pc-window');
-      if (w && quota.open_from && quota.open_to) {
-        var wd = (quota.open_weekdays || []).slice().sort(function (a, b) { return a - b; });
-        var days = wd.map(function (d) { return DAYS[d]; });
-        /* يومان متفرّقان لا يُقال فيهما «من … إلى …» */
-        var span = days.length > 2 ? 'من ' + days[0] + ' إلى ' + days[days.length - 1]
-                 : days.length ? days.join(' و')
-                 : '';
-        w.textContent = (span ? span + '، ' : '') +
-          'من ' + hour12(quota.open_from) + ' إلى ' + hour12(quota.open_to);
-      }
+      /* الأيام والساعات لم تعُد تُكتب في العنوان: المواعيد المعروضة
+         في قائمة الحجز هي مصدرها الوحيد، فلا سطرٌ يَعِد بساعةٍ
+         ثم لا تجدها في القائمة. */
       top(); drawMine();
 
       /* باقتها لا تتضمّن الجلسات: لا قائمة كوتشات ولا نموذج حجز */

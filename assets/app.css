@@ -23,6 +23,10 @@
   --accent:#2A6AA8; --accent-2:#1E5287; --on-accent:#FFFFFF;
   --accent-wash:#E4EDF7;
   --up:#2C8A68; --dn:#BE5F3F;
+  /* رقم «الدروس المتبقية» في بطاقة المستوى: أحمر غامق يُقرأ
+     عدّاداً ينزل. قيس على خلفية البطاقة (--up ٩٪ فوق الأبيض)
+     = 6.66:1، بدل 3.83:1 للتراكوتا السابق. */
+  --count-dn:#A81A12;
   --note-bg:#EAF7F0; --note-line:#BBE2CE; --note-title:#1B6447; --note-fg:#2E6B51;
   --warn-bg:#FDF2EC; --warn-line:#F0CDB9; --warn-title:#9A4A24; --warn-fg:#7C4B33;
   --shadow:14px 30px 60px -36px rgba(10,28,48,.45);
@@ -48,7 +52,7 @@
   --line:rgba(147,169,193,.16); --line-2:rgba(147,169,193,.26);
   --accent:#6CA6E0; --accent-2:#8FBFEE; --on-accent:#06182B;
   --accent-wash:rgba(108,166,224,.12);
-  --up:#49B38A; --dn:#D97C57;
+  --up:#49B38A; --dn:#D97C57; --count-dn:#F87171;
   --note-bg:rgba(73,179,138,.11); --note-line:rgba(73,179,138,.30); --note-title:#7FD3AE; --note-fg:#A6CDBB;
   --warn-bg:rgba(217,124,87,.12); --warn-line:rgba(217,124,87,.30); --warn-title:#E3A07C; --warn-fg:#CBAD9B;
   --shadow:14px 30px 60px -30px rgba(0,0,0,.7);
@@ -67,7 +71,7 @@
   --line:rgba(147,169,193,.16); --line-2:rgba(147,169,193,.26);
   --accent:#6CA6E0; --accent-2:#8FBFEE; --on-accent:#06182B;
   --accent-wash:rgba(108,166,224,.12);
-  --up:#49B38A; --dn:#D97C57;
+  --up:#49B38A; --dn:#D97C57; --count-dn:#F87171;
   --note-bg:rgba(73,179,138,.11); --note-line:rgba(73,179,138,.30); --note-title:#7FD3AE; --note-fg:#A6CDBB;
   --warn-bg:rgba(217,124,87,.12); --warn-line:rgba(217,124,87,.30); --warn-title:#E3A07C; --warn-fg:#CBAD9B;
   --shadow:14px 30px 60px -30px rgba(0,0,0,.7);
