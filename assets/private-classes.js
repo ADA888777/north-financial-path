@@ -186,15 +186,11 @@
         : '<span class="co-rate none">' + stars +
             '<i>لا توجد تقييمات بعد</i></span>';
 
+      /* الاسم ثم سطر التقييم تحته، بلا صورة ولا علامة اختيار: هكذا
+         في المرجع، والحدّ الملوّن وحده يقول أيّها المختار. */
       return '<button type="button" class="co" aria-pressed="' +
         (picked === c.id ? 'true' : 'false') + '" data-coach="' + esc(c.id) + '">' +
-        '<span class="co-av">' +
-          (photoUrl(c)
-            ? '<img src="' + esc(photoUrl(c)) + '" alt="" loading="lazy">'
-            : esc((c.name || '؟').trim().charAt(0))) +
-        '</span>' +
         '<span class="co-b"><b>' + esc(c.name) + '</b>' + rate + '</span>' +
-        '<span class="ms ck">check_circle</span>' +
       '</button>';
     }).join('') + '</div>';
 
@@ -301,36 +297,26 @@
               (x.id === picked ? ' selected' : '') + '>' + esc(x.name) + '</option>';
           }).join('') + '</select></div>' +
 
-        '<div class="bk-sec">' +
-          '<span class="bk-lbl">الموعد المتاح — اليوم</span>' +
-          '<div class="bk-days" role="group" aria-label="اختاري اليوم">' +
-            days.map(function (k, i) {
-              var d0 = m[k][0].starts_at;
-              return '<button type="button" class="bk-day' + (i === 0 ? ' on' : '') +
-                '" data-day="' + esc(k) + '" aria-pressed="' + (i === 0) + '">' +
-                '<i>' + esc(riyadh(d0, { weekday: 'long' })) + '</i>' +
-                '<b>' + esc(riyadh(d0, { day: 'numeric' })) + '</b>' +
-                '<span>' + esc(riyadh(d0, { month: 'short' })) + '</span>' +
-                '<u>' + num(m[k].length) +
-                  (m[k].length === 1 ? ' موعد' : ' مواعيد') + '</u>' +
-              '</button>';
+        /* قائمة واحدة للموعد: اليوم والوقت معاً، مجمّعة بالأيام.
+           كانت مربّعاتٍ أفقية تمتدّ عرض الشاشة، والمرجع قائمة. */
+        '<div class="nfld"><label for="bk-at">الموعد المتاح' +
+          ' <i class="bk-min">' + num(mins) + ' دقيقة</i></label>' +
+          '<select id="bk-at">' +
+            '<option value="">اختاري التاريخ والوقت</option>' +
+            days.map(function (k) {
+              return '<optgroup label="' + esc(dayLabel(m[k][0].starts_at)) + '">' +
+                m[k].map(function (x) {
+                  return '<option value="' + esc(x.starts_at) + '">' +
+                    esc(timeLabel(x.starts_at)) + '</option>';
+                }).join('') + '</optgroup>';
             }).join('') +
-          '</div>' +
-        '</div>' +
-
-        '<div class="bk-sec">' +
-          '<span class="bk-lbl">الموعد المتاح — الوقت بتوقيت الرياض ' +
-            '<i class="bk-min">' + num(mins) + ' دقيقة</i></span>' +
-          '<div class="bk-times" id="bk-times" role="group" aria-label="اختاري الوقت"></div>' +
-        '</div>' +
+          '</select></div>' +
 
         '<div class="nfld' + (needTg ? ' need' : '') + '">' +
           '<label for="bk-tg">اسم المستخدم في تيليجرام' +
             (quota.require_telegram ? ' <span class="req">*</span>' : '') + '</label>' +
           '<input id="bk-tg" type="text" dir="ltr" placeholder="@username" maxlength="60"' +
             ' value="' + esc(quota.telegram ? '@' + String(quota.telegram).replace(/^@+/, '') : '') + '">' +
-          '<span class="hint">المطلوب <b>اسم المستخدم</b> مثل ‎@username — لا الاسم الظاهر ' +
-            'في حسابك ولا رقم الجوال. به يتواصل معك الكوتش لتنسيق الجلسة، ولا يراه غيره.</span>' +
           (needTg
             ? '<span class="nerr">أضيفي اسم المستخدم قبل تأكيد الحجز.</span>'
             : '') +
@@ -359,35 +345,11 @@
       b.textContent = goLabel(c, chosen);
     }
 
-    function fillTimes(k) {
-      chosen = null;
-      el('bk-times').innerHTML = (m[k] || []).map(function (x) {
-        return '<button type="button" class="bk-time" data-at="' + esc(x.starts_at) +
-          '" aria-pressed="false">' + esc(timeLabel(x.starts_at)) + '</button>';
-      }).join('');
-      el('bk-times').querySelectorAll('[data-at]').forEach(function (t) {
-        t.addEventListener('click', function () {
-          el('bk-times').querySelectorAll('[data-at]').forEach(function (o) {
-            o.classList.remove('on'); o.setAttribute('aria-pressed', 'false');
-          });
-          t.classList.add('on'); t.setAttribute('aria-pressed', 'true');
-          chosen = t.getAttribute('data-at');
-          paintGo();
-        });
-      });
+    el('bk-at').addEventListener('change', function () {
+      chosen = el('bk-at').value || null;
       paintGo();
-    }
-    fillTimes(days[0]);
-
-    el('pc-book').querySelectorAll('[data-day]').forEach(function (d) {
-      d.addEventListener('click', function () {
-        el('pc-book').querySelectorAll('[data-day]').forEach(function (o) {
-          o.classList.remove('on'); o.setAttribute('aria-pressed', 'false');
-        });
-        d.classList.add('on'); d.setAttribute('aria-pressed', 'true');
-        fillTimes(d.getAttribute('data-day'));
-      });
     });
+    paintGo();
 
     var sel = el('bk-coach');
     if (sel) sel.addEventListener('change', function () { pick(sel.value); });
@@ -403,12 +365,10 @@
   /* الزرّ يقول اسم الكوتش والموعد: «أكّدي الحجز مع كوتش أميره —
      ٦:٣٠ م». الفعل كاملاً قبل الضغط لا بعده. */
   function goLabel(c, at) {
-    var who = c && c.name ? c.name : 'الكوتش';
     if (moving) {
       return at ? 'انقلي الجلسة إلى ' + timeLabel(at) : 'اختاري الموعد الجديد';
     }
-    return at ? 'أكّدي الحجز مع ' + who + ' — ' + timeLabel(at)
-              : 'أكّدي الحجز مع ' + who;
+    return 'تأكيد الحجز';
   }
 
   function moveTo(at) {
