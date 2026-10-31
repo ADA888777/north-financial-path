@@ -320,14 +320,14 @@ a.pip:hover{transform:translateY(-1px)}
 .map-hero .nbar-row{margin-top:20px}
 
 /* المربّعات تحت بعضها لا متجاورة: ثلاثة أرقامٍ في صفٍّ تتزاحم
-   على الجوال، والقراءة سطراً سطراً أهدأ. والرقم إلى جانب كلمته
-   في كل سطر — صندوقٌ عريض برقمٍ وحيدٍ في وسطه فراغ. */
+   على الجوال، والقراءة سطراً سطراً أهدأ. والرقم في وسط صندوقه
+   وكلمتُه تحته — هكذا طلبته العميلة في المرجع. */
 .map-tiles{display:grid;grid-template-columns:1fr;gap:10px}
-.mt{display:flex;align-items:center;gap:14px;border-radius:var(--rt);
-  padding:14px 16px;text-align:start;border:1px solid transparent}
-.mt b{font-family:var(--display);font-weight:900;font-size:26px;line-height:1.1;
-  flex:0 0 auto;min-width:40px;text-align:center}
-.mt span{font-size:13px;line-height:1.6;opacity:.85}
+.mt{border-radius:var(--rt);padding:16px;text-align:center;
+  border:1px solid transparent}
+.mt b{display:block;font-family:var(--display);font-weight:900;font-size:28px;
+  line-height:1.1}
+.mt span{display:block;font-size:13px;line-height:1.6;margin-top:7px;opacity:.85}
 .mt.ok{background:color-mix(in srgb,var(--up) 11%,transparent);
   border-color:color-mix(in srgb,var(--up) 26%,transparent);color:var(--up)}
 .mt.blue{background:var(--accent-wash);
@@ -615,7 +615,11 @@ a.pip:hover{transform:translateY(-1px)}
 .gd-ti{flex:1;min-width:0}
 .gd-ti b{display:block;font-family:var(--display);font-weight:var(--w-black);
   font-size:clamp(17px,2vw,20px);line-height:1.35}
-.gd-ti i{display:block;font-style:normal;font-size:12.5px;color:var(--fg-3);margin-top:3px}
+/* مصباحٌ أصفر وحده بلا مربّعٍ تحته: المربّع كان يجعله عنصراً
+   ثقيلاً في صفٍّ عنوانُه كلمتان. الأصفر طلبُ العميلة، وهو لون
+   المصباح نفسه فلا يحتاج تفسيراً. */
+.gd-h .ntile{width:auto;height:auto;background:none;border-radius:0}
+.gd-h .ntile .ms{font-size:26px;color:#F5C518;font-variation-settings:'FILL' 1}
 .gd-c{color:var(--fg-3);font-size:22px;flex:0 0 auto}
 .gd-body{display:grid;gap:10px;padding:clamp(14px,2.2vw,18px)}
 

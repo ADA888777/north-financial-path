@@ -659,11 +659,12 @@
    ============================================================ */
 /* الرقائق تلتفّ داخل صندوقها فتُرى كلها دفعةً واحدة: الشريط
    الأفقي يُخفي نصفها ويطلب سحباً، والمستويات خمسة لا خمسون. */
-.lx-tabs{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;
-  background:var(--surface);border:1.5px solid var(--card-line);
+.lx-tabs{display:grid;grid-template-columns:repeat(auto-fit,minmax(138px,1fr));
+  gap:8px;background:var(--surface);border:1.5px solid var(--card-line);
   border-radius:var(--rc,16px);padding:10px;margin-bottom:16px}
 .lx-tab{cursor:pointer;font:inherit;
-  display:inline-flex;align-items:center;gap:7px;font-size:13.5px;font-weight:700;
+  display:inline-flex;align-items:center;justify-content:center;
+  gap:7px;font-size:13.5px;font-weight:700;
   color:var(--fg);background:transparent;border:1.5px solid transparent;
   border-radius:999px;padding:9px 15px;min-height:40px;
   transition:border-color .16s,background .16s,color .16s}
@@ -673,6 +674,12 @@
 .lx-tab:hover{border-color:var(--card-line);background:var(--surface-2)}
 .lx-tab.on{border-color:var(--accent);background:var(--accent);color:var(--on-accent)}
 .lx-tab.on i{background:color-mix(in srgb,#000 24%,transparent);color:var(--on-accent)}
+/* على الجوال عمودان بالضبط، وإن كان عدد المستويات فردياً امتدّ
+   الأخير على العرض كلّه: رقاقةٌ وحيدة في نصف صفٍّ تبدو منسيّة. */
+@media (max-width:520px){
+  .lx-tabs{grid-template-columns:1fr 1fr}
+  .lx-tab:last-child:nth-child(odd){grid-column:1 / -1}
+}
 
 .lx-grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(270px,1fr))}
 
