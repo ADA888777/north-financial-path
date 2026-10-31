@@ -25,13 +25,11 @@
     return cut || t;
   }
 
+  /* لا رقاقة «الكل»: المنهج مقسَّم بالمستوى، ومستوىً واحد في الشاشة
+     أوضح من واحدٍ وأربعين بطاقة متتابعة. والرقائق تلتفّ في صندوقها
+     فتُرى كلها دفعةً واحدة بلا سحب. */
   function tabs() {
-    var total = lessons.length;
-    var all = '<button type="button" class="lx-tab' + (pick === 'all' ? ' on' : '') +
-      '" data-lv="all" aria-pressed="' + (pick === 'all') + '">الكل' +
-      '<i>' + num(total) + '</i></button>';
-
-    el('lx-tabs').innerHTML = all + levels.map(function (l) {
+    el('lx-tabs').innerHTML = levels.map(function (l) {
       return '<button type="button" class="lx-tab ' + (ST[l.state] || ST.locked).c +
         (pick === l.id ? ' on' : '') + '" data-lv="' + esc(l.id) +
         '" aria-pressed="' + (pick === l.id) + '">' +
@@ -54,7 +52,11 @@
     var body =
       '<span class="lx-top">' +
         '<span class="lx-lv">' + esc(lvl ? shortName(lvl) : '—') + '</span>' +
-        (s.t ? '<span class="lx-st ' + s.c + '">' + esc(s.t) + '</span>' : '') +
+        (s.t
+          ? '<span class="lx-st ' + s.c + '">' +
+              (x.state === 'done' ? '<span class="ms">check_circle</span>' : '') +
+              esc(s.t) + '</span>'
+          : '') +
       '</span>' +
       '<b class="lx-t">' + esc(x.title) + '</b>' +
       (x.summary ? '<p class="lx-d">' + esc(x.summary) + '</p>' : '') +
@@ -66,7 +68,7 @@
           ? '<span class="lx-min"><span class="ms">schedule</span>' +
             num(x.duration_min) + ' دقيقة</span>'
           : '<span></span>') +
-        (open ? '<span class="ms lx-go">chevron_left</span>' : '') +
+        (open ? '<span class="ms lx-go">play_circle</span>' : '') +
       '</span>';
 
     return open
@@ -76,16 +78,13 @@
   }
 
   function grid() {
-    var view = pick === 'all'
-      ? lessons
-      : lessons.filter(function (x) { return x.level_id === pick; });
+    var view = lessons.filter(function (x) { return x.level_id === pick; });
 
     if (!view.length) {
       el('lx-grid').innerHTML =
         '<div class="nempty"><span class="ms">menu_book</span><p>' +
-        (pick === 'all'
-          ? 'لم تُنشر دروس بعد. تظهر هنا فور إضافتها.'
-          : 'لا دروس في هذا المستوى بعد.') +
+        (levels.length ? 'لا دروس في هذا المستوى بعد.'
+                       : 'لم تُنشر دروس بعد. تظهر هنا فور إضافتها.') +
         '</p></div>';
       return;
     }
@@ -104,8 +103,14 @@
       levels = d.levels || [];
       lessons = d.lessons || [];
 
-      /* الوصول بـ ?level=<id> يفتح على مستوىً بعينه: الخارطة تربط
-         بالمستوى الذي ضُغط منه، فلا تبدأ القائمة من أولها كل مرّة. */
+      /* تُفتح على مستواها الحالي — أوّل مستوى مفتوح لم تُنهه — لا
+         على أول المنهج: من بلغت «المتقدم» لا تبدأ كل مرّة من
+         «المبتدئ». و ?level=<id> يتقدّم عليه حين تأتي من رابط. */
+      var cur = levels.filter(function (l) { return l.state === 'open'; })[0]
+             || levels.filter(function (l) { return l.state !== 'done'; })[0]
+             || levels[0];
+      if (cur) pick = cur.id;
+
       var q = new URLSearchParams(window.location.search).get('level');
       if (q && levels.some(function (l) { return l.id === q; })) pick = q;
 
