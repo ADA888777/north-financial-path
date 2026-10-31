@@ -46,11 +46,18 @@
       (m.effective_status === 'expired' ? 'منتهٍ' : 'غير نافذ') + '</span>';
   }
 
+  /* المدّة المعتمدة للفترة القادمة من القاعدة: أولى (شهران) أم تجديد (شهر) */
+  function nextLabel(m) {
+    var np = m && m.next_period;
+    if (!np) return 'المدّة المعتمدة';
+    return (np.label || 'تجديد') + ' ' + (np.days || '') + ' يوماً';
+  }
+
   function expiredWarn(m) {
     if (live(m)) return '';
     return '<p class="warn-line"><span class="ms">report</span>' +
       'اشتراك هذه العضوة غير نافذ الآن، فتغيير الباقة وحده لن يفتح لها شيئاً. ' +
-      'استعملي «غيّر الباقة وفعّل 60 يوماً»، أو غيّري الباقة ثم جدّدي من ' +
+      'استعملي «غيّر الباقة وفعّل الاشتراك»، أو غيّري الباقة ثم جدّدي من ' +
       '«الاشتراك».</p>';
   }
 
@@ -86,7 +93,7 @@
         '<button class="bt bt-main" type="button" id="do-plan">غيّر الباقة</button>' +
         (live(m) ? '' :
           '<button class="bt bt-soft" type="button" id="do-plan-renew" style="margin-inline-start:8px">' +
-            'غيّر الباقة وفعّل 60 يوماً</button>') +
+            'غيّر الباقة وفعّل الاشتراك (' + esc(nextLabel(m)) + ')</button>') +
       '</div>' +
 
       '<div class="sub-act">' +
@@ -251,10 +258,12 @@
     btn.disabled = true; btn.textContent = 'جارٍ الحفظ…';
 
     /* التفعيل مع الترقية نداءٌ واحد: admin_renew_days تضبط الباقة
-       والمدّة والحالة معاً، فلا تبقى عضوة بباقة ماسية واشتراك منتهٍ. */
+       والمدّة والحالة معاً، فلا تبقى عضوة بباقة ماسية واشتراك منتهٍ.
+       المدّة لا تُكتب هنا (كانت ٦٠ ثابتة): القاعدة تختارها — أولى
+       شهران، وما بعدها شهر — من إعدادات الباقة. */
     var call = alsoRenew
       ? db.rpc('admin_renew_days', {
-          p_user: cur.id, p_days: 60, p_plan: plan,
+          p_user: cur.id, p_days: null, p_plan: plan,
           p_note: note || 'ترقية وتفعيل من بيانات الحساب',
           p_paid: false, p_payment_ref: null })
       : db.rpc('admin_set_plan', { p_user: cur.id, p_plan: plan, p_note: note });

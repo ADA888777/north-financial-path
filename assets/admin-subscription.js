@@ -95,19 +95,24 @@
           (m.days_left != null && eff === 'active'
             ? ' <i class="sub-left">بقي ' + m.days_left + ' يوماً</i>' : '') +
         '</b></div>' +
+        '<div><span>القادم</span><b>' + esc(nextLabel(m)) + '</b></div>' +
       '</div>' +
 
       '<div class="sub-act">' +
         '<h3>تجديد الاشتراك</h3>' +
-        '<p class="sub-h">العضو نفسه ورقم عضويته نفسه. إن كان الاشتراك ما زال ' +
-          'نافذاً تُضاف المدة إلى تاريخ انتهائه ولا تضيع الأيام المتبقية.</p>' +
+        '<p class="sub-h">الدورة المعتمدة: أول اشتراكٍ للحساب شهران، وكل تجديدٍ ' +
+          'بعده شهر. المدّة تُختار تلقائياً من إعدادات الباقة، ويمكنك كتابة غيرها ' +
+          'لحالةٍ خاصة. إن كان الاشتراك ما زال نافذاً تُضاف المدة إلى تاريخ ' +
+          'انتهائه ولا تضيع الأيام المتبقية.</p>' +
         '<div class="grid2">' +
-          '<div class="fld"><label for="r-months">المدة</label>' +
-            '<select id="r-months">' +
-              '<option value="1">شهر واحد</option>' +
-              '<option value="3" selected>3 أشهر</option>' +
-              '<option value="6">6 أشهر</option>' +
-              '<option value="12">سنة</option>' +
+          '<div class="fld"><label for="r-days">المدة</label>' +
+            '<select id="r-days">' +
+              '<option value="" selected>المعتمدة — ' + esc(nextLabel(m)) + '</option>' +
+              '<option value="30">30 يوماً</option>' +
+              '<option value="60">60 يوماً</option>' +
+              '<option value="90">90 يوماً</option>' +
+              '<option value="180">180 يوماً</option>' +
+              '<option value="365">365 يوماً</option>' +
             '</select></div>' +
           '<div class="fld"><label for="r-plan">الباقة بعد التجديد</label>' +
             '<select id="r-plan">' + planOptions(m.plan) + '</select></div>' +
@@ -231,11 +236,19 @@
     });
   }
 
+  /* «المعتمدة» تأتي من القاعدة لا من هنا: أولى أم تجديد، وكم يوماً */
+  function nextLabel(m) {
+    var np = m && m.next_period;
+    if (!np) return 'تلقائي';
+    return (np.label || 'تجديد') + ': ' + (np.days || '—') + ' يوماً';
+  }
+
   function renew() {
     run(el('do-renew'), function () {
-      return db.rpc('admin_renew_subscription', {
+      var v = el('r-days').value;
+      return db.rpc('admin_renew_days', {
         p_user: current.id,
-        p_months: parseInt(el('r-months').value, 10),
+        p_days: v ? parseInt(v, 10) : null,      // فارغ ⇐ المدّة المعتمدة
         p_plan: el('r-plan').value || null,
         p_note: el('r-note').value || null,
         p_paid: el('r-paid').checked,

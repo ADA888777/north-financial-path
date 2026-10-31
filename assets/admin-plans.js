@@ -52,7 +52,8 @@
             (p.description ? '<br><span class="muted">' + esc(p.description) + '</span>' : '') + '</td>' +
           '<td class="num">' + esc(p.tier || 1) + '</td>' +
           '<td class="num">' + esc(money(p.price_sar)) + '</td>' +
-          '<td>' + (p.duration_days ? esc(p.duration_days) + ' يوماً' : '<span class="muted">غير محددة</span>') + '</td>' +
+          '<td>' + (p.duration_days ? esc(p.duration_days) + ' يوماً' : '<span class="muted">غير محددة</span>') +
+            (p.renewal_days ? ' <span class="muted">ثم ' + esc(p.renewal_days) + '</span>' : '') + '</td>' +
           '<td class="num">' + (p.private_quota ? esc(p.private_quota) : '<span class="muted">0</span>') + '</td>' +
           '<td class="num">' + esc(p.members || 0) + '</td>' +
           '<td>' + (p.active ? '<span class="tag tag-ok">مفعّلة</span>'
@@ -202,8 +203,12 @@
           '<input id="pl-name" type="text" maxlength="60" placeholder="ماسية"></div>' +
         '<div class="fld"><label for="pl-price">السعر بالريال</label>' +
           '<input id="pl-price" type="number" min="0" step="0.01" placeholder="اتركه فارغاً إن لم يُحدَّد"></div>' +
-        '<div class="fld"><label for="pl-days">مدة الاشتراك بالأيام</label>' +
+        '<div class="fld"><label for="pl-days">الاشتراك الأول (بالأيام)</label>' +
           '<input id="pl-days" type="number" min="1" max="1830" placeholder="60">' +
+          '<p class="hint">أول فترةٍ لحسابٍ جديد. المعتمد: 60 يوماً (شهران).</p></div>' +
+        '<div class="fld"><label for="pl-renew">كل تجديد بعدها (بالأيام)</label>' +
+          '<input id="pl-renew" type="number" min="1" max="1830" placeholder="30">' +
+          '<p class="hint">المعتمد: 30 يوماً (شهر). والإدارة تستطيع كتابة مدّة أخرى عند التجديد.</p>' +
           '<span class="hint">هي المدة الافتراضية عند التجديد.</span></div>' +
         '<div class="fld"><label for="pl-tier">الرتبة</label>' +
           '<input id="pl-tier" type="number" min="1" max="9" value="1">' +
@@ -249,6 +254,7 @@
     el('pl-name').value = p ? (p.name || '') : '';
     el('pl-price').value = p && p.price_sar != null ? p.price_sar : '';
     el('pl-days').value = p && p.duration_days != null ? p.duration_days : 60;
+    el('pl-renew').value = p && p.renewal_days != null ? p.renewal_days : 30;
     el('pl-tier').value = p && p.tier != null ? p.tier : 1;
     el('pl-quota').value = p ? (p.private_quota || 0) : 0;
     el('pl-desc').value = p ? (p.description || '') : '';
@@ -292,6 +298,7 @@
       var extra = {
         tier: parseInt(el('pl-tier').value, 10) || 1,
         duration_days: el('pl-days').value === '' ? null : parseInt(el('pl-days').value, 10),
+        renewal_days: parseInt(el('pl-renew').value, 10) || 30,
         updated_at: new Date().toISOString()
       };
       return db.from('plans').update(extra).eq('id', d.id || (editing && editing.id))

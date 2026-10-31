@@ -56,7 +56,13 @@ Deno.serve(async (req) => {
   const membershipNo = body.membership_no ? String(body.membership_no).trim() : null;
   const username = body.username ? String(body.username).trim() : null;
   const subStatus = body.subscription_status ? String(body.subscription_status).trim() : 'active';
+  // دورة الاشتراك: البداية من النموذج (اليوم افتراضاً)، والنهاية لا
+  // تُرسل إلا إن عدّلتها الإدارة بيدها — وإلا حسبتها القاعدة من مدّة
+  // الباقة المعتمدة (الاشتراك الأول شهران). ورقم طلب سلة مرجعٌ يُحفظ
+  // في سجلّ الاشتراك لا أكثر.
+  const subStart = body.subscription_started_at ? String(body.subscription_started_at) : null;
   const subExpires = body.subscription_expires_at ? String(body.subscription_expires_at) : null;
+  const paymentRef = body.payment_ref ? String(body.payment_ref).trim().slice(0, 100) : null;
   const siteUrl = body.site_url ? String(body.site_url) : null;
   const acctStatus = body.status === 'suspended' ? 'suspended' : 'active';
 
@@ -128,8 +134,10 @@ Deno.serve(async (req) => {
     phone,
     plan,
     username,
-    subscription_status: subStatus,
-    subscription_expires_at: subExpires,
+    // الاشتراك النافذ تضبطه admin_renew_days أدناه (تواريخ وسجلّ)؛
+    // هنا يُكتب «غير مفعّل» فقط حتى لا يبقى الحساب نافذاً بلا فترة.
+    subscription_status: subStatus === 'active' ? 'inactive' : subStatus,
+    subscription_expires_at: null,
     status: acctStatus,
     // الإدارة تضبط كل شيء ولا تملك العميلة تغيير كلمة مرورها من
     // حسابها، فإلزامها بتغييرها بابٌ لا تجده مفتوحاً.
@@ -142,6 +150,31 @@ Deno.serve(async (req) => {
   if (profErr) {
     // الحساب أُنشئ لكن بياناته ناقصة — نخبر الإدارة بدل الصمت.
     return reply({ id, password, warning: 'أُنشئ الحساب لكن تعذّر حفظ بياناته: ' + profErr.message });
+  }
+
+  // الاشتراك الأول: بهويّة الأدمن نفسها (asCaller) لا بمفتاح الخدمة،
+  // فتمرّ من admin_target() وتُسجَّل باسمها في سجلّ الاشتراك.
+  // المدّة تختارها القاعدة: أول فترةٍ للحساب = duration_days للباقة.
+  let subWarning: string | null = null;
+  let subInfo: Record<string, unknown> | null = null;
+  if (subStatus === 'active' && plan) {
+    const { data: ren, error: renErr } = await asCaller.rpc('admin_renew_days', {
+      p_user: id,
+      p_days: null,
+      p_plan: plan,
+      p_note: 'إنشاء الحساب',
+      p_paid: !!paymentRef,
+      p_payment_ref: paymentRef,
+      p_start: subStart,
+      p_end: subExpires,
+    });
+    const r = (ren ?? {}) as Record<string, unknown>;
+    if (renErr || r.error) {
+      subWarning = 'أُنشئ الحساب لكن لم يُفعَّل اشتراكه: ' +
+        String(r.error ?? renErr?.message ?? '') + ' — فعّليه من ملف العضو.';
+    } else {
+      subInfo = { starts_at: r.starts_at, expires_at: r.expires_at, days: r.days, first: r.first };
+    }
   }
 
   // رابط تعيين كلمة المرور: الأفضل أن يختارها المشترك بنفسه بدل تداولها.
@@ -167,5 +200,7 @@ Deno.serve(async (req) => {
     membership_no: saved?.membership_no ?? membershipNo,
     username: saved?.username ?? username,
     set_password_link: setPasswordLink,
+    subscription: subInfo,
+    warning: subWarning,
   });
 });

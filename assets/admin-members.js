@@ -13,8 +13,76 @@
   A.guard().then(function (session) {
     if (!session) return;
     probeFunction();
+    loadPlans();
+    subDates();
     load();
   });
+
+  /* ---------- الباقات في النموذج: من القاعدة ----------
+     اسمٌ مكتوب في الصفحة يفترق عن جدول الباقات بعد أول تعديل،
+     والدالة ترفض باقةً لا تعرفها. ومع كل باقة مدّتاها لحساب
+     تاريخ الانتهاء في النموذج قبل الإرسال. */
+  var PLANS = [];
+  function loadPlans() {
+    var sel = el('m-plan');
+    db.rpc('admin_plans').then(function (r) {
+      PLANS = (r && !r.error && Array.isArray(r.data)) ? r.data : [];
+      var act = PLANS.filter(function (p) { return p.active !== false; });
+      sel.innerHTML = act.length
+        ? act.map(function (p) {
+            return '<option value="' + esc(p.name) + '">' + esc(p.name) + '</option>';
+          }).join('')
+        : '<option value="">لا باقات — أضيفيها من تبويب الباقات</option>';
+      previewExpiry();
+    }).catch(function () {
+      sel.innerHTML = '<option value="">تعذّر تحميل الباقات</option>';
+    });
+  }
+
+  /* ---------- تواريخ الاشتراك في النموذج ----------
+     البداية اليوم افتراضاً، والنهاية = البداية + الفترة الأولى من
+     الباقة (شهران). الحساب هنا للعرض فقط؛ الخادم يحسبها بنفسه، ولا
+     نرسل النهاية إلا إن عدّلتها الإدارة بيدها. */
+  var expDirty = false;
+
+  function isoDay(d) {
+    var y = d.getFullYear(), m = ('0' + (d.getMonth() + 1)).slice(-2), day = ('0' + d.getDate()).slice(-2);
+    return y + '-' + m + '-' + day;
+  }
+
+  function firstDays() {
+    var name = el('m-plan').value;
+    var p = PLANS.filter(function (x) { return x.name === name; })[0];
+    return p && p.duration_days ? Number(p.duration_days) : 60;
+  }
+
+  function previewExpiry() {
+    var st = el('m-start'), ex = el('m-exp');
+    if (!st || !ex) return;
+    if (el('m-sub').value !== 'active') {
+      el('m-subwrap').hidden = true; return;
+    }
+    el('m-subwrap').hidden = false;
+    if (!st.value) st.value = isoDay(new Date());
+    if (expDirty) return;
+    var d = new Date(st.value + 'T00:00:00');
+    if (isNaN(d.getTime())) return;
+    var days = firstDays();
+    d.setDate(d.getDate() + days);
+    ex.value = isoDay(d);
+    el('m-exp-why').textContent = '(تلقائي: ' + days + ' يوماً)';
+  }
+
+  function subDates() {
+    el('m-start').addEventListener('change', previewExpiry);
+    el('m-plan').addEventListener('change', previewExpiry);
+    el('m-sub').addEventListener('change', previewExpiry);
+    el('m-exp').addEventListener('input', function () {
+      expDirty = true;
+      el('m-exp-why').textContent = '(معدَّل يدوياً)';
+    });
+    previewExpiry();
+  }
 
   /* ---------- الأرقام ---------- */
   function kpis() {
@@ -205,17 +273,24 @@
       btn.removeAttribute('aria-busy'); btn.disabled = false;
       label.textContent = original;
       A.toast(msg, ok ? 'ok' : 'bad');
-      if (ok) { e.target.reset(); load(); }
+      if (ok) { e.target.reset(); expDirty = false; loadPlans(); previewExpiry(); load(); }
     }
 
+    var active = el('m-sub').value === 'active';
     db.functions.invoke('create-member', {
       body: {
         full_name: name,
         email: email,
-        plan: el('m-plan').value,
+        plan: el('m-plan').value || null,
         membership_no: el('m-no').value.trim() || null,
         subscription_status: el('m-sub').value,
-        subscription_expires_at: el('m-exp').value || null,
+        /* البداية تُرسل دائماً، والنهاية فقط إن عدّلتها الإدارة:
+           وإلا حسبها الخادم من مدّة الباقة المعتمدة. */
+        subscription_started_at: active && el('m-start').value
+          ? el('m-start').value + 'T00:00:00+03:00' : null,
+        subscription_expires_at: active && expDirty && el('m-exp').value
+          ? el('m-exp').value + 'T23:59:59+03:00' : null,
+        payment_ref: el('m-ref').value.trim() || null,
         status: el('m-status').value,
         password: pass,
         site_url: window.location.origin + window.location.pathname.replace(/[^/]*$/, '')
@@ -246,6 +321,14 @@
     el('c-email').textContent = d.email || '';
     el('c-no').textContent = no(d.membership_no) || '—';
     el('c-pass').textContent = d.password || '—';
+    /* الفترة التي ضبطتها القاعدة فعلاً — لا ما كتبناه في النموذج */
+    var sb = d.subscription;
+    el('c-sub-row').hidden = !sb;
+    if (sb) {
+      el('c-sub').textContent = (sb.first ? 'اشتراك أول' : 'تجديد') + ' · ' +
+        sb.days + ' يوماً · ينتهي ' + String(sb.expires_at || '').slice(0, 10);
+    }
+    if (d.warning) A.toast(d.warning, 'bad');
     el('created').hidden = false;
 
     var linkBtn = el('c-link');

@@ -51,6 +51,65 @@
     });
   }
 
+  /* ---------- بوابة الاشتراك ----------
+     انتهى اشتراكها أو لم يبدأ: لا قفلٌ صامت ولا دروسٌ كلها «تتطلّب
+     ترقية». رسالةٌ تقول ما حدث وما تفعله، وزرّ التجديد برابط الباقة
+     من القاعدة. القفل نفسه في القاعدة (my_tier صفر)، وهذه واجهته. */
+  function subGate(st) {
+    var sh = el('shell'); if (sh) sh.hidden = true;
+    var g = el('gate'); if (!g) return;
+    g.hidden = false;
+
+    var expired = st.sub_status === 'expired';
+    var when = '';
+    try {
+      if (st.sub_expires_at) {
+        when = new Intl.DateTimeFormat('ar-SA-u-nu-latn-ca-gregory',
+          { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Asia/Riyadh' })
+          .format(new Date(st.sub_expires_at));
+      }
+    } catch (e) { when = ''; }
+
+    g.innerHTML = '<div class="gate-card sub-gate">' +
+      '<span class="ms gate-ico">' + (expired ? 'event_busy' : 'workspace_premium') + '</span>' +
+      '<h1>' + (expired ? 'انتهى اشتراكك' : 'لا يوجد اشتراك ساري') + '</h1>' +
+      '<p>' + (expired
+        ? 'انتهت فترة اشتراكك' + (when ? ' في ' + esc(when) : '') +
+          '، وتوقّف الوصول إلى الدروس والجلسات. تقدّمك محفوظ كما هو — ' +
+          'جدّدي اشتراكك وأكملي تعليمك من حيث توقّفتِ.'
+        : 'حسابك جاهز، لكن لا يوجد اشتراك ساري عليه بعد. فعّلي اشتراكك ' +
+          'لتفتحي الدروس والجلسات وتبدئي رحلتك.') + '</p>' +
+      (st.renew_url
+        ? '<a class="btn btn-primary" href="' + esc(st.renew_url) + '" target="_blank" rel="noopener">' +
+            (expired ? 'جدّدي اشتراكك' : 'فعّلي اشتراكك') + '</a>'
+        : '<p class="sub-gate-h">للتجديد تواصلي مع إدارة المنصة.</p>') +
+      '<a class="btn btn-ghost" href="account.html">حسابي</a>' +
+    '</div>';
+  }
+
+  /* شريط التذكير: سبعة أيام أو أقل على الانتهاء. يُحسب عند كل فتح
+     صفحة من التاريخ نفسه، فلا يعتمد على وظيفةٍ مجدولة. */
+  function renewBar(st) {
+    var sh = el('shell'); if (!sh) return;
+    var d = Number(st.days_left);
+    if (!isFinite(d) || st.sub_status !== 'active' || d > 7 || st.sub_expires_at == null) return;
+    if (document.getElementById('renew-bar')) return;
+
+    var txt = d <= 0 ? 'ينتهي اشتراكك اليوم'
+            : d === 1 ? 'ينتهي اشتراكك غداً'
+            : d === 2 ? 'ينتهي اشتراكك بعد يومين'
+            : 'ينتهي اشتراكك بعد ' + num(d) + ' أيام';
+    var bar = document.createElement('div');
+    bar.id = 'renew-bar';
+    bar.className = 'renew-bar';
+    bar.innerHTML = '<span class="ms">schedule</span>' +
+      '<span class="rb-t"><b>' + txt + '</b> — جدّدي قبل الموعد ليستمرّ وصولك بلا انقطاع.</span>' +
+      (st.renew_url
+        ? '<a class="nbtn nbtn-p" href="' + esc(st.renew_url) + '" target="_blank" rel="noopener">جدّدي الآن</a>'
+        : '');
+    sh.insertBefore(bar, sh.firstChild);
+  }
+
   /* ---------- الحارس ---------- */
   function deny(title, note, login) {
     var sh = el('shell'); if (sh) sh.hidden = true;
@@ -120,8 +179,16 @@
           db.auth.signOut().catch(function () {});
           return null;
         }
+        /* الاشتراك: منتهٍ أو لم يبدأ ⇐ بوابةٌ لا قفلٌ صامت. الأدمن لا
+           يُحجب، والجلسة تبقى (ليس حساباً معطَّلاً) لترى حسابها وتجدّد. */
+        if (st.signed_in && (st.sub_status === 'expired' || st.sub_status === 'inactive' ||
+                             st.sub_status === 'cancelled')) {
+          subGate(st);
+          return null;
+        }
         var sh = el('shell'); if (sh) sh.hidden = false;
         var g = el('gate'); if (g) g.hidden = true;
+        renewBar(st);
         return s;
       }).catch(function () {
         /* تعذّر السؤال: لا نُخرج أحداً بسبب عطب شبكة عابر. الدوال

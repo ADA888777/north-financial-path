@@ -85,40 +85,53 @@
           </div>
           <div class="fld" data-fld="plan">
             <label for="m-plan">الباقة</label>
-            <select id="m-plan">
-              <option value="البرونزية">الباقة البرونزية</option>
-              <option value="الماسية">الباقة الماسية</option>
-            </select>
+            <!-- الباقات من القاعدة لا من هنا: اسمٌ مكتوب في الصفحة
+                 يفترق عن جدول الباقات بعد أول تعديل فيه. -->
+            <select id="m-plan"><option value="">جارٍ التحميل…</option></select>
           </div>
         </div>
 
         <div class="grid2" style="margin-top:16px">
-          <div class="fld"></div>
           <div class="fld" data-fld="membership">
             <label for="m-no">رقم العضوية</label>
-            <input type="text" id="m-no" dir="ltr" inputmode="numeric"
-                   pattern="[0-9]*" maxlength="9" placeholder="تلقائي">
-            <p class="hint">اتركيه فارغاً فيأخذ الرقم التالي تلقائياً — مثل 47 ثم 48.
-              عدد فقط، ولا يتكرّر، ولا يُعاد رقم حساب محذوف.</p>
+            <input type="text" id="m-no" dir="ltr" inputmode="numeric" maxlength="10" placeholder="تلقائي">
+            <p class="hint">اتركيه فارغاً فيأخذ الرقم التالي بالترتيب: الإدارة #1،
+              وأول عميلة #2، ثم #3 وهكذا. تقدرين تكتبينه مع العلامة «#3» أو بدونها
+              «3» — النتيجة واحدة. لا يتكرّر ولا يُعاد رقم حساب محذوف.</p>
             <p class="bad-msg"></p>
           </div>
-        </div>
-
-        <div class="grid2" style="margin-top:16px">
           <div class="fld" data-fld="substatus">
             <label for="m-sub">حالة الاشتراك</label>
             <select id="m-sub">
-              <option value="active">نافذ</option>
-              <option value="inactive">غير مفعّل</option>
-              <option value="expired">منتهٍ</option>
-              <option value="cancelled">ملغى</option>
+              <option value="active">نافذ — يبدأ الاشتراك الآن</option>
+              <option value="inactive">غير مفعّل — بلا اشتراك بعد</option>
             </select>
           </div>
-          <div class="fld" data-fld="expires">
-            <label for="m-exp">ينتهي في</label>
-            <input type="date" id="m-exp" dir="ltr">
-            <p class="hint">اتركه فارغاً لاشتراك بلا تاريخ انتهاء.</p>
+        </div>
+
+        <!-- دورة الاشتراك: أول فترة شهران، وكل تجديد بعدها شهر. المدّتان
+             من إعدادات الباقة، والنهاية تُحسب من البداية تلقائياً. -->
+        <div class="grid2" style="margin-top:16px" id="m-subwrap">
+          <div class="fld" data-fld="start">
+            <label for="m-start">بداية الاشتراك</label>
+            <input type="date" id="m-start" dir="ltr">
+            <p class="hint">اليوم افتراضاً. غيّريه لو كان الدفع بتاريخ سابق.</p>
           </div>
+          <div class="fld" data-fld="expires">
+            <label for="m-exp">ينتهي في <span class="hint-inline" id="m-exp-why"></span></label>
+            <input type="date" id="m-exp" dir="ltr">
+            <p class="hint" id="m-exp-hint">يُحسب تلقائياً: الاشتراك الأول شهران حسب
+              إعدادات الباقة. عدّليه فقط لحالةٍ خاصة.</p>
+          </div>
+        </div>
+
+        <div class="grid2" style="margin-top:16px">
+          <div class="fld" data-fld="ref">
+            <label for="m-ref">رقم طلب سلة (اختياري)</label>
+            <input type="text" id="m-ref" dir="ltr" maxlength="100" placeholder="مثال: 1048213">
+            <p class="hint">يُحفظ في سجلّ الاشتراك كمرجع للدفع. لا يغيّر التواريخ.</p>
+          </div>
+          <div class="fld"></div>
         </div>
 
         <div class="grid2" style="margin-top:16px">
@@ -154,6 +167,7 @@
             <div style="display:flex;justify-content:space-between;gap:12px"><dt style="color:var(--a-fg-2);font-size:13px">البريد</dt><dd class="num" id="c-email" style="margin:0"></dd></div>
             <div style="display:flex;justify-content:space-between;gap:12px"><dt style="color:var(--a-fg-2);font-size:13px">رقم العضوية</dt><dd class="num" id="c-no" style="margin:0"></dd></div>
             <div style="display:flex;justify-content:space-between;gap:12px"><dt style="color:var(--a-fg-2);font-size:13px">كلمة المرور</dt><dd class="num" id="c-pass" style="margin:0"></dd></div>
+            <div style="display:flex;justify-content:space-between;gap:12px" id="c-sub-row" hidden><dt style="color:var(--a-fg-2);font-size:13px">الاشتراك</dt><dd id="c-sub" style="margin:0"></dd></div>
           </dl>
           <div style="display:flex;gap:10px;margin-top:18px;flex-wrap:wrap">
             <button class="bt bt-main" id="c-copy" type="button"><span class="ms sm">content_copy</span> نسخ البيانات</button>
