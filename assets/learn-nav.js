@@ -13,7 +13,6 @@
   var ITEMS = [
     { href: 'learn.html',         ico: 'home',               label: 'الرئيسية' },
     { href: 'map.html',           ico: 'map',                label: 'الخارطة' },
-    { href: 'lessons.html',       ico: 'menu_book',          label: 'الدروس' },
     { href: 'challenge.html',     ico: 'bolt',               label: 'التحدي' },
     { href: 'assistant.html',     ico: 'auto_stories',       label: 'المعلم الذكي' },
     { href: 'live.html',          ico: 'live_tv',            label: 'الحصص المباشرة' },
@@ -28,7 +27,10 @@
   /* صفحات فرعية تنتمي إلى قسم: الدرس والمستوى والاختبار تحت الخارطة،
      والبطاقات تحت التحدي — كي لا تفتح القائمة بلا قسمٍ معلَّم. */
   var UNDER = {
-    'lesson.html': 'lessons.html', 'level.html': 'lessons.html',
+    /* «الدروس» ليست في القائمة: تُفتح من زرّ «متابعة التعلم» في
+       الخارطة وحده. فالرجوع من درسٍ إلى الخارطة لا إليها —
+       لا يُعاد المستعمل إلى صفحة لا يجد لها باباً. */
+    'lesson.html': 'map.html', 'level.html': 'map.html',
     'quiz.html': 'map.html',   'cards.html': 'challenge.html'
   };
 
