@@ -6,7 +6,7 @@
   'use strict';
   var A = window.northAdmin;
   if (!A) return;
-  var db = A.db, el = A.el, esc = A.esc;
+  var db = A.db, el = A.el, esc = A.esc, no = A.no, who = A.who;
 
   var cur = null, onDone = null, busy = false, sheet = null;
 
@@ -56,11 +56,12 @@
 
   function render(m, events) {
     cur = m;
-    el('acc-title').textContent = 'بيانات الحساب: ' + (m.full_name || '');
+    el('acc-title').textContent = 'بيانات الحساب: ' + who(m.full_name, m.membership_no);
 
     el('acc-body').innerHTML =
       '<div class="sub-now">' +
-        '<div><span>رقم العضوية</span><b class="num">' + esc(m.membership_no || '—') + '</b></div>' +
+        '<div><span>رقم العضوية</span><b class="num">' +
+          esc(window.northNo(m.membership_no) || '—') + '</b></div>' +
         '<div><span>الحساب</span><b>' +
           (m.account_status === 'active'
             ? '<span class="tag tag-ok">فعّال</span>'
@@ -112,12 +113,15 @@
 
       '<div class="sub-act">' +
         '<h3>رقم العضوية</h3>' +
-        '<p class="sub-h">الرقم الذي تراه العميلة في حسابها. يُولَّد تلقائياً عند ' +
-          'إنشاء الحساب، ويمكن تغييره هنا. لا يتكرّر بين عضوتين — ترفض القاعدة ' +
-          'الرقم المستعمل. والمعروض لها يُقرأ ‎#165 أياً كانت صيغته هنا.</p>' +
+        '<p class="sub-h">عدد تسلسلي واحد لكل حساب. يُمنح تلقائياً عند ' +
+          'الإنشاء ويمكن تغييره هنا. لا يتكرّر بين عضوتين — ترفض القاعدة ' +
+          'الرقم المستعمل — ولا يتغيّر بتعديل الاسم أو البريد أو الباقة، ' +
+          'ولا يُعاد رقم حسابٍ حُذف. وضبطُه يدوياً يرفع العدّاد فلا يصطدم ' +
+          'به الحساب التالي.</p>' +
         '<div class="fld"><label for="a-no">رقم العضوية</label>' +
-          '<input id="a-no" type="text" dir="ltr" maxlength="32">' +
-          '<span class="hint">حتى 32 خانة، ولا يصحّ فارغاً. ' +
+          '<input id="a-no" type="text" dir="ltr" inputmode="numeric" ' +
+            'pattern="[0-9]*" maxlength="9">' +
+          '<span class="hint">عدد صحيح موجب بلا أصفار بادئة — مثل 47. ' +
             '<b id="a-no-view"></b></span></div>' +
         '<button class="bt bt-ghost" type="button" id="do-no">احفظ رقم العضوية</button>' +
       '</div>' +
@@ -186,9 +190,9 @@
     el('a-phone').value = m.phone || '';
     el('a-user').value = m.username || '';
     el('a-no').value = m.membership_no || '';
-    /* ما يُخزَّن وما يُعرض ليسا واحداً: «N-2026-0003» تقرؤه العميلة
-       ‎#3. السطر يُظهر الناتج فور الكتابة كي لا تبدو الخانة متناقضة
-       مع ما تراه في حسابها. */
+    /* المخزَّن هو المعروض بعد الهجرة ٤٢، لكن السطر يبقى: قاعدةٌ لم
+       تُهاجَر بعد قد تحمل «N-2026-0003»، والمعاينة تُري الإدارة ما
+       تراه العميلة فعلاً قبل الحفظ. */
     function viewNo() {
       var f = window.northNo || function (v) { return v || ''; };
       var v = f(el('a-no').value);

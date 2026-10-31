@@ -52,15 +52,13 @@
     put('hero-sub', p.plan ? ('أنت مشترك في ' + p.plan + '.') : 'مرحباً بك في منصة نورث.');
     put('hero-no', no(p.membership_no));
 
-    put('d-name', p.full_name);
+    /* «Albtol #46»: الاسم ورقمه كما يُنادى في الإدارة، فتعرف
+       العميلة أيّ رقم تذكره حين تتواصل. */
+    put('d-name', (window.northWho || function (n) { return n; })(
+      p.full_name, p.membership_no));
     put('d-email', p.email || session.user.email);
     put('d-user', p.username);
-    put('d-no', no(p.membership_no));
     put('d-phone', p.phone);
-    var on = p.status === 'active';
-    el('d-status').innerHTML =
-      '<span class="st-pill ' + (on ? 'st-on">فعّال' : 'st-off">موقوف') + '</span>';
-    put('d-joined', fmt(p.created_at));
     put('d-plan', p.plan);
     put('d-expires', p.subscription_expires_at ? fmt(p.subscription_expires_at) : 'بلا تاريخ انتهاء');
 

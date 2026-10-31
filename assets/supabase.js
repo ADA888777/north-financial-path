@@ -16,16 +16,25 @@
   /* نحفظ العنوان كما وصل قبل أن تنظّفه المكتبة، لتعرف صفحة الاستعادة مصدر الزيارة */
   window.northEntryURL = { hash: window.location.hash || '', search: window.location.search || '' };
 
-  /* رقم العضوية للعرض: «N-2026-0165» يُقرأ ‎#165.
-     عرضٌ لا تخزين — القاعدة تحتفظ بالصيغة الكاملة، فبحث الإدارة
-     وسجلّ العمليات وتأكيد الحذف تظلّ على ما هي عليه. العدّاد
-     تسلسلي لا يعيد رقماً، فالمقطع الأخير وحده يكفي للتمييز. */
+  /* رقم العضوية للعرض: «46» يُقرأ ‎#46.
+     الهجرة ٤٢ جعلت المخزَّن هو الرقم نفسه، لكن الاستخراج يبقى
+     لأن قاعدةً لم تُهاجَر بعد قد تحمل «N-2026-0046». */
   window.northNo = function (raw) {
     var s = String(raw == null ? '' : raw).trim();
     if (!s) return '';
     var m = s.match(/(\d+)\s*$/);
     if (!m) return s;
     return '#' + m[1].replace(/^0+(?=\d)/, '');
+  };
+
+  /* «Albtol #46»: الاسم ورقمه معاً حيثما ذُكر عضو في الإدارة.
+     صيغة واحدة في موضع واحد — لو كُتبت في كل صفحة لافترقت عند
+     أول تعديل. وبلا اسم يبقى الرقم وحده معرِّفاً لا فراغاً. */
+  window.northWho = function (name, no) {
+    var n = String(name == null ? '' : name).trim();
+    var r = window.northNo(no);
+    if (n && r) return n + ' ' + r;
+    return n || r || '—';
   };
 
   if (!window.supabase || typeof window.supabase.createClient !== 'function') {

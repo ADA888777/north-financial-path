@@ -108,6 +108,10 @@ body.adm-body::after{opacity:.35}
 .tbl td{padding:14px 12px;border-bottom:1px solid var(--a-line);color:var(--a-fg);vertical-align:middle}
 .tbl tr:last-child td{border-bottom:none}
 .tbl .num{font-family:var(--mono);font-size:12.5px;direction:ltr;display:inline-block}
+/* رقم العضوية بجانب الاسم: واضح وثابت في كل جدول، وأخفّ من الاسم
+   كي يُقرأ الاسم أولاً. ltr لأن #46 رقم لاتيني في سطر عربي. */
+.mno{font-family:var(--mono);font-size:12px;direction:ltr;unicode-bidi:isolate;
+     display:inline-block;color:var(--a-fg-2);white-space:nowrap;margin-inline-start:2px}
 .tbl .muted{color:var(--a-fg-2)}
 .tbl-wrap{overflow-x:auto}
 

@@ -6,7 +6,7 @@
   'use strict';
   var A = window.northAdmin;
   if (!A) return;
-  var db = A.db, el = A.el, esc = A.esc;
+  var db = A.db, el = A.el, esc = A.esc, no = A.no, who = A.who;
 
   var STATUS = {
     active: 'نافذ', expired: 'منتهٍ',
@@ -80,11 +80,12 @@
     current = m;
     var eff = m.effective_status;
 
-    el('sub-title').textContent = 'اشتراك: ' + (m.full_name || '');
+    el('sub-title').textContent = 'اشتراك: ' + who(m.full_name, m.membership_no);
 
     el('sub-body').innerHTML =
       '<div class="sub-now">' +
-        '<div><span>رقم العضوية</span><b class="num">' + esc(m.membership_no || '—') + '</b></div>' +
+        '<div><span>رقم العضوية</span><b class="num">' +
+          esc(window.northNo(m.membership_no) || '—') + '</b></div>' +
         '<div><span>الباقة الحالية</span><b>' + esc(m.plan || '—') + '</b></div>' +
         '<div><span>الحالة</span><b><span class="tag ' +
           (eff === 'active' ? 'tag-ok' : 'tag-off') + '">' +

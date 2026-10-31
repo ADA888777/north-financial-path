@@ -105,8 +105,10 @@
           </div>
           <div class="fld" data-fld="membership">
             <label for="m-no">رقم العضوية</label>
-            <input type="text" id="m-no" dir="ltr" placeholder="تلقائي">
-            <p class="hint">اتركه فارغاً ويتولّد تلقائياً. لا يتكرر.</p>
+            <input type="text" id="m-no" dir="ltr" inputmode="numeric"
+                   pattern="[0-9]*" maxlength="9" placeholder="تلقائي">
+            <p class="hint">اتركيه فارغاً فيأخذ الرقم التالي تلقائياً — مثل 47 ثم 48.
+              عدد فقط، ولا يتكرّر، ولا يُعاد رقم حساب محذوف.</p>
             <p class="bad-msg"></p>
           </div>
         </div>
@@ -447,7 +449,7 @@
           <div class="fld">
             <label for="lv-track">المسار</label>
             <select id="lv-track"><option value="">بلا مسار</option></select>
-            <p class="hint">المستوى بلا مسار لا يظهر في خارطة التقدم ولا في دليل المبتدئين.</p>
+            <p class="hint">المستوى بلا مسار يظهر في الخارطة تحت «دروس عامة» ولا يدخل في ترتيب المسار ولا في دليل المبتدئين.</p>
           </div>
           <div class="fld">
             <label for="lv-tier">أدنى باقة تفتح المستوى</label>

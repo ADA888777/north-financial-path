@@ -4,7 +4,7 @@
   'use strict';
   var A = window.northAdmin;
   if (!A) return;
-  var db = A.db, el = A.el, esc = A.esc;
+  var db = A.db, el = A.el, esc = A.esc, no = A.no, who = A.who;
 
   var panel = document.querySelector('[data-panel="coaches"]');
   if (!panel) return;
@@ -41,11 +41,11 @@
       '<p class="sub" style="margin:10px 0">المتوسط ' + esc(r.avg) + ' من 5، محسوب من ' +
         esc(r.count) + ' تقييماً مرتبطاً بجلسات حضرها أصحابها — لا يُعدَّل يدوياً.</p>' +
       '<div class="tbl-wrap"><table class="tbl"><thead><tr>' +
-        '<th>العضو</th><th>رقم العضوية</th><th>التقييم</th><th>الملاحظة</th><th>التاريخ</th>' +
+        '<th>العضو</th><th>التقييم</th><th>الملاحظة</th><th>التاريخ</th>' +
       '</tr></thead><tbody>' +
       list.map(function (x) {
-        return '<tr><td>' + esc(x.member || '—') + '</td>' +
-          '<td><span class="num">' + esc(x.membership_no || '—') + '</span></td>' +
+        return '<tr><td>' + esc(x.member || '—') +
+            ' <span class="mno">' + esc(no(x.membership_no)) + '</span></td>' +
           '<td><span class="num">' + esc(x.stars) + '/5</span></td>' +
           '<td>' + esc(x.comment || '—') + '</td>' +
           '<td class="muted">' + esc(A.fmtDate(x.at)) + '</td></tr>';

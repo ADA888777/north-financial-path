@@ -18,7 +18,12 @@ create unique index if not exists profiles_membership_no_key
 create index if not exists profiles_created_idx on public.profiles (created_at desc);
 
 -- ------------------------------------------------------------
--- توليد رقم عضوية تسلسلي: N-2026-0001
+-- توليد رقم عضوية تسلسلي: 1 ثم 2 ثم 3 — يُعرض #1 و #2 و #3
+--
+-- كان على هيئة N-2026-0001 والواجهة تعرض آخر عدد فيه، فـ
+-- N-2025-0003 و N-2026-0003 كلاهما «#3»: رقمان في القاعدة وواحد
+-- عند العميلة. المخزَّن اليوم هو المعروض نفسه.
+-- الهجرة ٤٢ تطبّع القديم وتضيف المشغّل الحارس.
 -- ------------------------------------------------------------
 create sequence if not exists public.membership_seq start 1;
 
@@ -29,8 +34,7 @@ volatile
 security definer
 set search_path = public, pg_temp
 as $$
-  select 'N-' || to_char(now(), 'YYYY') || '-' ||
-         lpad(nextval('public.membership_seq')::text, 4, '0');
+  select nextval('public.membership_seq')::text;
 $$;
 
 revoke all on function public.next_membership_no() from public;
@@ -73,9 +77,11 @@ create trigger on_auth_user_created
 -- ------------------------------------------------------------
 -- تعبئة الحسابات الموجودة مسبقاً
 -- ------------------------------------------------------------
+-- not exists لا on conflict: المشغّل الحارس (الهجرة ٤٢) يسحب رقم
+-- عضوية قبل أن يُكتشف التعارض، فكل إعادة تشغيل كانت تحرق رقماً.
 insert into public.profiles (id, email)
 select u.id, u.email from auth.users u
-on conflict (id) do nothing;
+where not exists (select 1 from public.profiles p where p.id = u.id);
 
 update public.profiles p
 set email = u.email

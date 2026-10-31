@@ -5,7 +5,7 @@
   var A = window.northAdmin;
   if (!A || !A.form) return;
 
-  var db = A.db, el = A.el, esc = A.esc, F = A.form;
+  var db = A.db, el = A.el, esc = A.esc, F = A.form, no = A.no, who = A.who;
   var form = el('cl-form');
   if (!form) return;
 
@@ -281,15 +281,15 @@
     bkList.innerHTML =
       '<div class="tbl-wrap"><table class="tbl">' +
         '<thead><tr>' +
-          '<th>العضو</th><th>البريد</th><th>رقم العضوية</th>' +
+          '<th>العضو</th><th>البريد</th>' +
           '<th>تيليجرام</th><th>الحالة</th><th>تاريخ الحجز</th><th></th>' +
         '</tr></thead><tbody>' +
         bookings.map(function (b) {
           var m = byId[b.user_id] || {};
           return '<tr data-id="' + esc(b.id) + '">' +
-            '<td>' + esc(m.full_name || '—') + '</td>' +
+            '<td>' + esc(m.full_name || '—') +
+              ' <span class="mno">' + esc(no(m.membership_no)) + '</span></td>' +
             '<td><span class="num">' + esc(m.email || '—') + '</span></td>' +
-            '<td><span class="num">' + esc(m.membership_no || '—') + '</span></td>' +
             '<td><span class="num">' +
               (b.telegram ? '@' + esc(String(b.telegram).replace(/^@+/, '')) : '—') +
             '</span></td>' +

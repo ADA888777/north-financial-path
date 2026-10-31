@@ -5,7 +5,7 @@
   'use strict';
   var A = window.northAdmin;
   if (!A) return;
-  var db = A.db, el = A.el, esc = A.esc;
+  var db = A.db, el = A.el, esc = A.esc, no = A.no, who = A.who;
 
   var rows = [];
   var loaded = false;
@@ -82,9 +82,11 @@
 
   function draw() {
     var box = el('members-list');
-    var q = (el('m-search').value || '').trim().toLowerCase();
+    /* البحث يقبل «46» و«#46» سواء: الرقم يُعرض بالشباك فتُكتب كما
+       تُرى. و# تُحذف من الطرفين كي لا يبحث عن حرفٍ لا يُخزَّن. */
+    var q = (el('m-search').value || '').trim().toLowerCase().replace(/^[#＃]\s*/, '');
     var view = !q ? rows : rows.filter(function (p) {
-      return [p.full_name, p.email, p.membership_no, p.phone]
+      return [p.full_name, p.email, p.membership_no, no(p.membership_no), p.phone]
         .some(function (v) { return v && String(v).toLowerCase().indexOf(q) !== -1; });
     });
 
@@ -95,15 +97,17 @@
     }
 
     box.innerHTML = '<div class="tbl-wrap"><table class="tbl"><thead><tr>' +
-      '<th>الاسم</th><th>اسم المستخدم</th><th>البريد</th><th>رقم العضوية</th>' +
+      '<th>الاسم</th><th>اسم المستخدم</th><th>البريد</th>' +
       '<th>الباقة</th><th>الاشتراك</th><th>ينتهي</th><th>الدور</th><th></th>' +
       '</tr></thead><tbody>' +
       view.map(function (p) {
         return '<tr>' +
-          '<td>' + esc(p.full_name || '—') + '</td>' +
+          /* «Albtol #46» — الرقم بجانب الاسم لا في عمود منفصل:
+             العميلة تنادي العضو بالاثنين معاً. */
+          '<td>' + esc(p.full_name || '—') +
+            ' <span class="mno">' + esc(no(p.membership_no)) + '</span></td>' +
           '<td><span class="num">' + esc(p.username || '—') + '</span></td>' +
           '<td><span class="num muted">' + esc(p.email || '—') + '</span></td>' +
-          '<td><span class="num">' + esc(p.membership_no || '—') + '</span></td>' +
           '<td>' + esc(p.plan || '—') + '</td>' +
           '<td>' + subTag(p) + '</td>' +
           '<td class="muted">' + (p.subscription_expires_at ? esc(A.fmtDate(p.subscription_expires_at)) : '—') + '</td>' +
@@ -241,7 +245,7 @@
   /* ---------- بيانات الدخول بعد الإنشاء ---------- */
   function showCreated(d) {
     el('c-email').textContent = d.email || '';
-    el('c-no').textContent = d.membership_no || '—';
+    el('c-no').textContent = no(d.membership_no) || '—';
     el('c-pass').textContent = d.password || '—';
     el('created').hidden = false;
 
@@ -260,7 +264,7 @@
       copy('منصة نورث للمسار المالي\n' +
            'رابط الدخول: ' + window.location.origin + '/login.html\n' +
            'البريد: ' + (d.email || '') + '\n' +
-           'رقم العضوية: ' + (d.membership_no || '') + '\n' +
+           'رقم العضوية: ' + (no(d.membership_no) || '') + '\n' +
            'كلمة المرور: ' + (d.password || '') + '\n' +
            'غيّر كلمة المرور بعد أول دخول.',
            'نُسخت بيانات الدخول.');

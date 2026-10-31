@@ -207,7 +207,10 @@ begin
       target_email;
   end if;
 
-  insert into public.profiles (id) values (uid) on conflict (id) do nothing;
+  -- not exists لا on conflict: المشغّل الحارس (الهجرة ٤٢) يسحب رقم
+  -- عضوية قبل أن يُكتشف التعارض، فكل إعادة تشغيل كانت تحرق رقماً.
+  insert into public.profiles (id)
+  select uid where not exists (select 1 from public.profiles where id = uid);
 
   insert into public.user_roles (user_id, role, granted_by)
   values (uid, 'admin', uid)

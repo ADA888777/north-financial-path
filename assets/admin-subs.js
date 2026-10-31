@@ -4,7 +4,7 @@
   'use strict';
   var A = window.northAdmin;
   if (!A) return;
-  var db = A.db, el = A.el, esc = A.esc;
+  var db = A.db, el = A.el, esc = A.esc, no = A.no, who = A.who;
 
   var panel = document.querySelector('[data-panel="subs"]');
   if (!panel) return;
@@ -57,7 +57,7 @@
     });
 
     box.innerHTML = '<div class="tbl-wrap"><table class="tbl"><thead><tr>' +
-      '<th>العضو</th><th>رقم العضوية</th><th>الباقة</th><th>الحالة</th>' +
+      '<th>العضو</th><th>الباقة</th><th>الحالة</th>' +
       '<th>ينتهي</th><th>المتبقي</th><th></th></tr></thead><tbody>' +
       rows.map(function (r) {
         var b = BUCKET[r.bucket] || BUCKET.ok;
@@ -66,8 +66,8 @@
                              : r.days_left + ' يوماً');
         return '<tr class="sb-' + esc(r.bucket) + '">' +
           '<td><b>' + esc(r.name || '—') + '</b>' +
+            ' <span class="mno">' + esc(no(r.membership_no)) + '</span>' +
             (r.account_status !== 'active' ? ' <span class="tag tag-off">موقوف</span>' : '') + '</td>' +
-          '<td><span class="num">' + esc(r.membership_no || '—') + '</span></td>' +
           '<td>' + esc(r.plan || '—') + (r.tier ? '' : ' <span class="tag tag-off">غير معتمدة</span>') + '</td>' +
           '<td><span class="tag ' + b.c + '">' + esc(STATUS[r.status] || r.status) + '</span></td>' +
           '<td class="muted">' + (r.expires_at ? esc(A.fmtDate(r.expires_at)) : '—') + '</td>' +

@@ -178,8 +178,17 @@
     });
   }
 
+  /* رقم العضوية واسمه معاً: تعريف واحد تستعمله صفحات الإدارة كلها،
+     فلا تفترق الصيغة بين «قائمة العملاء» و«الاشتراكات» بعد أول تعديل. */
+  function no(v)        { return (window.northNo  || String)(v == null ? '' : v); }
+  function who(n, v)    {
+    return window.northWho ? window.northWho(n, v)
+                           : ((n || '') + (v ? ' #' + v : '')).trim() || '—';
+  }
+
   window.northAdmin = {
     db: db, guard: guard, toast: toast, esc: esc,
-    fmtDate: fmtDate, imageUrl: imageUrl, el: el
+    fmtDate: fmtDate, imageUrl: imageUrl, el: el,
+    no: no, who: who
   };
 })();
