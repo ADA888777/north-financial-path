@@ -94,13 +94,14 @@
   letter-spacing:-.01em}
 .lesson-head .crumb a{font-weight:700}
 .lesson-head .n-sub,.lesson-head .sub{max-width:62ch;margin-top:8px}
-.prose{font-size:15.5px;line-height:2.05;color:var(--fg)}
+.prose{font-size:15.5px;line-height:2.05;color:var(--prose,var(--fg))}
 .prose p{margin-bottom:16px}
 .vocab{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .vterm{background:var(--surface-2);border-radius:var(--rb);padding:14px 16px}
 .vterm b{font-size:14.5px;display:block}
 .vterm span{font-size:13px;color:var(--fg-2);display:block;margin-top:5px;line-height:1.8}
-.summary-box{background:var(--accent-wash);border-radius:var(--rp);padding:18px 20px;font-size:14.5px;line-height:1.95}
+.summary-box{background:var(--accent-wash);border-radius:var(--rp);padding:18px 20px;
+  font-size:14.5px;line-height:1.95;color:var(--prose,var(--fg))}
 .lesson-nav{display:flex;gap:10px;justify-content:space-between;flex-wrap:wrap;margin-top:26px}
 .video-wrap{position:relative;aspect-ratio:16/9;border-radius:var(--rp);overflow:hidden;background:var(--surface-2);margin-bottom:22px}
 .video-wrap a{
@@ -596,6 +597,9 @@
 .lchip-a{background:var(--accent-wash);color:var(--accent)}
 .lhero h1{font-size:clamp(22px,3.4vw,34px);font-weight:900;line-height:1.45;
   letter-spacing:-.01em;margin:0}
+.lhero-d{font-size:15px;line-height:1.95;color:var(--prose,var(--fg-2));
+  margin:12px 0 0;max-width:62ch}
+.lhero-d[hidden]{display:none}
 .lhero-cards{display:flex;flex-wrap:wrap;gap:12px;margin-top:18px}
 .lhero-c{flex:1 1 180px;border:1px solid var(--line);border-radius:var(--rb);
   padding:14px 16px;background:var(--bg);text-align:center}

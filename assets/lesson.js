@@ -133,13 +133,11 @@
     var hasText  = !!(d.content && d.content.trim());
     var items = [];
 
-    if (hasVideo || hasText) {
-      items.push({ id: 'video',
-                   ico: hasVideo ? 'play_circle' : 'article',
-                   label: hasVideo ? 'الفيديو' : 'الشرح' });
-    }
+    if (hasVideo) items.push({ id: 'video', ico: 'play_circle', label: 'الفيديو' });
     if ((d.vocab || []).length) items.push({ id: 'vocab', ico: 'menu_book', label: 'المفردات' });
-    if (d.summary && d.summary.trim()) items.push({ id: 'summary', ico: 'description', label: 'الملخص' });
+    /* «الملخص» نصّ الدرس المكتوب (content) لا وصفه القصير (summary):
+       الوصف في الرأس فوق، وتكراره هنا سطرٌ يُقرأ مرّتين. */
+    if (hasText) items.push({ id: 'summary', ico: 'description', label: 'الملخص' });
     if (d.quiz_id) items.push({ id: 'quiz', ico: 'psychology', label: 'الاختبار' });
 
     if (!items.length) { bar.hidden = true; return; }
@@ -164,9 +162,13 @@
 
     /* الشارات: المستوى ثم ترتيب الدرس فيه — كلاهما من القاعدة */
     var chips = [];
+    /* الرمز يُسبق العنوان إلا إن كان العنوان يبدأ به أصلاً — وإلا
+       صار «A1 · A1 - المبتدئ» لأن الإدارة كتبت الرمز داخل الاسم.
+       نفس قاعدة lvName في الخارطة، فلا تفترق الصفحتان. */
     if (d.level_title) {
+      var t = String(d.level_title), c = String(d.level_code || '');
       chips.push('<span class="lchip lchip-a">' +
-        esc((d.level_code ? d.level_code + ' · ' : '') + d.level_title) + '</span>');
+        esc(!c || t.indexOf(c) === 0 ? t : c + ' · ' + t) + '</span>');
     }
     if (d.lesson_no) {
       chips.push('<span class="lchip">' +
@@ -187,6 +189,11 @@
     el('l-body').hidden = false;
     el('l-cards').hidden = false;
 
+    if (d.summary && d.summary.trim()) {
+      el('l-desc').hidden = false;
+      el('l-desc').textContent = d.summary.trim();
+    }
+
     if (d.duration_min) {
       el('l-time').hidden = false;
       el('l-time-v').textContent = num(d.duration_min) + ' دقيقة';
@@ -194,10 +201,8 @@
 
     video(d);
 
-    el('l-content').innerHTML = L.paras(d.content);
-
-    if (d.summary && d.summary.trim()) {
-      el('l-summary').innerHTML = L.paras(d.summary);
+    if (d.content && d.content.trim()) {
+      el('l-content').innerHTML = L.paras(d.content);
     }
 
     var v = d.vocab || [];

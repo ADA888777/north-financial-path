@@ -30,6 +30,9 @@
     <a class="lhero-back" href="map.html">العودة للخارطة<span class="ms">arrow_back</span></a>
     <div class="lhero-chips" id="l-chips"></div>
     <h1 id="l-title">—</h1>
+    <!-- وصف الدرس في رأسه: تقرؤه قبل أن تضغط «الفيديو» فتعرف
+         ما ستأخذه. كان لا يُعرض هنا أصلاً. -->
+    <p class="lhero-d" id="l-desc" hidden></p>
     <div class="lhero-cards" id="l-cards" hidden>
       <div class="lhero-c" id="l-time" hidden><span>الوقت</span><b id="l-time-v">—</b></div>
       <div class="lhero-c">
@@ -48,7 +51,6 @@
 
     <section class="lbox lpane" id="pane-video" role="tabpanel" hidden>
       <div id="l-video"></div>
-      <div class="prose" id="l-content"></div>
     </section>
 
     <section class="lbox lpane" id="pane-vocab" role="tabpanel" hidden>
@@ -56,9 +58,11 @@
       <div class="vocab" id="l-vocab"></div>
     </section>
 
+    <!-- «الملخص» نصّ الدرس المكتوب. وصفه القصير مكانه الرأس فوق،
+         فلا يُقال مرّتين في صفحةٍ واحدة. -->
     <section class="lbox lpane" id="pane-summary" role="tabpanel" hidden>
       <h2><span class="ms">description</span> الملخص</h2>
-      <div class="summary-box" id="l-summary"></div>
+      <div class="prose" id="l-content"></div>
     </section>
 
     <section class="lbox lpane quiz-cta" id="pane-quiz" role="tabpanel" hidden>

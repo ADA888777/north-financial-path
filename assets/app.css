@@ -16,6 +16,9 @@
 :root{
   --bg:#F3F6FA; --surface:#FFFFFF; --surface-2:#E9EFF6; --band:#FFFFFF;
   --fg:#0A1C30; --fg-2:#51657D; --fg-3:#7D8FA5;
+  /* نصّ القراءة الطويل أخفّ من العناوين: الأسود شبه التامّ يُتعب
+     العين على بياضٍ ناصع في فقرةٍ كاملة. 9.67:1 — فوق AAA بفرق. */
+  --prose:#33465C;
   --line:#DCE4EE; --line-2:#C9D5E3;
   --accent:#2A6AA8; --accent-2:#1E5287; --on-accent:#FFFFFF;
   --accent-wash:#E4EDF7;
@@ -41,7 +44,7 @@
 }
 @media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
   --bg:#060F1C; --surface:#0A1829; --surface-2:#0E2238; --band:#08131F;
-  --fg:#E9F0F8; --fg-2:#93A9C1; --fg-3:#6D839B;
+  --fg:#E9F0F8; --fg-2:#93A9C1; --fg-3:#6D839B; --prose:#D7E3F0;
   --line:rgba(147,169,193,.16); --line-2:rgba(147,169,193,.26);
   --accent:#6CA6E0; --accent-2:#8FBFEE; --on-accent:#06182B;
   --accent-wash:rgba(108,166,224,.12);
@@ -60,7 +63,7 @@
 }}
 :root[data-theme="dark"]{
   --bg:#060F1C; --surface:#0A1829; --surface-2:#0E2238; --band:#08131F;
-  --fg:#E9F0F8; --fg-2:#93A9C1; --fg-3:#6D839B;
+  --fg:#E9F0F8; --fg-2:#93A9C1; --fg-3:#6D839B; --prose:#D7E3F0;
   --line:rgba(147,169,193,.16); --line-2:rgba(147,169,193,.26);
   --accent:#6CA6E0; --accent-2:#8FBFEE; --on-accent:#06182B;
   --accent-wash:rgba(108,166,224,.12);

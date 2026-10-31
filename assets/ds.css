@@ -245,7 +245,10 @@ a.nrow:hover{border-color:color-mix(in srgb,var(--accent) 42%,var(--card-line));
 }
 
 /* تابع التعلم */
-.rsm-t{font-size:clamp(16px,2.2vw,19px);font-weight:700;line-height:1.5;margin-bottom:4px}
+/* اسم الدرس في بطاقة «تابع التعلم» أخفّ: البطاقة سطرٌ واحد
+   وعنوانٌ وزرّ، والعريض الثقيل فيها يصرخ بلا داعٍ. */
+.rsm-t{font-size:clamp(16px,2.2vw,19px);font-weight:600;line-height:1.6;
+  color:var(--prose,var(--fg));margin-bottom:4px}
 #resume-box .nbtn{margin-top:14px}
 
 /* مهام الإدارة */
