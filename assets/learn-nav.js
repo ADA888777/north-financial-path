@@ -17,7 +17,9 @@
     { href: 'challenge.html',     ico: 'bolt',               label: 'التحدي' },
     { href: 'assistant.html',     ico: 'auto_stories',       label: 'المعلم الذكي' },
     { href: 'live.html',          ico: 'live_tv',            label: 'الحصص المباشرة' },
-    { href: 'classes.html',       ico: 'person_raised_hand', label: 'الكلاسات الخاصة' },
+    /* الماسة لا اليد المرفوعة: الميزة حصرية لباقة، ورمزها في
+       القائمة هو نفسه الذي يتصدّر صفحتها. */
+    { href: 'classes.html',       ico: 'diamond',            label: 'الكلاسات الخاصة' },
     { href: 'notifications.html', ico: 'notifications',      label: 'الإشعارات' },
     { href: 'stories.html',       ico: 'military_tech',      label: 'قصص النجاح' },
     { href: 'account.html',       ico: 'account_circle',     label: 'الملف الشخصي' }
