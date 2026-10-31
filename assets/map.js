@@ -111,31 +111,33 @@
      رقمان منفصلان: ما تفتحه باقتها ويأتي بتقدّمها، وما يتطلّب باقة
      أعلى. جمعهما في رقم واحد يَعِدها بمحتوى لا تملكه. */
   function ahead(m) {
-    var inPlan = Number(m.upcoming_in_plan || 0);
     var higher = Number(m.upcoming_higher_plan || 0);
-    if (!inPlan && !higher) return '';
+    if (!higher) return '';
 
-    var lines = '';
-    if (inPlan) {
-      lines += '<p class="ah-l"><span class="ms">auto_awesome</span>' +
-        (inPlan === 1
-          ? 'هناك درس واحد في المستويات القادمة يظهر لك مع تقدّمك في المسار.'
-          : 'هناك ' + num(inPlan) + ' درساً في المستويات القادمة تظهر لك مع تقدّمك في المسار.') +
-        '</p>';
-    }
-    if (higher) {
-      lines += '<p class="ah-l mut"><span class="ms">workspace_premium</span>' +
-        'و' + num(higher) + ' درساً ضمن باقة أعلى.</p>';
-    }
+    /* عدد دروس المستويات القادمة لا يُذكر: المنهج يُكشف درساً درساً،
+       وذكرُ الرقم كشفٌ لما لم يُفتح. يبقى سطر الباقة الأعلى وحده
+       لأنه عرضُ ترقية لا استباقٌ للتدرّج. */
     return '<section class="ncard ahead">' +
-      '<span class="ntile"><span class="ms">explore</span></span>' +
-      '<div class="ah-b"><b>باقي لك محتوى أكثر تكتشفه مع تقدّمك</b>' + lines + '</div>' +
+      '<span class="ntile"><span class="ms">workspace_premium</span></span>' +
+      '<div class="ah-b"><b>محتوى إضافي في الباقة الأعلى</b>' +
+        '<p class="ah-l mut">' + num(higher) + ' درساً لا تفتحها باقتك الحالية.</p>' +
+      '</div>' +
     '</section>';
+  }
+
+  /* التعلّم تدريجي: ما لم يُفتح بعد لا يُعرض أصلاً — لا بطاقته ولا
+     عدد دروسه. يبقى ما أنهته (ترجع إليه متى شاءت) وما تفتحه الآن،
+     ويبقى المقفل بالباقة لأنه عرضُ ترقية لا مستوى «قادم» — لكن بلا
+     دروسه. */
+  function visible(l) {
+    return l.state === 'done' || l.state === 'open' || l.state === 'tier_locked';
   }
 
   function other(levels) {
     if (!levels.length) return '';
-    return '<h2 class="n-h2 sec-t">المستويات الأخرى</h2>' +
+    var allDone = levels.every(function (l) { return l.state === 'done'; });
+    return '<h2 class="n-h2 sec-t">' +
+      (allDone ? 'مستويات أنهيتِها' : 'مستوياتك الأخرى') + '</h2>' +
       levels.map(function (l) {
         var left = Math.max(0, (l.total || 0) - (l.done || 0));
         var tl = l.state === 'tier_locked';
@@ -166,7 +168,7 @@
              الحالي، فمن أنهت درساً وانتقلت تلقائياً لم تجد باباً
              ترجع منه إلى ما قبله. والقاعدة ترسلها أصلاً في my_map
              — الواجهة وحدها كانت تُسقطها. */
-          (weeksOf(l).length
+          (weeksOf(l).length && !tl
             ? '<button class="lv-o-more" type="button" data-open="' + esc(l.id) + '" ' +
                 'aria-expanded="false"><span class="ms">expand_more</span>' +
                 '<span>دروس هذا المستوى</span></button>' +
@@ -308,7 +310,9 @@
         el('map').innerHTML = '';
       }
 
-      var rest = levels.filter(function (l) { return !cur || l.id !== cur.id; });
+      var rest = levels.filter(function (l) {
+        return (!cur || l.id !== cur.id) && visible(l);
+      });
       el('m-other').innerHTML = other(rest);
       wireMore(rest);
 

@@ -11,6 +11,7 @@
 
   var DAYS = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
   var rows = [], avail = [], sessions = 0, busy = false, sheet = null, editing = null;
+  var photoPath = null, dropPhoto = false;
   /* النافذة المعتمدة وتقييمات الكوتشات — كلاهما من القاعدة.
      المتوسط محسوب من التقييمات المحفوظة، فلا يملك أحد كتابته. */
   var policy = { open_from: '18:00', open_to: '23:00' };
@@ -190,12 +191,21 @@
         '<div class="fld"><label for="co-job">الصفة</label>' +
           '<input id="co-job" type="text" maxlength="80" placeholder="محلل فني"></div>' +
         '<div class="fld"><label for="co-min">مدة الجلسة بالدقائق</label>' +
-          '<input id="co-min" type="number" min="15" max="180" step="15" value="60"></div>' +
+          '<input id="co-min" type="number" min="15" max="180" step="15" value="30"></div>' +
         '<div class="fld"><label for="co-tg">تيليجرام</label>' +
           '<input id="co-tg" type="text" dir="ltr" maxlength="60" placeholder="@username"></div>' +
       '</div>' +
       '<div class="fld"><label for="co-bio">نبذة</label>' +
         '<textarea id="co-bio" maxlength="300"></textarea></div>' +
+      '<div class="fld"><label for="co-photo">الصورة</label>' +
+        '<div class="co-ph"><span class="co-ph-v" id="co-ph-v"></span>' +
+          '<div class="co-ph-a">' +
+            '<input id="co-photo" type="file" accept="image/jpeg,image/png,image/webp">' +
+            '<button class="bt bt-ghost bt-sm" type="button" id="co-ph-x" hidden>' +
+              'احذفي الصورة</button>' +
+          '</div></div>' +
+        '<p class="hint">JPG أو PNG أو WebP، حتى ٣ ميجابايت. ' +
+          'تظهر للمشتركات في بطاقة الكوتش.</p></div>' +
       '<div class="grid2">' +
         '<div class="fld"><label for="co-sort">الترتيب</label>' +
           '<input id="co-sort" type="number" value="0"></div>' +
@@ -228,12 +238,42 @@
     el('co-err').style.display = 'none';
     el('co-name').value = c ? c.name : '';
     el('co-job').value = c ? (c.title || '') : '';
-    el('co-min').value = c ? c.slot_min : 60;
+    el('co-min').value = c ? c.slot_min : 30;
     el('co-tg').value = c ? (c.telegram || '') : '';
     el('co-bio').value = c ? (c.bio || '') : '';
     el('co-sort').value = c ? (c.sort_order || 0) : rows.length + 1;
     el('co-act').checked = c ? !!c.active : true;
+
+    photoPath = c ? (c.photo_path || null) : null;
+    dropPhoto = false;
+    el('co-photo').value = '';
+    paintPhoto();
+    el('co-ph-x').onclick = function () {
+      photoPath = null; dropPhoto = true; el('co-photo').value = ''; paintPhoto();
+    };
+    el('co-photo').onchange = paintPhoto;
+
     el('co-name').focus();
+  }
+
+  /* معاينة الصورة: ما تراه الإدارة هنا هو ما تراه المشتركة هناك،
+     والحرف الأول بديلٌ ظاهر حين لا صورة — لا مربّع فارغ. */
+  function photoUrl(path) {
+    if (!path) return '';
+    try {
+      var r = db.storage.from('coach-photos').getPublicUrl(path);
+      return (r && r.data && r.data.publicUrl) || '';
+    } catch (e) { return ''; }
+  }
+
+  function paintPhoto() {
+    var f = el('co-photo').files && el('co-photo').files[0];
+    var box = el('co-ph-v');
+    var url = f ? URL.createObjectURL(f) : photoUrl(photoPath);
+    box.innerHTML = url
+      ? '<img src="' + esc(url) + '" alt="">'
+      : esc(((el('co-name').value || '؟').trim().charAt(0)) || '؟');
+    el('co-ph-x').hidden = !(photoPath || f);
   }
 
   function save() {
@@ -246,12 +286,63 @@
     }
     busy = true;
     var b = el('co-save'); b.disabled = true; b.textContent = 'جارٍ الحفظ…';
+
+    uploadPhoto(b).then(function (path) {
+      savePayload(name, path, b);
+    }, function (err) {
+      busy = false; b.disabled = false; b.textContent = 'حفظ';
+      el('co-err').textContent = (err && err.message) || 'تعذّر رفع الصورة';
+      el('co-err').style.display = 'block';
+    });
+  }
+
+  /* الملف يُرفع قبل الصفّ: لو فشل الرفع لم يُكتب مسارٌ لا ملف له.
+     والاسم عشوائي لا باسم الملف — اسمٌ عربي أو مكرّر يكسر المسار. */
+  function uploadPhoto(b) {
+    var f = el('co-photo').files && el('co-photo').files[0];
+    if (!f) return Promise.resolve(dropPhoto ? null : photoPath);
+
+    if (f.size > 3 * 1024 * 1024) {
+      return Promise.reject(new Error('الصورة أكبر من ٣ ميجابايت. اختاري صورة أصغر.'));
+    }
+    b.textContent = 'جارٍ رفع الصورة…';
+
+    var ext = (f.name.match(/\.(jpe?g|png|webp)$/i) || ['.jpg'])[0].toLowerCase();
+    var key = 'c-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8) + ext;
+
+    return db.storage.from('coach-photos')
+      .upload(key, f, { contentType: f.type, upsert: false })
+      .then(function (r) {
+        if (r.error) throw new Error(upWhy(r.error));
+        return key;
+      });
+  }
+
+  function upWhy(e) {
+    var m = String((e && e.message) || '');
+    if (/exceeded the maximum|too large|413/i.test(m)) {
+      return 'الصورة أكبر من الحدّ المسموح في التخزين (٣ ميجابايت).';
+    }
+    if (/not found|bucket/i.test(m)) {
+      return 'دلو coach-photos غير موجود. شغّلي الهجرة ٤٥ أولاً.';
+    }
+    if (/mime|content type/i.test(m)) {
+      return 'نوع الملف غير مقبول. استعملي JPG أو PNG أو WebP.';
+    }
+    if (/policy|permission|403/i.test(m)) {
+      return 'الرفع مرفوض: هذا الحساب ليس أدمن في القاعدة.';
+    }
+    return m || 'تعذّر رفع الصورة';
+  }
+
+  function savePayload(name, path, b) {
     var payload = {
+      photo_path: path,
       name: name,
       title: el('co-job').value.trim(),
       bio: el('co-bio').value.trim(),
       telegram: el('co-tg').value.trim().replace(/^@/, '') || null,
-      slot_min: parseInt(el('co-min').value, 10) || 60,
+      slot_min: parseInt(el('co-min').value, 10) || 30,
       sort_order: parseInt(el('co-sort').value, 10) || 0,
       active: el('co-act').checked,
       updated_at: new Date().toISOString()

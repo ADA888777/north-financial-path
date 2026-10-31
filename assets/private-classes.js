@@ -6,6 +6,7 @@
 
   var DAYS = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
   var coaches = [], quota = {}, mine = [], picked = null, slots = [], busy = false;
+  var moving = null;   // حجزٌ تُعاد جدولته: اللوحة نفسها تخدم الحالتين
   var upgradePlan = null;   // أدنى باقة نشطة تمنح جلسات خاصة
 
   /* '18:00:00' → '٦ مساءً' */
@@ -145,6 +146,18 @@
       '</section>';
   }
 
+  /* صورة الكوتش: القاعدة ترسل المسار، والرابط العام تبنيه المكتبة
+     من عنوان المشروع. كانت الصفحة تقرأ photo_url والقاعدة ترسل
+     photo_path — اسمان لشيء واحد، فما ظهرت صورة قطّ. */
+  function photoUrl(c) {
+    var path = c && c.photo_path;
+    if (!path) return '';
+    try {
+      var r = db.storage.from('coach-photos').getPublicUrl(path);
+      return (r && r.data && r.data.publicUrl) || '';
+    } catch (e) { return ''; }
+  }
+
   /* ---------- الكوتشات ---------- */
   function drawCoaches() {
     if (!coaches.length) {
@@ -165,8 +178,8 @@
       return '<button type="button" class="co" aria-pressed="' +
         (picked === c.id ? 'true' : 'false') + '" data-coach="' + esc(c.id) + '">' +
         '<span class="co-av">' +
-          (c.photo_url
-            ? '<img src="' + esc(c.photo_url) + '" alt="">'
+          (photoUrl(c)
+            ? '<img src="' + esc(photoUrl(c)) + '" alt="" loading="lazy">'
             : esc((c.name || '؟').trim().charAt(0))) +
         '</span>' +
         '<span class="co-b"><b>' + esc(c.name) + '</b>' + rate + '</span>' +
@@ -255,23 +268,44 @@
     var m = byDay(), days = Object.keys(m).sort();
     var c = coaches.filter(function (x) { return x.id === picked; })[0] || {};
     var needTg = !!quota.require_telegram && !quota.telegram;
+    var mins = c.slot_min || quota.slot_min || 30;
 
+    /* اليوم والوقت مربّعات تُضغط لا قوائم منسدلة: المتعلمة ترى
+       أيامها المتاحة وأوقاتها دفعةً واحدة فتختار بنظرة، ولا تفتح
+       قائمةً لتعرف ما فيها. والكوتش يُختار من بطاقاته فوق، فلا
+       حاجة إلى قائمة ثالثة تكرّره. */
     bookPanel(
       '<div class="bk-form">' +
-        '<div class="nfld"><label for="bk-coach">الكوتش</label>' +
-          '<select id="bk-coach">' + coaches.map(function (x) {
-            return '<option value="' + esc(x.id) + '"' +
-              (x.id === picked ? ' selected' : '') + '>' + esc(x.name) + '</option>';
-          }).join('') + '</select></div>' +
+        (moving
+          ? '<div class="bk-move"><span class="ms">event_repeat</span>' +
+              '<span>تنقلين جلسة ' + esc(dayLabel(moving.starts_at)) + ' ' +
+                esc(timeLabel(moving.starts_at)) + ' إلى موعد جديد. ' +
+                'لا يُحتسب شيء من رصيدك.</span>' +
+              '<button type="button" class="bk-move-x" id="bk-move-x">تراجع</button>' +
+            '</div>'
+          : '') +
+        '<div class="bk-sec">' +
+          '<span class="bk-lbl">اليوم</span>' +
+          '<div class="bk-days" role="group" aria-label="اختاري اليوم">' +
+            days.map(function (k, i) {
+              var d0 = m[k][0].starts_at;
+              return '<button type="button" class="bk-day' + (i === 0 ? ' on' : '') +
+                '" data-day="' + esc(k) + '" aria-pressed="' + (i === 0) + '">' +
+                '<i>' + esc(riyadh(d0, { weekday: 'long' })) + '</i>' +
+                '<b>' + esc(riyadh(d0, { day: 'numeric' })) + '</b>' +
+                '<span>' + esc(riyadh(d0, { month: 'short' })) + '</span>' +
+                '<u>' + num(m[k].length) +
+                  (m[k].length === 1 ? ' موعد' : ' مواعيد') + '</u>' +
+              '</button>';
+            }).join('') +
+          '</div>' +
+        '</div>' +
 
-        '<div class="nfld"><label for="bk-date">اليوم</label>' +
-          '<select id="bk-date">' + days.map(function (k) {
-            return '<option value="' + esc(k) + '">' + esc(dayLabel(m[k][0].starts_at)) +
-              ' — ' + num(m[k].length) + ' موعد</option>';
-          }).join('') + '</select></div>' +
-
-        '<div class="nfld"><label for="bk-time">الوقت بتوقيت الرياض</label>' +
-          '<select id="bk-time"></select></div>' +
+        '<div class="bk-sec">' +
+          '<span class="bk-lbl">الوقت بتوقيت الرياض ' +
+            '<i class="bk-min">' + num(mins) + ' دقيقة</i></span>' +
+          '<div class="bk-times" id="bk-times" role="group" aria-label="اختاري الوقت"></div>' +
+        '</div>' +
 
         '<div class="nfld' + (needTg ? ' need' : '') + '">' +
           '<label for="bk-tg">اسم المستخدم في تيليجرام' +
@@ -286,30 +320,95 @@
         '</div>' +
 
         '<div class="nfld"><label for="bk-note">ما الذي تريدين تغطيته؟ (اختياري)</label>' +
-          '<input id="bk-note" type="text" maxlength="200"></div>' +
+          '<input id="bk-note" type="text" maxlength="200" ' +
+            'placeholder="مثال: قراءة الشموع وإدارة المخاطر"></div>' +
 
-        '<p class="bk-note"><span class="ms">schedule</span>' +
-          'الإلغاء قبل 12 ساعة فأكثر لا يُحتسب من رصيدك. الإلغاء المتأخر أو عدم الحضور يُحتسب.</p>' +
-
-        '<button class="nbtn nbtn-p nbtn-wide" type="button" id="bk-go">' +
-          'أكّدي الحجز مع ' + esc(c.name || 'الكوتش') + '</button>' +
+        '<button class="nbtn nbtn-p nbtn-wide" type="button" id="bk-go" disabled>' +
+          esc(goLabel(c, null)) + '</button>' +
         '<p class="nerr" id="bk-err" hidden></p>' +
       '</div>');
 
-    function fillTimes() {
-      var k = el('bk-date').value;
-      el('bk-time').innerHTML = (m[k] || []).map(function (x) {
-        return '<option value="' + esc(x.starts_at) + '">' +
-          esc(timeLabel(x.starts_at)) + '</option>';
-      }).join('');
-    }
-    fillTimes();
+    var chosen = null;
 
-    el('bk-date').addEventListener('change', fillTimes);
-    el('bk-coach').addEventListener('change', function () {
-      pick(el('bk-coach').value);
+    function paintGo() {
+      var b = el('bk-go');
+      b.disabled = !chosen;
+      b.textContent = goLabel(c, chosen);
+    }
+
+    function fillTimes(k) {
+      chosen = null;
+      el('bk-times').innerHTML = (m[k] || []).map(function (x) {
+        return '<button type="button" class="bk-time" data-at="' + esc(x.starts_at) +
+          '" aria-pressed="false">' + esc(timeLabel(x.starts_at)) + '</button>';
+      }).join('');
+      el('bk-times').querySelectorAll('[data-at]').forEach(function (t) {
+        t.addEventListener('click', function () {
+          el('bk-times').querySelectorAll('[data-at]').forEach(function (o) {
+            o.classList.remove('on'); o.setAttribute('aria-pressed', 'false');
+          });
+          t.classList.add('on'); t.setAttribute('aria-pressed', 'true');
+          chosen = t.getAttribute('data-at');
+          paintGo();
+        });
+      });
+      paintGo();
+    }
+    fillTimes(days[0]);
+
+    el('pc-book').querySelectorAll('[data-day]').forEach(function (d) {
+      d.addEventListener('click', function () {
+        el('pc-book').querySelectorAll('[data-day]').forEach(function (o) {
+          o.classList.remove('on'); o.setAttribute('aria-pressed', 'false');
+        });
+        d.classList.add('on'); d.setAttribute('aria-pressed', 'true');
+        fillTimes(d.getAttribute('data-day'));
+      });
     });
-    el('bk-go').addEventListener('click', function () { book(el('bk-time').value); });
+
+    el('bk-go').addEventListener('click', function () {
+      if (moving) { moveTo(chosen); } else { book(chosen); }
+    });
+
+    var x = el('bk-move-x');
+    if (x) x.addEventListener('click', function () { moving = null; drawBook(); });
+  }
+
+  /* الزرّ يقول اسم الكوتش والموعد: «أكّدي الحجز مع كوتش أميره —
+     ٦:٣٠ م». الفعل كاملاً قبل الضغط لا بعده. */
+  function goLabel(c, at) {
+    var who = c && c.name ? c.name : 'الكوتش';
+    if (moving) {
+      return at ? 'انقلي الجلسة إلى ' + timeLabel(at) : 'اختاري الموعد الجديد';
+    }
+    return at ? 'أكّدي الحجز مع ' + who + ' — ' + timeLabel(at)
+              : 'أكّدي الحجز مع ' + who;
+  }
+
+  function moveTo(at) {
+    if (busy || !at || !moving) return;
+    busy = true;
+    var b = el('bk-go'), label = b.textContent;
+    b.disabled = true; b.textContent = 'جارٍ النقل…';
+    el('bk-err').hidden = true;
+
+    db.rpc('reschedule_booking', { p_booking: moving.booking_id, p_start: at })
+      .then(function (r) {
+        busy = false; b.disabled = false; b.textContent = label;
+        var d = (r && r.data) || {};
+        if (r.error || d.error) {
+          var e = el('bk-err'); e.hidden = false;
+          e.textContent = d.error || r.error.message;
+          return;
+        }
+        moving = null;
+        reload(d.message);
+      })
+      .catch(function (err) {
+        busy = false; b.disabled = false; b.textContent = label;
+        var e = el('bk-err'); e.hidden = false;
+        e.textContent = (err && err.message) || 'تعذّر النقل';
+      });
   }
 
   function book(at) {
@@ -392,6 +491,11 @@
           (m.meeting_url
             ? '<a class="nbtn nbtn-p nbtn-sm" href="' + esc(m.meeting_url) +
               '" target="_blank" rel="noopener">دخول</a>' : '') +
+          /* إعادة الجدولة لا تُعرض إلا حين لا تُحتسب: دون الاثنتي
+             عشرة ساعة تبقى الإلغاء وحدها، صريحةً بأنها تُحتسب. */
+          (m.can_cancel && !m.late_if_cancel
+            ? '<button class="nbtn nbtn-g nbtn-sm" type="button" data-move="' +
+              esc(m.booking_id) + '">إعادة الجدولة</button>' : '') +
           (m.can_cancel
             ? '<button class="nbtn nbtn-g nbtn-sm" type="button" data-cancel="' +
               esc(m.booking_id) + '" data-late="' + (m.late_if_cancel ? '1' : '0') +
@@ -399,6 +503,20 @@
         '</span>' +
       '</div>';
     }).join('') + '</div>';
+
+    el('pc-mine').querySelectorAll('[data-move]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var id = b.getAttribute('data-move');
+        moving = rows.filter(function (x) { return x.booking_id === id; })[0] || null;
+        if (!moving) return;
+        /* الكوتش نفسه: النقل تغييرُ موعدٍ لا تغييرُ كوتش. من أرادت
+           كوتشاً آخر تلغي وتحجز من جديد. */
+        var cid = (coaches.filter(function (c) { return c.name === moving.coach; })[0] || {}).id;
+        if (cid && cid !== picked) { pick(cid); } else { drawBook(); }
+        var card = el('pc-book-card');
+        if (card) card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
 
     el('pc-mine').querySelectorAll('[data-cancel]').forEach(function (b) {
       b.addEventListener('click', function () {
@@ -525,11 +643,14 @@
       if (mins) el('pc-min').textContent = num(mins);
       var w = el('pc-window');
       if (w && quota.open_from && quota.open_to) {
-        var days = (quota.open_weekdays || []).map(function (d) { return DAYS[d]; });
-        w.textContent = (days.length
-            ? 'من ' + days[0] + ' إلى ' + days[days.length - 1]
-            : '') +
-          ' ' + hour12(quota.open_from) + ' إلى ' + hour12(quota.open_to);
+        var wd = (quota.open_weekdays || []).slice().sort(function (a, b) { return a - b; });
+        var days = wd.map(function (d) { return DAYS[d]; });
+        /* يومان متفرّقان لا يُقال فيهما «من … إلى …» */
+        var span = days.length > 2 ? 'من ' + days[0] + ' إلى ' + days[days.length - 1]
+                 : days.length ? days.join(' و')
+                 : '';
+        w.textContent = (span ? span + '، ' : '') +
+          'من ' + hour12(quota.open_from) + ' إلى ' + hour12(quota.open_to);
       }
       top(); drawMine();
 

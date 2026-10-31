@@ -57,8 +57,6 @@
     put('d-name', (window.northWho || function (n) { return n; })(
       p.full_name, p.membership_no));
     put('d-email', p.email || session.user.email);
-    put('d-user', p.username);
-    put('d-phone', p.phone);
     put('d-plan', p.plan);
     put('d-expires', p.subscription_expires_at ? fmt(p.subscription_expires_at) : 'بلا تاريخ انتهاء');
 

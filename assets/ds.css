@@ -519,6 +519,48 @@ a.pip:hover{transform:translateY(-1px)}
 .co[aria-pressed="true"] .ck{opacity:1}
 
 .bk-form{display:flex;flex-direction:column;gap:13px}
+
+/* اختيار اليوم والوقت: مربّعات تُضغط لا قوائم منسدلة.
+   الأيام صفٌّ يُمرَّر أفقياً كي لا تطول الصفحة بثلاثة أسابيع،
+   والأوقات شبكةٌ تُقرأ دفعةً واحدة. */
+.bk-sec{display:block;min-width:0}
+.bk-lbl{display:flex;align-items:center;justify-content:space-between;gap:10px;
+  font-size:13px;font-weight:700;color:var(--fg-2);margin-bottom:9px}
+.bk-min{font-style:normal;font-size:11.5px;font-weight:600;color:var(--fg-3);
+  background:var(--surface-2);border-radius:999px;padding:3px 9px}
+
+.bk-days{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;
+  scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch}
+.bk-days::-webkit-scrollbar{height:5px}
+.bk-days::-webkit-scrollbar-thumb{background:var(--line-2);border-radius:999px}
+.bk-day{flex:0 0 auto;scroll-snap-align:start;cursor:pointer;text-align:center;
+  border:1px solid var(--card-line);border-radius:var(--rt);background:var(--surface);
+  padding:9px 12px;min-width:74px;display:grid;gap:1px;transition:border-color .16s,background .16s}
+.bk-day:hover{border-color:var(--accent)}
+.bk-day i{font-style:normal;font-size:11.5px;color:var(--fg-3)}
+.bk-day b{font-family:var(--display);font-weight:900;font-size:19px;line-height:1.15}
+.bk-day span{font-size:11px;color:var(--fg-3)}
+.bk-day u{text-decoration:none;font-size:10.5px;color:var(--fg-3);margin-top:3px}
+.bk-day.on{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 9%,transparent)}
+.bk-day.on i,.bk-day.on b,.bk-day.on span,.bk-day.on u{color:var(--accent)}
+
+.bk-times{display:grid;gap:8px;grid-template-columns:repeat(auto-fill,minmax(88px,1fr))}
+.bk-time{cursor:pointer;font:inherit;font-size:13px;font-weight:600;min-height:40px;
+  border:1px solid var(--card-line);border-radius:var(--rt);background:var(--surface);
+  color:var(--fg);padding:8px 6px;transition:border-color .16s,background .16s,color .16s}
+.bk-time:hover{border-color:var(--accent)}
+.bk-time.on{border-color:var(--accent);background:var(--accent);color:var(--on-accent)}
+
+/* شريط إعادة الجدولة: اللوحة نفسها تخدم الحجز والنقل، فيقول
+   الشريط أيّهما يجري الآن. */
+.bk-move{display:flex;align-items:center;gap:9px;flex-wrap:wrap;font-size:12.5px;
+  line-height:1.75;border-radius:var(--rt);padding:11px 13px;
+  background:color-mix(in srgb,var(--accent) 8%,transparent);
+  border:1px solid color-mix(in srgb,var(--accent) 30%,transparent)}
+.bk-move .ms{font-size:18px;flex:0 0 auto;color:var(--accent)}
+.bk-move > span:not(.ms){flex:1;min-width:140px}
+.bk-move-x{font:inherit;font-size:12.5px;font-weight:700;cursor:pointer;color:var(--accent);
+  background:none;border:none;padding:4px 2px;text-decoration:underline}
 .bk-note{display:flex;gap:9px;font-size:12.5px;line-height:1.8;border-radius:var(--rt);
   padding:12px 14px;background:var(--flame-bg);border:1px solid var(--flame-line);
   color:var(--warn-title,#9A4A24)}
@@ -536,6 +578,13 @@ a.pip:hover{transform:translateY(-1px)}
 .ss-b b{display:block;font-size:14px;font-weight:700}
 .ss-b span{display:block;font-size:12px;color:var(--fg-3);margin-top:3px}
 .ss-a{flex:0 0 auto;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+/* زرّان في الصفّ (إعادة الجدولة والإلغاء) كانا يعصران نصّ الجلسة
+   إلى كلمة في كل سطر على الجوال. النصّ له أرضية، والأزرار تنزل
+   سطراً كاملاً حين تضيق الشاشة. */
+.ss-b{flex:1 1 150px}
+@media (max-width:560px){
+  .ss-a{flex-basis:100%;justify-content:flex-start}
+}
 .ss-p{flex-basis:100%;font-size:12.5px;color:var(--fg-2);line-height:1.8;margin-top:2px;
   padding-top:10px;border-top:1px solid var(--card-line)}
 .ss-b .cdn{display:inline-flex;margin-top:6px}
