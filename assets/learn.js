@@ -102,7 +102,7 @@
           (nx.done_all && nx.any_open
             ? 'أنهيتِ كل الدروس المتاحة في باقتك. راجعي أي درس متى شئتِ.'
             : 'لم يُفتح لكِ درس بعد.') + '</p>' +
-        '<a class="nbtn nbtn-p" href="map.html">كل المستويات والدروس</a>';
+        '<a class="nbtn nbtn-p" href="map.html#all">كل المستويات والدروس</a>';
       return;
     }
 
@@ -114,7 +114,7 @@
       '<div class="rsm-act">' +
         '<a class="nbtn nbtn-p" href="lesson.html?id=' + encodeURIComponent(nx.lesson_id) +
           (pos > 0 ? '&at=' + pos : '') + '">متابعة التعلم</a>' +
-        '<a class="n-link" href="map.html">كل المستويات والدروس' +
+        '<a class="n-link" href="map.html#all">كل المستويات والدروس' +
           '<span class="ms">chevron_left</span></a>' +
       '</div>';
   }
@@ -316,9 +316,10 @@
   L.guard().then(function (s) {
     if (!s) return;
 
-    /* PostgrestBuilder كائن thenable لا Promise، فلا يملك catch.
-       معالج الخطأ يمرَّر كوسيط ثانٍ لـ then. */
-    db.rpc('touch_activity').then(function () {}, function () {});
+    /* لا touch_activity هنا. كان فتح الصفحة وحده يوقد السلسلة،
+       فمن دخلت ولم تفعل شيئاً عُدّ يومها نشطاً. اليوم يُحتسب من
+       داخل القاعدة عند فعلٍ حقيقي: فتح درس، إنهاؤه، تسليم اختبار،
+       تحدّي مفردات، إنجاز مهمة. الزيارة وحدها ليست إنجازاً. */
 
     return Promise.all([
       db.rpc('my_dashboard'),

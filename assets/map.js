@@ -180,32 +180,49 @@
 
   /* الطيّ يُرسم عند أول فتح لا مع الصفحة: خمسة مستويات بدروسها
      كلها دفعةً واحدة صفحةٌ طويلة بلا داعٍ. */
+  var PANELS = [];
+
+  function setOpen(o, open) {
+    if (open && !o.box.innerHTML) {
+      var n = 1;
+      o.box.innerHTML = weeksOf(o.lvl).map(function (w) {
+        var html = week(w, n);
+        n += (w.lessons || []).length;
+        return html;
+      }).join('');
+    }
+    o.box.hidden = !open;
+    o.btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    o.btn.querySelector('.ms').textContent = open ? 'expand_less' : 'expand_more';
+    o.btn.querySelector('span:not(.ms)').textContent =
+      open ? 'إخفاء الدروس' : 'دروس هذا المستوى';
+  }
+
   function wireMore(levels) {
     var byId = {};
     levels.forEach(function (l) { byId[l.id] = l; });
+    PANELS = [];
 
     document.querySelectorAll('[data-open]').forEach(function (b) {
-      b.addEventListener('click', function () {
-        var id = b.getAttribute('data-open');
-        var box = document.getElementById('wk-' + id);
-        if (!box) return;
+      var id = b.getAttribute('data-open');
+      var box = document.getElementById('wk-' + id);
+      if (!box) return;
 
-        if (!box.innerHTML) {
-          var lv = byId[id], n = 1;
-          box.innerHTML = weeksOf(lv).map(function (w) {
-            var html = week(w, n);
-            n += (w.lessons || []).length;
-            return html;
-          }).join('');
-        }
-        var open = box.hidden;
-        box.hidden = !open;
-        b.setAttribute('aria-expanded', open ? 'true' : 'false');
-        b.querySelector('.ms').textContent = open ? 'expand_less' : 'expand_more';
-        b.querySelector('span:not(.ms)').textContent =
-          open ? 'إخفاء الدروس' : 'دروس هذا المستوى';
-      });
+      var o = { btn: b, box: box, lvl: byId[id] };
+      PANELS.push(o);
+      b.addEventListener('click', function () { setOpen(o, o.box.hidden); });
     });
+  }
+
+  /* «متابعة التعلم» في الخارطة: تفتح المستويات كلها بدروسها دفعةً
+     واحدة ثم تنزل بها إلى أولها. المستوى الحالي معروض أصلاً فوقها،
+     فما يُفتح هنا هو البقيّة. */
+  function openAll() {
+    PANELS.forEach(function (o) { setOpen(o, true); });
+
+    var top = el('m-current');
+    if (!top || !top.innerHTML) top = el('m-other');
+    if (top) top.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   function tiles(m) {
@@ -297,9 +314,20 @@
 
       el('m-ahead').innerHTML = ahead(m);
 
-      if (m.next_lesson) {
+      /* البطاقة لا تتعلّق بوجود درسٍ تالٍ: بابُ المنهج يُفتح حتى
+         لمن أنهت كل شيء — بل هي أحوج ما تكون إليه حينئذٍ. */
+      if (levels.length) {
         el('m-next').hidden = false;
-        el('m-go').href = 'lesson.html?id=' + encodeURIComponent(m.next_lesson);
+        el('m-go').addEventListener('click', openAll);
+
+        /* قدومٌ من «كل المستويات والدروس» في الرئيسية: تُفتح فوراً
+           بلا ضغطةٍ ثانية على زرٍّ لم تأتِ إلا من أجله. والمستمع
+           على hashchange لأن الانتقال من map.html إلى map.html#all
+           لا يعيد تحميل الصفحة، فلولاه لما حدث شيء. */
+        if (location.hash === '#all') openAll();
+        window.addEventListener('hashchange', function () {
+          if (location.hash === '#all') openAll();
+        });
       }
     });
   }).catch(function (e) {
