@@ -170,10 +170,21 @@
       /* التقييم بدل الوصف. المتوسط محسوب في القاعدة من تقييمات
          حقيقية مرتبطة بجلسات حضرتها صاحباتها — ولا نجوم بلا تقييم. */
       var n = Number(c.rating_count || 0);
+      var avg = Number(c.rating_avg || 0);
+
+      /* خمس نجوم ظاهرة دائماً: الممتلئ منها بقدر المتوسط، والباقي
+         مرسومٌ باهتاً. بلا تقييم تبقى الخمس باهتة والنصّ يقولها —
+         لا نجمة وهمية ولا صفر يُقرأ تقييماً سيئاً. */
+      var stars = '<span class="co-stars" aria-hidden="true">' +
+        [1, 2, 3, 4, 5].map(function (i) {
+          return '<span class="ms' + (i <= Math.round(avg) ? ' on' : '') + '">star</span>';
+        }).join('') + '</span>';
+
       var rate = n > 0
-        ? '<span class="co-rate"><span class="ms">star</span>' +
-            esc(c.rating_avg) + '<i>(' + num(n) + ')</i></span>'
-        : '<span class="co-rate none">لا توجد تقييمات بعد</span>';
+        ? '<span class="co-rate">' + stars +
+            '<b>' + esc(c.rating_avg) + '</b><i>(' + num(n) + ')</i></span>'
+        : '<span class="co-rate none">' + stars +
+            '<i>لا توجد تقييمات بعد</i></span>';
 
       return '<button type="button" class="co" aria-pressed="' +
         (picked === c.id ? 'true' : 'false') + '" data-coach="' + esc(c.id) + '">' +
@@ -284,8 +295,14 @@
               '<button type="button" class="bk-move-x" id="bk-move-x">تراجع</button>' +
             '</div>'
           : '') +
+        '<div class="nfld"><label for="bk-coach">الكوتش</label>' +
+          '<select id="bk-coach">' + coaches.map(function (x) {
+            return '<option value="' + esc(x.id) + '"' +
+              (x.id === picked ? ' selected' : '') + '>' + esc(x.name) + '</option>';
+          }).join('') + '</select></div>' +
+
         '<div class="bk-sec">' +
-          '<span class="bk-lbl">اليوم</span>' +
+          '<span class="bk-lbl">الموعد المتاح — اليوم</span>' +
           '<div class="bk-days" role="group" aria-label="اختاري اليوم">' +
             days.map(function (k, i) {
               var d0 = m[k][0].starts_at;
@@ -302,7 +319,7 @@
         '</div>' +
 
         '<div class="bk-sec">' +
-          '<span class="bk-lbl">الوقت بتوقيت الرياض ' +
+          '<span class="bk-lbl">الموعد المتاح — الوقت بتوقيت الرياض ' +
             '<i class="bk-min">' + num(mins) + ' دقيقة</i></span>' +
           '<div class="bk-times" id="bk-times" role="group" aria-label="اختاري الوقت"></div>' +
         '</div>' +
@@ -322,6 +339,12 @@
         '<div class="nfld"><label for="bk-note">ما الذي تريدين تغطيته؟ (اختياري)</label>' +
           '<input id="bk-note" type="text" maxlength="200" ' +
             'placeholder="مثال: قراءة الشموع وإدارة المخاطر"></div>' +
+
+        /* المربع الأصفر: السياسة عند لحظة القرار لا في بطاقةٍ أسفل
+           الصفحة وحدها. مطابقة لما تطبّقه cancel_booking فعلاً. */
+        '<p class="bk-note"><span class="ms">schedule</span>' +
+          'يمكنكِ الإلغاء أو إعادة الجدولة قبل الموعد بـ12 ساعة أو أكثر دون أن ' +
+          'يُحتسب من رصيدك. بعد ذلك تُحسب الجلسة من رصيد الشهر.</p>' +
 
         '<button class="nbtn nbtn-p nbtn-wide" type="button" id="bk-go" disabled>' +
           esc(goLabel(c, null)) + '</button>' +
@@ -365,6 +388,9 @@
         fillTimes(d.getAttribute('data-day'));
       });
     });
+
+    var sel = el('bk-coach');
+    if (sel) sel.addEventListener('change', function () { pick(sel.value); });
 
     el('bk-go').addEventListener('click', function () {
       if (moving) { moveTo(chosen); } else { book(chosen); }

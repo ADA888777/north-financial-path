@@ -642,3 +642,8 @@
 .lv-o-wk{margin-top:12px}
 .lv-o-wk[hidden]{display:none}
 .lv-o-wk .wk-card{margin-bottom:10px}
+
+/* رمز الماسة بجانب عنوان الكلاسات الخاصة: الميزة حصرية لباقة،
+   والرمز يقولها قبل أن يُقرأ سطر. */
+.pg-dia{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.pg-dia .ms{font-size:.85em;color:var(--accent)}

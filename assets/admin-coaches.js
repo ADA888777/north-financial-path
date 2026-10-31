@@ -191,7 +191,7 @@
         '<div class="fld"><label for="co-job">الصفة</label>' +
           '<input id="co-job" type="text" maxlength="80" placeholder="محلل فني"></div>' +
         '<div class="fld"><label for="co-min">مدة الجلسة بالدقائق</label>' +
-          '<input id="co-min" type="number" min="15" max="180" step="15" value="30"></div>' +
+          '<input id="co-min" type="number" min="15" max="180" step="15" value="60"></div>' +
         '<div class="fld"><label for="co-tg">تيليجرام</label>' +
           '<input id="co-tg" type="text" dir="ltr" maxlength="60" placeholder="@username"></div>' +
       '</div>' +
@@ -238,7 +238,7 @@
     el('co-err').style.display = 'none';
     el('co-name').value = c ? c.name : '';
     el('co-job').value = c ? (c.title || '') : '';
-    el('co-min').value = c ? c.slot_min : 30;
+    el('co-min').value = c ? c.slot_min : 60;
     el('co-tg').value = c ? (c.telegram || '') : '';
     el('co-bio').value = c ? (c.bio || '') : '';
     el('co-sort').value = c ? (c.sort_order || 0) : rows.length + 1;
@@ -342,7 +342,7 @@
       title: el('co-job').value.trim(),
       bio: el('co-bio').value.trim(),
       telegram: el('co-tg').value.trim().replace(/^@/, '') || null,
-      slot_min: parseInt(el('co-min').value, 10) || 30,
+      slot_min: parseInt(el('co-min').value, 10) || 60,
       sort_order: parseInt(el('co-sort').value, 10) || 0,
       active: el('co-act').checked,
       updated_at: new Date().toISOString()

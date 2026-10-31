@@ -97,7 +97,9 @@
     }
 
     box.innerHTML = '<div class="tbl-wrap"><table class="tbl"><thead><tr>' +
-      '<th>الاسم</th><th>اسم المستخدم</th><th>البريد</th>' +
+      /* «اسم المستخدم» رُفع: لا حقل يضبطه في الإضافة ولا في
+         التعديل، فعمودٌ لا يُملأ أبداً عرضٌ لفراغ. */
+      '<th>الاسم</th><th>البريد</th>' +
       '<th>الباقة</th><th>الاشتراك</th><th>ينتهي</th><th>الدور</th><th></th>' +
       '</tr></thead><tbody>' +
       view.map(function (p) {
@@ -106,7 +108,6 @@
              العميلة تنادي العضو بالاثنين معاً. */
           '<td>' + esc(p.full_name || '—') +
             ' <span class="mno">' + esc(no(p.membership_no)) + '</span></td>' +
-          '<td><span class="num">' + esc(p.username || '—') + '</span></td>' +
           '<td><span class="num muted">' + esc(p.email || '—') + '</span></td>' +
           '<td>' + esc(p.plan || '—') + '</td>' +
           '<td>' + subTag(p) + '</td>' +
@@ -174,7 +175,7 @@
     e.preventDefault();
     if (busy) return;
 
-    ['name', 'email', 'password', 'phone', 'username', 'membership'].forEach(function (n) { bad(n, ''); });
+    ['name', 'email', 'password', 'membership'].forEach(function (n) { bad(n, ''); });
 
     var name = el('m-name').value.trim();
     var email = el('m-email').value.trim();
@@ -184,12 +185,12 @@
     if (!name) { bad('name', 'اسم العميل مطلوب.'); problems++; }
     if (!email) { bad('email', 'البريد الإلكتروني مطلوب لإنشاء الحساب.'); problems++; }
     else if (!EMAIL.test(email)) { bad('email', 'صيغة البريد غير صحيحة.'); problems++; }
-    if (pass && pass.length < 8) { bad('password', 'كلمة المرور 8 خانات على الأقل، أو اتركها فارغة.'); problems++; }
 
-    var user = el('m-user').value.trim();
-    if (user && !/^[A-Za-z0-9._-]{3,32}$/.test(user)) {
-      bad('username', 'حروف لاتينية وأرقام ونقطة وشرطة فقط، 3 إلى 32 خانة.'); problems++;
-    }
+    /* كلمة المرور تكتبها الإدارة ولا تتولّد: من يسلّمها للعميلة
+       يجب أن يعرفها، والمولَّدة تُعرض مرّة ثم تضيع. */
+    if (!pass) { bad('password', 'اكتبي كلمة المرور — تسلّمينها للعميلة.'); problems++; }
+    else if (pass.length < 8) { bad('password', 'كلمة المرور 8 خانات على الأقل.'); problems++; }
+
     if (problems) return;
 
     busy = true;
@@ -211,14 +212,12 @@
       body: {
         full_name: name,
         email: email,
-        phone: el('m-phone').value.trim() || null,
         plan: el('m-plan').value,
-        username: user || null,
         membership_no: el('m-no').value.trim() || null,
         subscription_status: el('m-sub').value,
         subscription_expires_at: el('m-exp').value || null,
         status: el('m-status').value,
-        password: pass || null,
+        password: pass,
         site_url: window.location.origin + window.location.pathname.replace(/[^/]*$/, '')
       }
     }).then(function (r) {

@@ -73,11 +73,7 @@
             <input type="text" id="m-name" placeholder="الاسم كاملاً">
             <p class="bad-msg"></p>
           </div>
-          <div class="fld" data-fld="phone">
-            <label for="m-phone">الجوال</label>
-            <input type="text" id="m-phone" inputmode="tel" placeholder="05XXXXXXXX">
-            <p class="bad-msg"></p>
-          </div>
+          <div class="fld"></div>
         </div>
 
         <div class="grid2" style="margin-top:16px">
@@ -97,12 +93,7 @@
         </div>
 
         <div class="grid2" style="margin-top:16px">
-          <div class="fld" data-fld="username">
-            <label for="m-user">اسم المستخدم في المنصة</label>
-            <input type="text" id="m-user" dir="ltr" placeholder="nour.a">
-            <p class="hint">حروف لاتينية وأرقام ونقطة وشرطة، 3 إلى 32 خانة. فريد.</p>
-            <p class="bad-msg"></p>
-          </div>
+          <div class="fld"></div>
           <div class="fld" data-fld="membership">
             <label for="m-no">رقم العضوية</label>
             <input type="text" id="m-no" dir="ltr" inputmode="numeric"
@@ -144,9 +135,12 @@
 
         <div class="grid2" style="margin-top:16px">
           <div class="fld" data-fld="password">
-            <label for="m-pass">كلمة المرور الأولية</label>
-            <input type="text" id="m-pass" dir="ltr" placeholder="تتولّد تلقائياً">
-            <p class="hint">اتركها فارغة وتتولّد تلقائياً. يغيّرها المشترك بنفسه بعد أول دخول.</p>
+            <label for="m-pass">كلمة المرور <span class="req">*</span></label>
+            <input type="text" id="m-pass" dir="ltr" minlength="8"
+                   placeholder="ثماني خانات على الأقل" autocomplete="off">
+            <p class="hint">تكتبينها أنتِ وتسلّمينها للعميلة. لا تُحفظ كنصّ عندنا —
+              تُخزَّن مُجزَّأة في نظام المصادقة، فلا تظهر بعد الإنشاء ولا يمكن
+              استرجاعها. ولو نسيتها العميلة، أعيدي تعيينها من «بيانات الحساب».</p>
             <p class="bad-msg"></p>
           </div>
           <div class="fld"></div>
@@ -154,7 +148,8 @@
 
         <div class="panel-box" id="created" hidden style="margin-top:18px;background:var(--a-card-2)">
           <h2 style="font-size:16px;margin-bottom:14px">بيانات الدخول — انسخها الآن</h2>
-          <p class="sub" style="margin:-8px 0 16px">لن تُعرض كلمة المرور مرة أخرى. الأفضل إرسال رابط تعيين كلمة المرور.</p>
+          <p class="sub" style="margin:-8px 0 16px">كلمة المرور هي التي كتبتِها — لن تُعرض هنا مرة أخرى.
+            ولو نسيتها العميلة، اضبطي لها واحدة جديدة من «بيانات الحساب».</p>
           <dl class="acct-rows wide" style="margin:0;padding:0;display:flex;flex-direction:column;gap:12px">
             <div style="display:flex;justify-content:space-between;gap:12px"><dt style="color:var(--a-fg-2);font-size:13px">البريد</dt><dd class="num" id="c-email" style="margin:0"></dd></div>
             <div style="display:flex;justify-content:space-between;gap:12px"><dt style="color:var(--a-fg-2);font-size:13px">رقم العضوية</dt><dd class="num" id="c-no" style="margin:0"></dd></div>

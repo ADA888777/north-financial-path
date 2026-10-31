@@ -23,13 +23,6 @@ function reply(body: unknown, status = 200) {
   });
 }
 
-function randomPassword(): string {
-  // بلا أحرف يسهل الخلط بينها: 0/O و 1/l/I
-  const chars = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
-  const bytes = crypto.getRandomValues(new Uint8Array(12));
-  return Array.from(bytes, (b) => chars[b % chars.length]).join('');
-}
-
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS });
   if (req.method !== 'POST') return reply({ error: 'POST فقط' }, 405);
@@ -103,7 +96,11 @@ Deno.serve(async (req) => {
     }
   }
 
-  const password = body.password ? String(body.password) : randomPassword();
+  // كلمة المرور تكتبها الإدارة ولا تتولّد: من يسلّمها للعميلة يجب أن
+  // يعرفها، والمولَّدة تُعرض مرّة ثم تضيع. ولا تُخزَّن عندنا نصّاً —
+  // تذهب إلى نظام المصادقة فيُجزّئها، ولا تعود منه أبداً.
+  const password = body.password ? String(body.password) : '';
+  if (!password) return reply({ error: 'اكتبي كلمة المرور — تسلّمينها للعميلة' }, 400);
   if (password.length < 8) return reply({ error: 'كلمة المرور 8 خانات على الأقل' }, 400);
 
   // الحساب مؤكَّد مباشرة: الإدارة هي من أنشأه، فلا حاجة لبريد تأكيد.
@@ -134,7 +131,9 @@ Deno.serve(async (req) => {
     subscription_status: subStatus,
     subscription_expires_at: subExpires,
     status: acctStatus,
-    must_change_password: true,
+    // الإدارة تضبط كل شيء ولا تملك العميلة تغيير كلمة مرورها من
+    // حسابها، فإلزامها بتغييرها بابٌ لا تجده مفتوحاً.
+    must_change_password: false,
     created_by: userData.user.id,
   };
   if (membershipNo) patch.membership_no = membershipNo;

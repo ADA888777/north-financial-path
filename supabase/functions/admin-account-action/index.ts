@@ -54,13 +54,13 @@ Deno.serve(async (req) => {
   const reason = body.reason ? String(body.reason).slice(0, 300) : null;
 
   if (!/^[0-9a-f-]{36}$/i.test(userId)) return reply({ error: 'معرّف غير صالح' }, 400);
-  if (!['suspend', 'activate', 'delete'].includes(action)) {
+  if (!['suspend', 'activate', 'delete', 'set_password'].includes(action)) {
     return reply({ error: 'عملية غير معروفة' }, 400);
   }
 
   // 3) الضوابط من القاعدة لا من هنا: مرجع واحد لا قاعدتان تفترقان.
   //    التفعيل وحده لا يحتاجها — إعادة حساب إلى العمل لا تقفل باباً.
-  if (action !== 'activate') {
+  if (action !== 'activate' && action !== 'set_password') {
     const { data: may, error: mayErr } = await asCaller.rpc('admin_may_act', {
       p_user: userId, p_action: action,
     });
@@ -90,6 +90,34 @@ Deno.serve(async (req) => {
         ? 'عُطِّل الحساب في المنصة، لكن تعذّر حظره في نظام المصادقة: ' + banErr.message +
           ' — قد تبقى جلسة قائمة تعمل حتى تنتهي.'
         : 'عُطِّل الحساب وأُنهيت جلساته. بياناته وسجلّه محفوظة.',
+    });
+  }
+
+  // ---------- كلمة مرور جديدة ----------
+  //
+  // الإدارة تضبط كل شيء في هذه المنصة، والعميلة لا تملك تغيير كلمة
+  // مرورها من حسابها. فحين تنساها، البديل عن رابطٍ يصل بريدها أن
+  // تكتب لها الإدارة واحدة جديدة وتسلّمها إياها.
+  //
+  // ما يُكتب هنا يذهب إلى نظام المصادقة فيُجزّئه ولا يعود منه. لا
+  // يُحفظ في جدول ولا يُردّ في الجواب: الإدارة تعرفه لأنها كتبته،
+  // لا لأننا خزّناه. والسجلّ يحفظ أن العملية جرت، لا ما كُتب فيها.
+  if (action === 'set_password') {
+    const pw = String(body.password ?? '');
+    if (pw.length < 8) return reply({ error: 'كلمة المرور 8 خانات على الأقل' }, 400);
+    if (pw.length > 72) return reply({ error: 'كلمة المرور أطول من 72 خانة' }, 400);
+
+    const { error: pwErr } = await admin.auth.admin.updateUserById(userId, {
+      password: pw,
+    });
+    if (pwErr) return reply({ error: 'تعذّر تغيير كلمة المرور: ' + pwErr.message }, 500);
+
+    // التسجيل بعد النجاح لا قبله: سجلٌّ يقول ما لم يحدث أسوأ من لا سجلّ
+    await asCaller.rpc('admin_log_password_set', { p_user: userId });
+
+    return reply({
+      ok: true,
+      message: 'ضُبطت كلمة المرور الجديدة. سلّميها للعميلة — لن تُعرض مرة أخرى.',
     });
   }
 

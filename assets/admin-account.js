@@ -95,22 +95,12 @@
           'يُذكر فيه اسمها. يُكتب كما تريده هي، بالعربية أو اللاتينية.</p>' +
         '<div class="fld"><label for="a-name">الاسم الظاهر</label>' +
           '<input id="a-name" type="text" maxlength="80"></div>' +
-        '<div class="fld"><label for="a-phone">الجوال</label>' +
-          '<input id="a-phone" type="text" dir="ltr" maxlength="20" placeholder="05XXXXXXXX"></div>' +
-        '<button class="bt bt-main" type="button" id="do-name">احفظ الاسم والجوال</button>' +
+        '<button class="bt bt-main" type="button" id="do-name">احفظ الاسم</button>' +
       '</div>' +
 
-      '<div class="sub-act">' +
-        '<h3>اسم المستخدم</h3>' +
-        '<p class="sub-h"><b>ليس اسم الدخول.</b> الدخول بالبريد وكلمة المرور وحدهما. ' +
-          'اسم المستخدم معرّف تنظيمي اختياري للإدارة، ويبقى فارغاً بلا أي أثر على ' +
-          'العميلة. تغييره لا يغيّر الاسم الظاهر.</p>' +
-        '<div class="fld"><label for="a-user">اسم المستخدم</label>' +
-          '<input id="a-user" type="text" dir="ltr" maxlength="32" placeholder="اتركه فارغاً لمحوه">' +
-          '<span class="hint">حروف لاتينية وأرقام ونقطة وشرطة، من 3 إلى 32 خانة. لا يتكرّر بين عضوين.</span></div>' +
-        '<button class="bt bt-ghost" type="button" id="do-user">احفظ اسم المستخدم</button>' +
-      '</div>' +
-
+      /* حُذف قسما «الجوال» و«اسم المستخدم»: الاسم الكامل يكفي
+         للتعريف بالعضوة، والدخول بالبريد وكلمة المرور وحدهما —
+         فحقلٌ لا يُستعمل في شيء بابُ خطأٍ بلا مقابل. */
       '<div class="sub-act">' +
         '<h3>رقم العضوية</h3>' +
         '<p class="sub-h">عدد تسلسلي واحد لكل حساب. يُمنح تلقائياً عند ' +
@@ -144,9 +134,16 @@
 
       '<div class="sub-act">' +
         '<h3>كلمة المرور</h3>' +
-        '<p class="sub-h">كلمة المرور مخزّنة مُعمّاة في نظام المصادقة، فلا يمكن عرضها ' +
-          'لا لكِ ولا لأحد، وهذا هو الصحيح. المتاح إرسال رابط إعادة تعيين إلى بريد ' +
-          'العميلة لتختار كلمة جديدة بنفسها.</p>' +
+        '<p class="sub-h">الكلمة الحالية لا تُعرض — تُخزَّن مُجزَّأة في نظام ' +
+          'المصادقة ولا تعود منه، وهذا هو الصحيح. ما تستطيعينه كتابة ' +
+          '<b>كلمة جديدة</b> تسلّمينها للعميلة، فتحلّ محلّ القديمة فوراً.</p>' +
+        '<div class="fld"><label for="a-pass">كلمة المرور الجديدة</label>' +
+          '<input id="a-pass" type="text" dir="ltr" minlength="8" maxlength="72" ' +
+            'autocomplete="off" placeholder="ثماني خانات على الأقل">' +
+          '<span class="hint">لن تُعرض بعد الحفظ، فانسخيها قبل أن تضغطي.</span></div>' +
+        '<button class="bt bt-ghost" type="button" id="do-pass">اضبطي كلمة المرور</button>' +
+        '<p class="sub-h" id="pass-note" hidden></p>' +
+        '<p class="sub-h">أو أرسلي رابطاً إلى بريدها لتختار هي كلمةً بنفسها:</p>' +
         '<button class="bt bt-ghost" type="button" id="do-reset">أرسل رابط إعادة التعيين</button>' +
         '<p class="sub-h" id="reset-note" hidden></p>' +
       '</div>' +
@@ -187,8 +184,7 @@
       '</div>';
 
     el('a-name').value = m.full_name || '';
-    el('a-phone').value = m.phone || '';
-    el('a-user').value = m.username || '';
+
     el('a-no').value = m.membership_no || '';
     /* المخزَّن هو المعروض بعد الهجرة ٤٢، لكن السطر يبقى: قاعدةٌ لم
        تُهاجَر بعد قد تحمل «N-2026-0003»، والمعاينة تُري الإدارة ما
@@ -203,7 +199,7 @@
     el('a-email').value = m.email || '';
 
     el('do-name').addEventListener('click', saveName);
-    el('do-user').addEventListener('click', saveUser);
+    el('do-pass').addEventListener('click', setPassword);
     el('do-no').addEventListener('click', saveNo);
     el('do-email').addEventListener('click', saveEmail);
     el('do-reset').addEventListener('click', sendReset);
@@ -324,20 +320,53 @@
     run(el('do-name'), function () {
       return db.rpc('admin_update_member', {
         p_user: cur.id,
-        p_full_name: el('a-name').value,
-        p_phone: el('a-phone').value,
-        p_set_phone: true
+        p_full_name: el('a-name').value
       });
     });
   }
 
-  function saveUser() {
-    run(el('do-user'), function () {
-      return db.rpc('admin_update_member', {
-        p_user: cur.id,
-        p_username: el('a-user').value,
-        p_set_username: true
-      });
+  /* كلمة المرور تمرّ بـ Edge Function لأنها تحتاج service_role،
+     ولا تعود في الجواب ولا تُكتب في جدول: الإدارة تعرفها لأنها
+     كتبتها لا لأننا خزّناها. والحقل يُفرَّغ بعد الحفظ فلا تبقى
+     على الشاشة لمن يمرّ بعدها. */
+  function setPassword() {
+    if (busy || !cur) return;
+    var pw = (el('a-pass').value || '').trim();
+    var note = el('pass-note');
+
+    if (pw.length < 8) {
+      note.hidden = false;
+      note.textContent = 'كلمة المرور 8 خانات على الأقل.';
+      el('a-pass').focus();
+      return;
+    }
+    if (!window.confirm('ضبط كلمة مرور جديدة لـ' +
+        (cur.full_name || cur.email || 'هذه العضوة') +
+        '؟\n\nتحلّ محلّ القديمة فوراً، ولن تُعرض بعد الحفظ.')) return;
+
+    busy = true;
+    var b = el('do-pass'), label = b.textContent;
+    b.disabled = true; b.textContent = 'جارٍ الضبط…';
+    note.hidden = true;
+
+    db.functions.invoke('admin-account-action', {
+      body: { action: 'set_password', user_id: cur.id, password: pw }
+    }).then(function (r) {
+      busy = false; b.disabled = false; b.textContent = label;
+      var d = (r && r.data) || {};
+      if (r.error || d.error) {
+        note.hidden = false;
+        note.textContent = d.error || (r.error && r.error.message) || 'تعذّر الضبط';
+        return;
+      }
+      el('a-pass').value = '';
+      note.hidden = false;
+      note.textContent = d.message || 'ضُبطت كلمة المرور.';
+      A.toast('ضُبطت كلمة المرور', 'ok');
+    }).catch(function (e) {
+      busy = false; b.disabled = false; b.textContent = label;
+      note.hidden = false;
+      note.textContent = (e && e.message) || 'تعذّر الضبط';
     });
   }
 
