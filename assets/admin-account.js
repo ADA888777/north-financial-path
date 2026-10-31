@@ -147,6 +147,16 @@
         '<p class="sub-h" id="reset-note" hidden></p>' +
       '</div>' +
 
+      '<div class="sub-act">' +
+        '<h3>تصفير التقدّم</h3>' +
+        '<p class="sub-h">نسبة التقدّم تُحسب من الدروس المنجزة ولا تُكتب يدوياً، ' +
+          'فتصفيرها يعني حذف ما أُنجز: الدروس المكتملة ومواضع التوقّف ومحاولات ' +
+          'الاختبارات. وبحذفها تعود الدروس مقفلةً من أولها. ' +
+          '<b>لا يُمسّ</b> الاشتراك ولا الباقة ولا الحجوزات ولا التقييمات. ' +
+          'مفيد لحساب جرّبتِ عليه.</p>' +
+        '<button class="bt bt-ghost danger-btn" type="button" id="do-zero">صفّري التقدّم…</button>' +
+      '</div>' +
+
       '<div class="sub-act danger">' +
         '<h3>حالة الحساب</h3>' +
         (m.account_status === 'active'
@@ -192,6 +202,7 @@
     el('do-no').addEventListener('click', saveNo);
     el('do-email').addEventListener('click', saveEmail);
     el('do-reset').addEventListener('click', sendReset);
+    el('do-zero').addEventListener('click', zeroProgress);
 
     var sus = el('do-suspend'); if (sus) sus.addEventListener('click', suspend);
     var act = el('do-activate'); if (act) act.addEventListener('click', activate);
@@ -322,6 +333,21 @@
         p_username: el('a-user').value,
         p_set_username: true
       });
+    });
+  }
+
+  /* حذفٌ لا رجعة فيه: التأكيد يكتب ما سيُحذف لا «هل أنت متأكد؟» */
+  function zeroProgress() {
+    if (busy || !cur) return;
+    var who = cur.full_name || cur.email || cur.membership_no || 'هذه العضوة';
+    if (!window.confirm(
+      'تصفير تقدّم ' + who + '؟\n\n' +
+      'يُحذف: الدروس المنجزة، ومواضع التوقّف، ومحاولات الاختبارات.\n' +
+      'تعود الدروس مقفلةً من أولها.\n\n' +
+      'لا يُمسّ الاشتراك ولا الباقة ولا الحجوزات. لا رجعة في هذا.')) return;
+
+    run(el('do-zero'), function () {
+      return db.rpc('admin_reset_member_progress', { p_user: cur.id });
     });
   }
 

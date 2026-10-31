@@ -161,8 +161,51 @@
               : '<div class="nbar-row"><span>' + num(l.percent || 0) + '% مكتمل</span>' +
                   '<span>' + (l.state === 'locked' ? 'يفتح بعد تقدمك' : 'متاح لك') + '</span></div>' +
                 '<div class="nbar sm"><i style="width:' + num(l.percent || 0) + '%"></i></div>') +
+
+          /* دروس المستوى تحته، مطويّة. كانت لا تظهر إلا للمستوى
+             الحالي، فمن أنهت درساً وانتقلت تلقائياً لم تجد باباً
+             ترجع منه إلى ما قبله. والقاعدة ترسلها أصلاً في my_map
+             — الواجهة وحدها كانت تُسقطها. */
+          (weeksOf(l).length
+            ? '<button class="lv-o-more" type="button" data-open="' + esc(l.id) + '" ' +
+                'aria-expanded="false"><span class="ms">expand_more</span>' +
+                '<span>دروس هذا المستوى</span></button>' +
+              '<div class="lv-o-wk" id="wk-' + esc(l.id) + '" hidden></div>'
+            : '') +
         '</section>';
       }).join('');
+  }
+
+  function weeksOf(l) { return (l && l.weeks) || []; }
+
+  /* الطيّ يُرسم عند أول فتح لا مع الصفحة: خمسة مستويات بدروسها
+     كلها دفعةً واحدة صفحةٌ طويلة بلا داعٍ. */
+  function wireMore(levels) {
+    var byId = {};
+    levels.forEach(function (l) { byId[l.id] = l; });
+
+    document.querySelectorAll('[data-open]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var id = b.getAttribute('data-open');
+        var box = document.getElementById('wk-' + id);
+        if (!box) return;
+
+        if (!box.innerHTML) {
+          var lv = byId[id], n = 1;
+          box.innerHTML = weeksOf(lv).map(function (w) {
+            var html = week(w, n);
+            n += (w.lessons || []).length;
+            return html;
+          }).join('');
+        }
+        var open = box.hidden;
+        box.hidden = !open;
+        b.setAttribute('aria-expanded', open ? 'true' : 'false');
+        b.querySelector('.ms').textContent = open ? 'expand_less' : 'expand_more';
+        b.querySelector('span:not(.ms)').textContent =
+          open ? 'إخفاء الدروس' : 'دروس هذا المستوى';
+      });
+    });
   }
 
   function tiles(m) {
@@ -248,9 +291,9 @@
         el('map').innerHTML = '';
       }
 
-      el('m-other').innerHTML = other(levels.filter(function (l) {
-        return !cur || l.id !== cur.id;
-      }));
+      var rest = levels.filter(function (l) { return !cur || l.id !== cur.id; });
+      el('m-other').innerHTML = other(rest);
+      wireMore(rest);
 
       el('m-ahead').innerHTML = ahead(m);
 
