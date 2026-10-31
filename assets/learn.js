@@ -96,27 +96,25 @@
     var head = '<div class="nhead"><span class="ms">play_circle</span><h2>تابع التعلم</h2></div>';
     nx = nx || {};
 
+    /* ثلاثة أسطر لا أكثر: العنوان، واسم الدرس، وزرٌّ واحد.
+       كانت البطاقة تضيف اسم المستوى وموضع التوقّف ورابطاً ثانياً
+       إلى الخارطة — وكلّها تؤخّر الفعل الوحيد الذي جاءت له. والموضع
+       يبقى في الرابط فتُستأنف من حيث وقفت، وإن لم يُكتب على الشاشة. */
     if (nx.done_all || !nx.lesson_id) {
       el('resume-box').innerHTML = head +
         '<p class="n-sub">' +
           (nx.done_all && nx.any_open
-            ? 'أنهيتِ كل الدروس المتاحة في باقتك. راجعي أي درس متى شئتِ.'
+            ? 'كل الدروس المتاحة مكتملة حالياً.'
             : 'لم يُفتح لكِ درس بعد.') + '</p>' +
-        '<a class="nbtn nbtn-p" href="map.html#all">كل المستويات والدروس</a>';
+        '<a class="nbtn nbtn-p" href="map.html#all">متابعة التعلم</a>';
       return;
     }
 
     var pos = Number(nx.pos) || 0;
     el('resume-box').innerHTML = head +
       '<p class="rsm-t">' + esc(nx.title) + '</p>' +
-      (nx.level ? '<p class="n-mut">' + esc(nx.level) + '</p>' : '') +
-      (pos > 0 ? '<p class="n-mut">توقفت عند ' + num(pos) + '% من الدرس</p>' : '') +
-      '<div class="rsm-act">' +
-        '<a class="nbtn nbtn-p" href="lesson.html?id=' + encodeURIComponent(nx.lesson_id) +
-          (pos > 0 ? '&at=' + pos : '') + '">متابعة التعلم</a>' +
-        '<a class="n-link" href="map.html#all">كل المستويات والدروس' +
-          '<span class="ms">chevron_left</span></a>' +
-      '</div>';
+      '<a class="nbtn nbtn-p" href="lesson.html?id=' + encodeURIComponent(nx.lesson_id) +
+        (pos > 0 ? '&at=' + pos : '') + '">متابعة التعلم</a>';
   }
 
   /* ---------- 4) مهام اليوم ---------- */
