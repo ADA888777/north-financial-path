@@ -245,9 +245,9 @@ a.nrow:hover{border-color:color-mix(in srgb,var(--accent) 42%,var(--card-line));
 }
 
 /* تابع التعلم */
-/* اسم الدرس في بطاقة «تابع التعلم» أخفّ: العنوان وحده يحمل
-   الثقل، والسطر تحته يُقرأ لا يصرخ. كان ٦٠٠ فبدا عنواناً ثانياً. */
-.rsm-t{font-size:clamp(16px,2.2vw,19px);font-weight:400;line-height:1.6;
+/* اسم الدرس في بطاقة «تابع التعلم» بوزن عناوين الدروس في بقيّة
+   الموقع (٧٠٠): عند ٤٠٠ بدا كأنه خطٌّ آخر بجوار العنوان والزرّ. */
+.rsm-t{font-size:clamp(16px,2.2vw,19px);font-weight:700;line-height:1.6;
   color:var(--prose,var(--fg));margin-bottom:4px}
 #resume-box .nbtn{margin-top:14px}
 

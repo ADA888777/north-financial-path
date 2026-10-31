@@ -41,7 +41,13 @@
      تبقى قيمة قديمة تظهر على صفحة لم تُحمَّل فيها نظام التصميم. */
   --display:'Cairo','Cairo Fallback',system-ui,sans-serif;
   --body:'Cairo','Cairo Fallback',system-ui,sans-serif;
-  --mono:'IBM Plex Mono',ui-monospace,monospace;
+  /* خطٌّ واحد في الموقع كلّه. كان الرقم والرمز بخطٍّ ثانٍ
+     (IBM Plex Mono) فيُقرأ كأنه من موقعٍ آخر. بقي الاسم
+     --mono لأن عشرات القواعد تناديه، وصار يشير إلى كايرو.
+     واصطفاف الأرقام في الجداول يأتي من tabular-nums لا من
+     خطٍّ ثابت العرض. والشيفرة وحدها تبقى monospace. */
+  --mono:'Cairo','Cairo Fallback',system-ui,sans-serif;
+  --code:ui-monospace,SFMono-Regular,Menlo,monospace;
   --serif:'Cairo','Cairo Fallback',system-ui,sans-serif;
   --rp:14px; --rb:10px;
   color-scheme:light;

@@ -107,10 +107,12 @@ body.adm-body::after{opacity:.35}
 }
 .tbl td{padding:14px 12px;border-bottom:1px solid var(--a-line);color:var(--a-fg);vertical-align:middle}
 .tbl tr:last-child td{border-bottom:none}
-.tbl .num{font-family:var(--mono);font-size:12.5px;direction:ltr;display:inline-block}
+.tbl .num{font-family:var(--mono);font-variant-numeric:tabular-nums;
+  font-size:12.5px;direction:ltr;display:inline-block}
 /* رقم العضوية بجانب الاسم: واضح وثابت في كل جدول، وأخفّ من الاسم
    كي يُقرأ الاسم أولاً. ltr لأن #46 رقم لاتيني في سطر عربي. */
-.mno{font-family:var(--mono);font-size:12px;direction:ltr;unicode-bidi:isolate;
+.mno{font-family:var(--mono);font-variant-numeric:tabular-nums;
+  font-size:12px;direction:ltr;unicode-bidi:isolate;
      display:inline-block;color:var(--a-fg-2);white-space:nowrap;margin-inline-start:2px}
 .tbl .muted{color:var(--a-fg-2)}
 .tbl-wrap{overflow-x:auto}
@@ -156,7 +158,7 @@ body.adm-body::after{opacity:.35}
   padding:40px 24px;text-align:center;color:var(--a-fg-2);font-size:14.5px;line-height:1.9;
 }
 .state .ms{font-size:34px;color:var(--a-fg-3);display:block;margin-bottom:12px}
-.state code{font-family:var(--mono);font-size:12.5px;background:var(--a-bg);padding:2px 7px;border-radius:5px}
+.state code{font-family:var(--code,ui-monospace,monospace);font-size:12.5px;background:var(--a-bg);padding:2px 7px;border-radius:5px}
 
 .note-box{
   display:flex;gap:11px;align-items:flex-start;border-radius:12px;padding:15px 17px;
@@ -164,7 +166,7 @@ body.adm-body::after{opacity:.35}
   background:rgba(217,164,65,.11);border:1px solid rgba(217,164,65,.28);color:#E3C58C;
 }
 .note-box .ms{font-size:19px;color:var(--a-warn);flex-shrink:0;margin-top:2px}
-.note-box code{font-family:var(--mono);font-size:12.5px}
+.note-box code{font-family:var(--code,ui-monospace,monospace);font-size:12.5px}
 
 .toast{
   position:fixed;inset-inline:0;bottom:calc(18px + env(safe-area-inset-bottom,0px));z-index:90;

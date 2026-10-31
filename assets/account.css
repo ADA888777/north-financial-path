@@ -39,7 +39,7 @@
 .acct-rows > div{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
 .acct-rows dt{font-size:12.5px;color:var(--fg-2);margin:0}
 .acct-rows dd{margin:0;font-size:13.5px;font-weight:600;text-align:left;overflow-wrap:anywhere}
-.acct-rows .num{direction:ltr;font-family:var(--mono);font-size:12.5px;font-weight:400}
+.acct-rows .num{direction:ltr;font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:12.5px;font-weight:400}
 .acct-foot{padding:12px 14px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:8px}
 
 /* الصفحة */
