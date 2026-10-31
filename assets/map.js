@@ -322,12 +322,10 @@
          لمن أنهت كل شيء — بل هي أحوج ما تكون إليه حينئذٍ. */
       if (levels.length) {
         el('m-next').hidden = false;
-        el('m-go').addEventListener('click', openAll);
 
-        /* قدومٌ من «كل المستويات والدروس» في الرئيسية: تُفتح فوراً
-           بلا ضغطةٍ ثانية على زرٍّ لم تأتِ إلا من أجله. والمستمع
-           على hashchange لأن الانتقال من map.html إلى map.html#all
-           لا يعيد تحميل الصفحة، فلولاه لما حدث شيء. */
+        /* قدومٌ بـ#all من الرئيسية: تُفتح مستويات الخارطة فوراً بلا
+           ضغطةٍ ثانية. والمستمع على hashchange لأن الانتقال من
+           map.html إلى map.html#all لا يعيد تحميل الصفحة. */
         if (location.hash === '#all') openAll();
         window.addEventListener('hashchange', function () {
           if (location.hash === '#all') openAll();

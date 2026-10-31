@@ -13,6 +13,7 @@
   var ITEMS = [
     { href: 'learn.html',         ico: 'home',               label: 'الرئيسية' },
     { href: 'map.html',           ico: 'map',                label: 'الخارطة' },
+    { href: 'lessons.html',       ico: 'menu_book',          label: 'الدروس' },
     { href: 'challenge.html',     ico: 'bolt',               label: 'التحدي' },
     { href: 'assistant.html',     ico: 'auto_stories',       label: 'المعلم الذكي' },
     { href: 'live.html',          ico: 'live_tv',            label: 'الحصص المباشرة' },
@@ -25,7 +26,7 @@
   /* صفحات فرعية تنتمي إلى قسم: الدرس والمستوى والاختبار تحت الخارطة،
      والبطاقات تحت التحدي — كي لا تفتح القائمة بلا قسمٍ معلَّم. */
   var UNDER = {
-    'lesson.html': 'map.html', 'level.html': 'map.html',
+    'lesson.html': 'lessons.html', 'level.html': 'lessons.html',
     'quiz.html': 'map.html',   'cards.html': 'challenge.html'
   };
 
