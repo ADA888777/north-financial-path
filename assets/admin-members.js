@@ -282,7 +282,6 @@
         full_name: name,
         email: email,
         plan: el('m-plan').value || null,
-        membership_no: el('m-no').value.trim() || null,
         subscription_status: el('m-sub').value,
         /* البداية تُرسل دائماً، والنهاية فقط إن عدّلتها الإدارة:
            وإلا حسبها الخادم من مدّة الباقة المعتمدة. */

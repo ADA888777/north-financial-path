@@ -92,13 +92,14 @@
         </div>
 
         <div class="grid2" style="margin-top:16px">
+          <!-- رقم العضوية لا يُكتب عند الإنشاء: يأخذ التالي بالترتيب
+               دائماً (1، 2، 3…). رقمٌ يدويّ هنا كان يصنع الفجوة. -->
           <div class="fld" data-fld="membership">
-            <label for="m-no">رقم العضوية</label>
-            <input type="text" id="m-no" dir="ltr" inputmode="numeric" maxlength="10" placeholder="تلقائي">
-            <p class="hint">اتركيه فارغاً فيأخذ الرقم التالي بالترتيب: الإدارة #1،
-              وأول عميلة #2، ثم #3 وهكذا. تقدرين تكتبينه مع العلامة «#3» أو بدونها
-              «3» — النتيجة واحدة. لا يتكرّر ولا يُعاد رقم حساب محذوف.</p>
-            <p class="bad-msg"></p>
+            <label>رقم العضوية</label>
+            <p class="no-auto"><span class="ms sm">tag</span>تلقائي بالترتيب</p>
+            <p class="hint">الإدارة #1، ثم كل حساب جديد يأخذ الرقم التالي: #2 ثم #3…
+              بلا فجوة. وإن حُذف حساب نزل من بعده درجة. لتغيير رقمٍ بعد الإنشاء:
+              «بيانات الحساب» ← «رقم العضوية».</p>
           </div>
           <div class="fld" data-fld="substatus">
             <label for="m-sub">حالة الاشتراك</label>

@@ -53,7 +53,6 @@ Deno.serve(async (req) => {
   const fullName = String(body.full_name ?? '').trim();
   const phone = body.phone ? String(body.phone).trim() : null;
   const plan = body.plan ? String(body.plan).trim() : null;
-  const membershipNo = body.membership_no ? String(body.membership_no).trim() : null;
   const username = body.username ? String(body.username).trim() : null;
   const subStatus = body.subscription_status ? String(body.subscription_status).trim() : 'active';
   // دورة الاشتراك: البداية من النموذج (اليوم افتراضاً)، والنهاية لا
@@ -84,11 +83,6 @@ Deno.serve(async (req) => {
     const { data: taken } = await admin
       .from('profiles').select('id').ilike('username', username).maybeSingle();
     if (taken) return reply({ error: 'اسم المستخدم محجوز' }, 409);
-  }
-  if (membershipNo) {
-    const { data: taken } = await admin
-      .from('profiles').select('id').eq('membership_no', membershipNo).maybeSingle();
-    if (taken) return reply({ error: 'رقم العضوية مستخدم مسبقاً' }, 409);
   }
   {
     const { data: taken } = await admin
@@ -144,7 +138,8 @@ Deno.serve(async (req) => {
     must_change_password: false,
     created_by: userData.user.id,
   };
-  if (membershipNo) patch.membership_no = membershipNo;
+  // رقم العضوية لا يُكتب من هنا: القاعدة تعطي التالي بالترتيب عند
+  // الإنشاء (1، 2، 3…). رقمٌ يدويّ كان يصنع الفجوة أو يصطدم.
 
   const { error: profErr } = await admin.from('profiles').update(patch).eq('id', id);
   if (profErr) {
@@ -197,7 +192,7 @@ Deno.serve(async (req) => {
     id,
     email,
     password,
-    membership_no: saved?.membership_no ?? membershipNo,
+    membership_no: saved?.membership_no ?? null,
     username: saved?.username ?? username,
     set_password_link: setPasswordLink,
     subscription: subInfo,

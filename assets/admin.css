@@ -395,3 +395,8 @@ tr.sb-soon td:first-child{box-shadow:inset 2px 0 0 #C98A3C}
 .ls-up-pick{font-size:13px;font-weight:600;color:var(--a-fg);margin:0;
   overflow-wrap:anywhere}
 .ls-up-pick[hidden]{display:none}
+
+/* رقم العضوية التلقائي في نموذج الإنشاء: قيمةٌ تُقرأ لا حقلٌ يُكتب */
+.no-auto{display:flex;align-items:center;gap:7px;min-height:44px;padding:0 12px;
+  border:1px dashed var(--a-line);border-radius:10px;color:var(--a-fg-2);font-size:14px;margin:0}
+.no-auto .ms{color:var(--a-accent)}
