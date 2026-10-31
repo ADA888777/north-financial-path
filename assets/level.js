@@ -17,7 +17,7 @@
 
   function load() {
     Promise.all([
-      db.from('levels').select('id, title, subtitle, description').eq('id', id).maybeSingle(),
+      db.from('levels').select('id, title, subtitle').eq('id', id).maybeSingle(),
       db.from('lessons').select('id, title, kind, duration_min, sort_order, free_preview')
         .eq('level_id', id).eq('published', true)
         .order('sort_order', { ascending: true }),
@@ -41,7 +41,7 @@
   function render(lv, lessons, doneIds, quiz) {
     el('lv-title').textContent = lv.title || '';
     document.title = (lv.title || 'المستوى') + ' — نورث للمسار المالي';
-    el('lv-sub').textContent = lv.subtitle || lv.description || '';
+    el('lv-sub').textContent = lv.subtitle || '';
 
     var done = lessons.filter(function (l) { return doneIds[l.id]; }).length;
     var p = L.pct(done, lessons.length);

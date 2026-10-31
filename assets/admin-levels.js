@@ -139,7 +139,6 @@
     el('lv-title').value = lv.title || '';
     el('lv-subtitle').value = lv.subtitle || '';
     if (trackSel) trackSel.value = lv.track_id || '';
-    el('lv-desc').value = lv.description || '';
     el('lv-order').value = lv.sort_order;
     if (el('lv-code')) el('lv-code').value = lv.code || '';
     if (el('lv-tier')) el('lv-tier').value = lv.min_tier == null ? '1' : String(lv.min_tier);
@@ -181,7 +180,6 @@
       title: title,
       subtitle: el('lv-subtitle').value.trim() || null,
       track_id: trackSel && trackSel.value ? trackSel.value : null,
-      description: el('lv-desc').value.trim(),
       code: el('lv-code') ? (el('lv-code').value.trim() || null) : null,
       min_tier: el('lv-tier') ? (parseInt(el('lv-tier').value, 10) || 1) : 1,
       color: el('lv-color') ? el('lv-color').value : null,

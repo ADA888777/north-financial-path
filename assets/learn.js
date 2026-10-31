@@ -73,9 +73,11 @@
     }
 
     el('summary').innerHTML =
+      /* اسم المستوى وحده: «مبتدئ» أو «متقدم» أو «خبير». اسم المسار
+         تحته لا يضيف شيئاً — المستوى هو ما تسأل عنه. */
       card('emoji_events', 'المستوى الحالي',
            esc(lvl ? (lvl.label || lvl.title) : 'لم يبدأ'),
-           lvl && lvl.track ? lvl.track : '', lvl ? 'map.html' : null) +
+           '', lvl ? 'map.html' : null) +
       card('speed', 'آخر نتيجة اختبار',
            lq ? num(lq.percent) + '<i>%</i>' : 'لم يبدأ',
            lq ? (lq.passed ? 'ناجح — ' : 'لم يُجتَز — ') + lq.title : '',

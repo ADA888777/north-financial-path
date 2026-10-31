@@ -110,9 +110,14 @@ h1,h2,h3,h4{font-family:var(--display);letter-spacing:-.01em}
   width:42px;height:42px;border-radius:var(--rt);flex-shrink:0;
   display:grid;place-items:center;background:var(--tile-bg);color:var(--accent);
 }
-.ntile .ms{font-size:21px}
+/* الرمز ممتلئ لا خطّاً رفيعاً. أول ما جرّبته تغميق خلفية التايل،
+   فقاس الحساب عكسه: التباين نزل من 5.74 إلى 4.93 لأن الخلفية
+   اقتربت من لون الرمز. المشكلة لم تكن تبايناً بل مساحةً — خطٌّ
+   بسُمك شعرة لا يُرى مهما صفا لونه. الملء يعطيه جسماً، والوزن
+   400 يعطيه حدّاً. */
+.ntile .ms{font-size:21px;font-variation-settings:'FILL' 1,'wght' 400}
 .ntile.sm{width:34px;height:34px;border-radius:9px}
-.ntile.sm .ms{font-size:18px}
+.ntile.sm .ms{font-size:18px;font-variation-settings:'FILL' 1,'wght' 400}
 .ntile.flame{background:var(--flame-bg);color:var(--flame)}
 .ntile.ok{background:color-mix(in srgb,var(--up) 13%,transparent);color:var(--up)}
 
