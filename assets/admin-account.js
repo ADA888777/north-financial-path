@@ -110,9 +110,7 @@
           'به الحساب التالي.</p>' +
         '<div class="fld"><label for="a-no">رقم العضوية</label>' +
           '<input id="a-no" type="text" dir="ltr" inputmode="numeric" ' +
-            'pattern="[0-9]*" maxlength="9">' +
-          '<span class="hint">عدد صحيح موجب بلا أصفار بادئة — مثل 47. ' +
-            '<b id="a-no-view"></b></span></div>' +
+            'pattern="[0-9]*" maxlength="9"></div>' +
         '<button class="bt bt-ghost" type="button" id="do-no">احفظ رقم العضوية</button>' +
       '</div>' +
 
@@ -186,16 +184,9 @@
     el('a-name').value = m.full_name || '';
 
     el('a-no').value = m.membership_no || '';
-    /* المخزَّن هو المعروض بعد الهجرة ٤٢، لكن السطر يبقى: قاعدةٌ لم
-       تُهاجَر بعد قد تحمل «N-2026-0003»، والمعاينة تُري الإدارة ما
-       تراه العميلة فعلاً قبل الحفظ. */
-    function viewNo() {
-      var f = window.northNo || function (v) { return v || ''; };
-      var v = f(el('a-no').value);
-      el('a-no-view').textContent = v ? 'يظهر لها: ' + v : '';
-    }
-    el('a-no').addEventListener('input', viewNo);
-    viewNo();
+    /* لا سطر معاينة تحت الحقل: بعد الهجرة ٤٢ صار المخزَّن هو
+       المعروض نفسه، فقولُ «يظهر لها: #3» تحت خانةٍ فيها 3 تكرارٌ
+       لا توضيح. */
     el('a-email').value = m.email || '';
 
     el('do-name').addEventListener('click', saveName);
