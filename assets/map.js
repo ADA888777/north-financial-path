@@ -125,19 +125,17 @@
     '</section>';
   }
 
-  /* التعلّم تدريجي: ما لم يُفتح بعد لا يُعرض أصلاً — لا بطاقته ولا
-     عدد دروسه. يبقى ما أنهته (ترجع إليه متى شاءت) وما تفتحه الآن،
-     ويبقى المقفل بالباقة لأنه عرضُ ترقية لا مستوى «قادم» — لكن بلا
-     دروسه. */
-  function visible(l) {
-    return l.state === 'done' || l.state === 'open' || l.state === 'tier_locked';
+  /* كل المستويات تُعرض بطاقاتُها: المتعلّمة تريد أن ترى الطريق
+     كاملاً وأين تقف منه. المخفيّ هو دروسُ ما لم يُفتح بعد — زرّ
+     «دروس هذا المستوى» لا يظهر إلا لمستوى أنهته أو تقف فيه الآن.
+     فالبطاقة تقول «هنا مستوى»، والدروس لا تُكشف قبل أوانها. */
+  function expandable(l) {
+    return l.state === 'done' || l.state === 'open' || l.state === 'current';
   }
 
   function other(levels) {
     if (!levels.length) return '';
-    var allDone = levels.every(function (l) { return l.state === 'done'; });
-    return '<h2 class="n-h2 sec-t">' +
-      (allDone ? 'مستويات أنهيتِها' : 'مستوياتك الأخرى') + '</h2>' +
+    return '<h2 class="n-h2 sec-t">مستوياتك الأخرى</h2>' +
       levels.map(function (l) {
         var left = Math.max(0, (l.total || 0) - (l.done || 0));
         var tl = l.state === 'tier_locked';
@@ -168,7 +166,7 @@
              الحالي، فمن أنهت درساً وانتقلت تلقائياً لم تجد باباً
              ترجع منه إلى ما قبله. والقاعدة ترسلها أصلاً في my_map
              — الواجهة وحدها كانت تُسقطها. */
-          (weeksOf(l).length && !tl
+          (weeksOf(l).length && expandable(l)
             ? '<button class="lv-o-more" type="button" data-open="' + esc(l.id) + '" ' +
                 'aria-expanded="false"><span class="ms">expand_more</span>' +
                 '<span>دروس هذا المستوى</span></button>' +
@@ -310,9 +308,7 @@
         el('map').innerHTML = '';
       }
 
-      var rest = levels.filter(function (l) {
-        return (!cur || l.id !== cur.id) && visible(l);
-      });
+      var rest = levels.filter(function (l) { return !cur || l.id !== cur.id; });
       el('m-other').innerHTML = other(rest);
       wireMore(rest);
 

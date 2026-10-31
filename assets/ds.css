@@ -37,6 +37,7 @@
   --w-reg:400; --w-semi:600; --w-bold:700; --w-black:900;
 
   --rc:16px;   /* البطاقة */
+  --teal:#14B8A6;
   --rt:12px;   /* المربّع والشريحة */
   --rbtn:10px; /* الزر */
 
@@ -55,6 +56,7 @@
   --card-line:var(--line);
   --card-sh:0 1px 2px rgba(0,0,0,.28), 0 10px 28px -18px rgba(0,0,0,.5);
   --tile-bg:rgba(108,166,224,.12);
+  --teal:#2DD4BF;
   --flame:#FB923C;
   --flame-bg:rgba(251,146,60,.12);
   --flame-line:rgba(251,146,60,.3);
@@ -365,7 +367,10 @@ a.pip:hover{transform:translateY(-1px)}
 .ls.done .ls-n{background:var(--up);color:#fff}
 .ls.done .ls-s{color:var(--up);font-variation-settings:'FILL' 1}
 .ls.open a{background:var(--flame-bg);border-color:var(--flame-line)}
-.ls.open .ls-n{background:var(--flame);color:#fff}
+/* دائرة الرقم في الدرس الحالي تركوازية لا برتقالية: النار
+   والإطار يقولان «هنا أنتِ»، والرقم لونٌ ثالث يفصل الحالي عن
+   المنجز الأخضر دون أن يزاحم النار. */
+.ls.open .ls-n{background:var(--teal);color:#06282B}
 .ls.open .ls-s{color:var(--flame);font-variation-settings:'FILL' 1}
 .ls.locked > div{background:var(--surface);opacity:.72}
 .ls a:hover{border-color:color-mix(in srgb,var(--accent) 45%,var(--card-line))}
